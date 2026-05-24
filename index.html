@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IAM Tools | Rayburn Ideas</title>
+    <style>
+        :root {
+            --bg: #0d1117;
+            --surface: #161b22;
+            --border: #30363d;
+            --cyan: #00d4e8;
+            --text: #e6edf3;
+            --text-muted: #8b949e;
+            --green: #3fb950;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            background: var(--bg);
+            color: var(--text);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            min-height: 100vh;
+        }
+        header {
+            background: var(--surface);
+            border-bottom: 2px solid var(--cyan);
+            padding: 16px 32px;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+        .logo-mark {
+            width: 40px; height: 40px;
+            background: var(--cyan);
+            border-radius: 8px;
+            display: flex; align-items: center; justify-content: center;
+            font-weight: 900; font-size: 22px; color: #0d1117;
+        }
+        .logo-text strong { display: block; font-size: 15px; letter-spacing: 0.6px; }
+        .logo-text span { font-size: 10px; color: var(--cyan); letter-spacing: 1.5px; text-transform: uppercase; }
+
+        main { max-width: 860px; margin: 0 auto; padding: 48px 24px; }
+
+        h1 { font-size: 22px; margin-bottom: 8px; }
+        .subtitle { color: var(--text-muted); font-size: 14px; margin-bottom: 40px; }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+            gap: 16px;
+        }
+
+        .app-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 22px;
+            text-decoration: none;
+            color: inherit;
+            transition: border-color 0.15s, transform 0.1s;
+            display: block;
+        }
+        .app-card:hover { border-color: var(--cyan); transform: translateY(-2px); }
+
+        .app-num {
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--cyan);
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            margin-bottom: 10px;
+        }
+        .app-name { font-size: 16px; font-weight: 700; margin-bottom: 6px; }
+        .app-desc { font-size: 13px; color: var(--text-muted); line-height: 1.5; }
+
+        .status-live {
+            display: inline-block;
+            margin-top: 14px;
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--green);
+            background: rgba(63,185,80,0.12);
+            padding: 3px 9px;
+            border-radius: 10px;
+            border: 1px solid rgba(63,185,80,0.3);
+        }
+        .status-soon {
+            display: inline-block;
+            margin-top: 14px;
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--text-muted);
+            background: rgba(139,148,158,0.1);
+            padding: 3px 9px;
+            border-radius: 10px;
+            border: 1px solid var(--border);
+        }
+    </style>
+</head>
+<body>
+<header>
+    <div class="logo-mark">R</div>
+    <div class="logo-text">
+        <strong>RAYBURN IDEAS</strong>
+        <span>Identity and Access Management</span>
+    </div>
+</header>
+<main>
+    <h1>IAM Tools</h1>
+    <p class="subtitle">Internal productivity tools for the Rayburn Ideas consulting practice.</p>
+    <div class="grid">
+
+        <a class="app-card" href="linter.html">
+            <div class="app-num">App 01</div>
+            <div class="app-name">Writing Constraint Linter</div>
+            <div class="app-desc">Paste any text. Get an instant violation report across all 7 writing rules.</div>
+            <span class="status-live">● Live</span>
+        </a>
+
+        <div class="app-card" style="opacity:0.5; cursor:default;">
+            <div class="app-num">App 02</div>
+            <div class="app-name">Bid Qualification Screener</div>
+            <div class="app-desc">Paste a bid posting. Get a GO / NO-GO verdict with case study recommendation.</div>
+            <span class="status-soon">Coming soon</span>
+        </div>
+
+        <div class="app-card" style="opacity:0.5; cursor:default;">
+            <div class="app-num">App 03</div>
+            <div class="app-name">Bid Pipeline Dashboard</div>
+            <div class="app-desc">Track active bids with deadline countdowns and follow-up flags.</div>
+            <span class="status-soon">Coming soon</span>
+        </div>
+
+        <div class="app-card" style="opacity:0.5; cursor:default;">
+            <div class="app-num">App 04</div>
+            <div class="app-name">Response Template Builder</div>
+            <div class="app-desc">Select a platform. Get the correct response scaffold with case study pre-filled.</div>
+            <span class="status-soon">Coming soon</span>
+        </div>
+
+        <div class="app-card" style="opacity:0.5; cursor:default;">
+            <div class="app-num">App 05</div>
+            <div class="app-name">GSD Snapshot Generator</div>
+            <div class="app-desc">Enter weekly numbers. Get a formatted GSD snapshot ready to paste into Claude.</div>
+            <span class="status-soon">Coming soon</span>
+        </div>
+
+    </div>
+</main>
+</body>
+</html>

@@ -1,0 +1,655 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Writing Constraint Linter | Rayburn Ideas</title>
+    <style>
+        :root {
+            --bg: #0d1117;
+            --surface: #161b22;
+            --surface2: #1c2230;
+            --border: #30363d;
+            --cyan: #00d4e8;
+            --text: #e6edf3;
+            --text-muted: #8b949e;
+            --red: #f85149;
+            --orange: #d29922;
+            --green: #3fb950;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            background: var(--bg);
+            color: var(--text);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            font-size: 14px;
+            min-height: 100vh;
+        }
+
+        /* ── Header ── */
+        header {
+            background: var(--surface);
+            border-bottom: 2px solid var(--cyan);
+            padding: 14px 24px;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .logo-mark {
+            width: 38px;
+            height: 38px;
+            background: var(--cyan);
+            border-radius: 7px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 900;
+            font-size: 20px;
+            color: #0d1117;
+            flex-shrink: 0;
+        }
+
+        .logo-text strong {
+            display: block;
+            font-size: 14px;
+            letter-spacing: 0.6px;
+            color: var(--text);
+        }
+
+        .logo-text span {
+            font-size: 10px;
+            color: var(--cyan);
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+        }
+
+        .app-badge {
+            margin-left: auto;
+            background: rgba(0,212,232,0.12);
+            color: var(--cyan);
+            font-size: 11px;
+            font-weight: 600;
+            padding: 4px 10px;
+            border-radius: 20px;
+            border: 1px solid rgba(0,212,232,0.3);
+            letter-spacing: 0.5px;
+        }
+
+        /* ── Layout ── */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px 24px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 18px;
+        }
+
+        @media (max-width: 800px) {
+            .container { grid-template-columns: 1fr; }
+        }
+
+        .panel {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .panel-header {
+            padding: 11px 16px;
+            border-bottom: 1px solid var(--border);
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: var(--surface2);
+        }
+
+        /* ── Input ── */
+        textarea {
+            flex: 1;
+            min-height: 420px;
+            background: var(--bg);
+            color: var(--text);
+            border: none;
+            padding: 16px;
+            font-size: 14px;
+            line-height: 1.7;
+            resize: vertical;
+            font-family: inherit;
+            outline: none;
+        }
+
+        textarea::placeholder { color: var(--text-muted); }
+
+        .input-footer {
+            padding: 11px 16px;
+            border-top: 1px solid var(--border);
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            background: var(--surface2);
+        }
+
+        .btn-run {
+            background: var(--cyan);
+            color: #0d1117;
+            border: none;
+            border-radius: 6px;
+            padding: 8px 22px;
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: opacity 0.15s;
+        }
+
+        .btn-run:hover { opacity: 0.85; }
+
+        .btn-clear {
+            background: transparent;
+            color: var(--text-muted);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 8px 16px;
+            font-size: 13px;
+            cursor: pointer;
+            transition: color 0.15s;
+        }
+
+        .btn-clear:hover { color: var(--text); }
+
+        .meta {
+            margin-left: auto;
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+
+        .hint {
+            font-size: 11px;
+            color: var(--text-muted);
+            margin-top: 2px;
+            opacity: 0.6;
+        }
+
+        /* ── Results ── */
+        .results-body {
+            overflow-y: auto;
+            flex: 1;
+        }
+
+        .empty-state {
+            padding: 60px 20px;
+            text-align: center;
+            color: var(--text-muted);
+        }
+
+        .empty-state .icon { font-size: 36px; margin-bottom: 10px; opacity: 0.4; }
+        .empty-state p { font-size: 13px; }
+
+        /* Score bar */
+        .score-bar {
+            padding: 16px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .score-circle {
+            width: 54px;
+            height: 54px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            font-weight: 800;
+            flex-shrink: 0;
+        }
+
+        .s-pass { background: rgba(63,185,80,0.12); color: var(--green); border: 2px solid var(--green); }
+        .s-warn { background: rgba(210,153,34,0.12); color: var(--orange); border: 2px solid var(--orange); }
+        .s-fail { background: rgba(248,81,73,0.12); color: var(--red); border: 2px solid var(--red); }
+
+        .score-text strong { font-size: 14px; display: block; margin-bottom: 3px; }
+        .score-text span { font-size: 12px; color: var(--text-muted); }
+
+        /* Violation groups */
+        .vgroup { border-bottom: 1px solid var(--border); }
+
+        .vgroup-head {
+            padding: 10px 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            cursor: pointer;
+            user-select: none;
+            transition: background 0.1s;
+        }
+
+        .vgroup-head:hover { background: rgba(255,255,255,0.025); }
+
+        .vg-left {
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .badge {
+            font-size: 11px;
+            font-weight: 700;
+            padding: 2px 8px;
+            border-radius: 10px;
+        }
+
+        .b-fail { background: rgba(248,81,73,0.18); color: var(--red); }
+        .b-pass { background: rgba(63,185,80,0.18); color: var(--green); }
+
+        .chevron { font-size: 10px; color: var(--text-muted); transition: transform 0.15s; }
+        .chevron.open { transform: rotate(90deg); }
+
+        .vgroup-items { padding: 0 16px 12px; }
+
+        .vitem {
+            margin-bottom: 7px;
+            padding: 9px 11px;
+            border-radius: 5px;
+            background: rgba(248,81,73,0.07);
+            border-left: 3px solid var(--red);
+        }
+
+        .vitem-flag {
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            background: rgba(248,81,73,0.15);
+            color: #ff9090;
+            padding: 1px 6px;
+            border-radius: 3px;
+        }
+
+        .vitem-ctx {
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-top: 4px;
+            line-height: 1.5;
+        }
+
+        .pass-note {
+            margin-bottom: 7px;
+            padding: 8px 11px;
+            border-radius: 5px;
+            background: rgba(63,185,80,0.07);
+            border-left: 3px solid var(--green);
+            font-size: 12px;
+            color: var(--green);
+        }
+
+        /* Rule hint text */
+        .rule-hint {
+            font-size: 11px;
+            color: var(--text-muted);
+            font-weight: 400;
+            margin-left: 4px;
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <div class="logo-mark">R</div>
+    <div class="logo-text">
+        <strong>RAYBURN IDEAS</strong>
+        <span>Identity and Access Management</span>
+    </div>
+    <div class="app-badge">Writing Constraint Linter</div>
+</header>
+
+<div class="container">
+
+    <!-- Left: Input -->
+    <div class="panel">
+        <div class="panel-header">
+            <span>Input Text</span>
+        </div>
+        <textarea id="inputText"
+            placeholder="Paste any text here — bid response, email, LinkedIn post, case study, or document..."></textarea>
+        <div class="input-footer">
+            <button class="btn-run" onclick="runCheck()">Run Check</button>
+            <button class="btn-clear" onclick="clearAll()">Clear</button>
+            <div class="meta">
+                <div id="wordCount">0 words</div>
+                <div class="hint">Ctrl + Enter to run</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Right: Results -->
+    <div class="panel">
+        <div class="panel-header">
+            <span>Violations</span>
+            <span id="totalBadge" style="font-size:11px; color: var(--text-muted);"></span>
+        </div>
+        <div class="results-body" id="results">
+            <div class="empty-state">
+                <div class="icon">⬡</div>
+                <p>Paste text and click Run Check.<br>Keyboard shortcut: Ctrl + Enter</p>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════════════
+//  RULE DEFINITIONS
+// ═══════════════════════════════════════════════════════════
+
+const BANNED = [
+    'passionate','empower','empowers','empowering','empowered','empowerment',
+    'excited','excitement','exciting',
+    'delve','delves','delved','delving',
+    'comprehensive',
+    'tailored','tailoring','tailor',
+    'unique','uniquely','uniqueness',
+    'transform','transforms','transformed','transforming','transformation',
+    'solution','solutions',
+    'leverage','leverages','leveraged','leveraging',
+    'synergy','synergies','synergistic',
+    'paradigm','paradigms',
+    'holistic','holistically',
+    'strategic','strategically',
+    'game-changer','game-changing','gamechanger',
+    'next-generation','next generation',
+    'cutting-edge','cutting edge',
+    'best-in-class','best in class',
+    'world-class','world class',
+    'optimize','optimizes','optimized','optimizing','optimization',
+    'facilitate','facilitates','facilitated','facilitating','facilitation',
+    'revolutionize','revolutionizes','revolutionized','revolutionizing',
+    'innovative','innovate','innovates','innovation',
+    'robust',
+    'seamless','seamlessly','seamlessness',
+    'mission-critical'
+];
+
+const CONTRACTIONS = [
+    "don't","doesn't","didn't","won't","wouldn't","can't","couldn't",
+    "isn't","aren't","wasn't","weren't","haven't","hasn't","hadn't",
+    "we'll","they'll","i'll","you'll","he'll","she'll","it'll",
+    "we're","they're","i'm","you're","he's","she's","it's",
+    "that's","there's","here's","who's","what's","where's","how's",
+    "we've","they've","i've","you've","could've","should've","would've",
+    "let's","i'd","you'd","he'd","she'd","we'd","they'd",
+    "needn't","shan't","mightn't","mustn't","daren't","oughtn't"
+];
+
+const HEDGING = [
+    "hopefully","ideally","may help","might help","could help",
+    "would help","would be","may be able","might be able"
+];
+
+// ═══════════════════════════════════════════════════════════
+//  UTILITIES
+// ═══════════════════════════════════════════════════════════
+
+function escHtml(s) {
+    return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function snippet(text, idx, len, pad=50) {
+    const s = Math.max(0, idx - pad);
+    const e = Math.min(text.length, idx + len + pad);
+    let out = text.slice(s, e).replace(/\n+/g,' ');
+    if (s > 0) out = '…' + out;
+    if (e < text.length) out = out + '…';
+    return out;
+}
+
+function wordCount(text) {
+    return text.trim().split(/\s+/).filter(w => w.length > 0).length;
+}
+
+function splitSentences(text) {
+    return text.split(/(?<=[.!?])\s+/).map(s => s.trim()).filter(s => s.length > 1);
+}
+
+// ═══════════════════════════════════════════════════════════
+//  CHECKS
+// ═══════════════════════════════════════════════════════════
+
+function chkBanned(text) {
+    const out = [];
+    for (const word of BANNED) {
+        // Build pattern: handle hyphens/spaces as flexible
+        const escaped = word.replace(/[-\s]/g,'[\\s\\-]?');
+        const re = new RegExp(`(?<![a-z])${escaped}(?![a-z])`, 'gi');
+        let m;
+        while ((m = re.exec(text)) !== null) {
+            out.push({ flag: m[0], ctx: snippet(text, m.index, m[0].length) });
+        }
+    }
+    // Deduplicate by index
+    const seen = new Set();
+    return out.filter(v => {
+        const key = v.flag.toLowerCase() + v.ctx.slice(0,20);
+        if (seen.has(key)) return false;
+        seen.add(key);
+        return true;
+    });
+}
+
+function chkContractions(text) {
+    const out = [];
+    const lower = text.toLowerCase();
+    for (const c of CONTRACTIONS) {
+        // Support curly apostrophes
+        const pattern = c.replace(/'/g, "['\\u2019]");
+        const re = new RegExp(`\\b${pattern}\\b`, 'gi');
+        let m;
+        while ((m = re.exec(text)) !== null) {
+            out.push({ flag: m[0], ctx: snippet(text, m.index, m[0].length) });
+        }
+    }
+    return out;
+}
+
+function chkMdash(text) {
+    const out = [];
+    const re = /—|–|--/g;
+    let m;
+    while ((m = re.exec(text)) !== null) {
+        const label = m[0] === '—' ? 'Em dash (—)' : m[0] === '–' ? 'En dash (–)' : 'Double hyphen (--)';
+        out.push({ flag: label, ctx: snippet(text, m.index, m[0].length) });
+    }
+    return out;
+}
+
+function chkSentenceLen(text) {
+    const out = [];
+    const sentences = splitSentences(text);
+    for (const s of sentences) {
+        const wc = wordCount(s);
+        if (wc > 20) {
+            out.push({
+                flag: `${wc} words`,
+                ctx: s.length > 120 ? s.slice(0,120) + '…' : s
+            });
+        }
+    }
+    return out;
+}
+
+function chkHyphens(text) {
+    const out = [];
+    // Match word-hyphen-word (compound modifier candidates)
+    // Exclude known valid patterns like version numbers (7.4), URLs
+    const re = /\b([a-zA-Z]{2,})-([a-zA-Z]{2,})\b/g;
+    let m;
+    while ((m = re.exec(text)) !== null) {
+        out.push({ flag: m[0], ctx: snippet(text, m.index, m[0].length) });
+    }
+    return out;
+}
+
+function chkPassive(text) {
+    const out = [];
+    const seen = new Set();
+    const patterns = [
+        /\b(is|are|was|were|be|been|being)\s+\w+(?:ed)\b/gi,
+        /\b(is|are|was|were|be|been|being)\s+(known|written|built|done|made|seen|taken|given|shown|spoken|broken|driven|chosen|hidden|held|kept|led|left|lost|meant|met|paid|read|run|said|sent|set|spent|taught|told|thought|understood|won|brought|caught|felt|found|got|heard|hit|put)\b/gi
+    ];
+    for (const re of patterns) {
+        re.lastIndex = 0;
+        let m;
+        while ((m = re.exec(text)) !== null) {
+            if (!seen.has(m.index)) {
+                seen.add(m.index);
+                out.push({ flag: m[0], ctx: snippet(text, m.index, m[0].length) });
+            }
+        }
+    }
+    return out;
+}
+
+function chkHedging(text) {
+    const out = [];
+    const lower = text.toLowerCase();
+    for (const phrase of HEDGING) {
+        let idx = lower.indexOf(phrase);
+        while (idx !== -1) {
+            out.push({ flag: text.slice(idx, idx + phrase.length), ctx: snippet(text, idx, phrase.length) });
+            idx = lower.indexOf(phrase, idx + 1);
+        }
+    }
+    return out;
+}
+
+// ═══════════════════════════════════════════════════════════
+//  RENDER
+// ═══════════════════════════════════════════════════════════
+
+function renderGroup(label, hint, violations) {
+    const fail = violations.length > 0;
+    const badgeClass = fail ? 'b-fail' : 'b-pass';
+    const badgeText = fail ? violations.length : '✓';
+
+    let itemsHtml = fail
+        ? violations.map(v => `
+            <div class="vitem">
+                <span class="vitem-flag">${escHtml(v.flag)}</span>
+                <div class="vitem-ctx">${escHtml(v.ctx)}</div>
+            </div>`).join('')
+        : `<div class="pass-note">✓ No violations found</div>`;
+
+    return `
+        <div class="vgroup">
+            <div class="vgroup-head" onclick="toggleGroup(this)">
+                <div class="vg-left">
+                    ${escHtml(label)}
+                    <span class="badge ${badgeClass}">${badgeText}</span>
+                    <span class="rule-hint">${escHtml(hint)}</span>
+                </div>
+                <span class="chevron ${fail ? 'open' : ''}">&#9654;</span>
+            </div>
+            <div class="vgroup-items" style="display:${fail ? 'block' : 'none'}">
+                ${itemsHtml}
+            </div>
+        </div>`;
+}
+
+function toggleGroup(head) {
+    const items = head.nextElementSibling;
+    const chevron = head.querySelector('.chevron');
+    const open = items.style.display !== 'none';
+    items.style.display = open ? 'none' : 'block';
+    chevron.classList.toggle('open', !open);
+}
+
+// ═══════════════════════════════════════════════════════════
+//  MAIN
+// ═══════════════════════════════════════════════════════════
+
+function runCheck() {
+    const text = document.getElementById('inputText').value;
+    if (!text.trim()) return;
+
+    const banned      = chkBanned(text);
+    const contractions= chkContractions(text);
+    const mdashes     = chkMdash(text);
+    const sentLen     = chkSentenceLen(text);
+    const hyphens     = chkHyphens(text);
+    const passive     = chkPassive(text);
+    const hedging     = chkHedging(text);
+
+    const total = banned.length + contractions.length + mdashes.length
+                + sentLen.length + hyphens.length + passive.length + hedging.length;
+
+    const sentences = splitSentences(text).length;
+    const words = wordCount(text);
+
+    let scoreClass, scoreLabel, scoreMsg;
+    if (total === 0) {
+        scoreClass = 's-pass'; scoreLabel = '✓';
+        scoreMsg = 'No violations. Clear to send.';
+    } else if (total <= 4) {
+        scoreClass = 's-warn'; scoreLabel = total;
+        scoreMsg = `${total} violation${total > 1 ? 's' : ''}. Review before sending.`;
+    } else {
+        scoreClass = 's-fail'; scoreLabel = total;
+        scoreMsg = `${total} violations. Do not send.`;
+    }
+
+    const html = `
+        <div class="score-bar">
+            <div class="score-circle ${scoreClass}">${scoreLabel}</div>
+            <div class="score-text">
+                <strong>${scoreMsg}</strong>
+                <span>${sentences} sentence${sentences !== 1 ? 's' : ''} &nbsp;·&nbsp; ${words} words checked</span>
+            </div>
+        </div>
+        ${renderGroup('Banned Words', 'remove entirely', banned)}
+        ${renderGroup('Contractions', 'use full form', contractions)}
+        ${renderGroup('Em / En Dashes', 'use period or comma', mdashes)}
+        ${renderGroup('Sentences Over 20 Words', 'split into shorter sentences', sentLen)}
+        ${renderGroup('Hyphens in Compound Modifiers', 'review each — remove if modifying a noun', hyphens)}
+        ${renderGroup('Passive Voice', 'rewrite in active voice', passive)}
+        ${renderGroup('Hedging Language', 'state facts directly', hedging)}
+    `;
+
+    document.getElementById('results').innerHTML = html;
+    document.getElementById('totalBadge').textContent =
+        total > 0 ? `${total} violation${total !== 1 ? 's' : ''}` : 'All clear';
+}
+
+function clearAll() {
+    document.getElementById('inputText').value = '';
+    document.getElementById('results').innerHTML =
+        '<div class="empty-state"><div class="icon">⬡</div><p>Paste text and click Run Check.<br>Keyboard shortcut: Ctrl + Enter</p></div>';
+    document.getElementById('totalBadge').textContent = '';
+    document.getElementById('wordCount').textContent = '0 words';
+}
+
+document.getElementById('inputText').addEventListener('input', function () {
+    const wc = this.value.trim() ? wordCount(this.value) : 0;
+    document.getElementById('wordCount').textContent = `${wc} word${wc !== 1 ? 's' : ''}`;
+});
+
+document.getElementById('inputText').addEventListener('keydown', function (e) {
+    if (e.ctrlKey && e.key === 'Enter') runCheck();
+});
+</script>
+
+</body>
+</html>
