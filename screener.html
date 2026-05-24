@@ -282,6 +282,34 @@
         .case-study-detail { font-size: 12px; color: var(--text-muted); line-height: 1.5; }
 
         .multi-case { display: flex; flex-direction: column; gap: 8px; }
+
+        /* ── Claude Bridge ── */
+        .result-block.bridge-block { border-color: rgba(63,185,80,0.4); }
+        .result-block.bridge-block .result-block-header {
+            color: var(--green);
+            border-bottom-color: rgba(63,185,80,0.3);
+        }
+
+        .bridge-body {
+            display: flex; flex-direction: column;
+            align-items: flex-start; gap: 12px;
+        }
+
+        .bridge-desc { font-size: 12px; color: var(--text-muted); line-height: 1.6; }
+
+        .btn-copy-prompt {
+            background: var(--green);
+            color: #0d1117;
+            border: none; border-radius: 6px;
+            padding: 10px 28px;
+            font-size: 13px; font-weight: 700;
+            cursor: pointer; transition: opacity 0.15s, background 0.2s, color 0.2s;
+            letter-spacing: 0.3px;
+        }
+        .btn-copy-prompt:hover { opacity: 0.85; }
+        .btn-copy-prompt.copied { background: var(--cyan); color: #0d1117; }
+
+        .bridge-note { font-size: 11px; color: var(--text-muted); font-style: italic; }
     </style>
 </head>
 <body>
@@ -330,6 +358,8 @@
 // ─────────────────────────────────────────────────────────────
 // UTILITIES
 // ─────────────────────────────────────────────────────────────
+let _claudePrompt = ''; // holds generated prompt for clipboard bridge
+
 const INPUT   = document.getElementById('bidInput');
 const RESULTS = document.getElementById('resultsBody');
 const CHARS   = document.getElementById('charCount');
@@ -341,7 +371,40 @@ INPUT.addEventListener('input', () => {
 function clearAll() {
     INPUT.value = '';
     CHARS.textContent = '0 chars';
+    _claudePrompt = '';
     RESULTS.innerHTML = '<div class="placeholder-msg">Paste a bid posting on the left.<br>Click <strong>Run Screener</strong> to get the GO / NO-GO verdict.</div>';
+}
+
+function copyClaudePrompt() {
+    if (!_claudePrompt) return;
+    const btn = document.getElementById('btnCopyPrompt');
+
+    function onCopied() {
+        if (!btn) return;
+        btn.textContent = '✓ Copied to Clipboard';
+        btn.classList.add('copied');
+        setTimeout(() => {
+            btn.textContent = 'Copy Prompt for Claude';
+            btn.classList.remove('copied');
+        }, 2200);
+    }
+
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(_claudePrompt).then(onCopied).catch(() => fallbackCopy());
+    } else {
+        fallbackCopy();
+    }
+
+    function fallbackCopy() {
+        const ta = document.createElement('textarea');
+        ta.value = _claudePrompt;
+        ta.style.cssText = 'position:fixed;opacity:0;top:0;left:0';
+        document.body.appendChild(ta);
+        ta.focus();
+        ta.select();
+        try { document.execCommand('copy'); onCopied(); } catch(e) {}
+        document.body.removeChild(ta);
+    }
 }
 
 // Match keyword — use word boundary for short terms to avoid false positives
@@ -665,14 +728,53 @@ function runScreener() {
                 </div>`).join('')}</div>`
             : '<div style="font-size:12px;color:var(--text-muted)">No strong case study match. Review all four manually.</div>';
         html += block('Recommended Case Study', csHtml);
+
+        // ── Build Claude Bridge Prompt ──
+        const platformLine = platform
+            ? `${platform.name} (${platform.fullName}) — ${platform.format}`
+            : 'Unknown — verify platform manually before responding';
+
+        const caseStudyLines = matchedCases.length > 0
+            ? matchedCases.map(cs => `  - ${cs.title}: ${cs.detail}`).join('\n')
+            : '  No strong match. Review all four case studies manually.';
+
+        _claudePrompt = [
+            `BID OPPORTUNITY — ${platform ? platform.name.toUpperCase() : 'UNKNOWN PLATFORM'}`,
+            ``,
+            `PLATFORM: ${platformLine}`,
+            ``,
+            `RECOMMENDED CASE STUDY:`,
+            caseStudyLines,
+            ``,
+            `BID POSTING:`,
+            raw,
+            ``,
+            `---`,
+            `Run the iam-bid skill and write the full bid response for this posting.`,
+            `Use the recommended case study above as the primary reference.`,
+            `Apply all writing constraints from CLAUDE.md.`
+        ].join('\n');
+
+        html += block('Claude Bridge', `
+            <div class="bridge-body">
+                <div class="bridge-desc">
+                    All four guardrail checks passed. Click below to generate the full prompt for Claude Code.
+                    Paste it into a new Claude Code message to trigger the iam-bid skill automatically.
+                </div>
+                <button class="btn-copy-prompt" id="btnCopyPrompt" onclick="copyClaudePrompt()">
+                    Copy Prompt for Claude
+                </button>
+                <div class="bridge-note">No API key needed. No token cost. Paste into Claude Code and the bid response writes itself.</div>
+            </div>
+        `, 'bridge-block');
     }
 
     RESULTS.innerHTML = html;
 }
 
 // ── HTML helpers ──
-function block(title, body) {
-    return `<div class="result-block">
+function block(title, body, extraClass) {
+    return `<div class="result-block${extraClass ? ' ' + extraClass : ''}">
         <div class="result-block-header">${title}</div>
         <div class="result-block-body">${body}</div>
     </div>`;
@@ -697,6 +799,40 @@ function step(pass, label, detail) {
             <span>${detail}</span>
         </div>
     </div>`;
+}
+
+function copyClaudePrompt() {
+    if (!_claudePrompt) return;
+    navigator.clipboard.writeText(_claudePrompt).then(() => {
+        const btn = document.getElementById('btnCopyPrompt');
+        if (btn) {
+            btn.textContent = '✓ Copied — Paste into Claude Code';
+            btn.classList.add('copied');
+            setTimeout(() => {
+                btn.textContent = 'Copy Prompt for Claude';
+                btn.classList.remove('copied');
+            }, 3000);
+        }
+    }).catch(() => {
+        // Fallback for browsers that block clipboard API
+        const ta = document.createElement('textarea');
+        ta.value = _claudePrompt;
+        ta.style.position = 'fixed';
+        ta.style.opacity = '0';
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand('copy');
+        document.body.removeChild(ta);
+        const btn = document.getElementById('btnCopyPrompt');
+        if (btn) {
+            btn.textContent = '✓ Copied — Paste into Claude Code';
+            btn.classList.add('copied');
+            setTimeout(() => {
+                btn.textContent = 'Copy Prompt for Claude';
+                btn.classList.remove('copied');
+            }, 3000);
+        }
+    });
 }
 </script>
 </body>
