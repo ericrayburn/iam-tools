@@ -1,0 +1,854 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bid Pipeline | Rayburn Ideas</title>
+  <style>
+    :root {
+      --bg: #0d1117;
+      --surface: #161b22;
+      --surface2: #1c2128;
+      --border: #30363d;
+      --cyan: #00d4e8;
+      --text: #e6edf3;
+      --text-muted: #8b949e;
+      --green: #3fb950;
+      --red: #f85149;
+      --orange: #d29922;
+      --yellow: #e3b341;
+      --purple: #bc8cff;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      min-height: 100vh;
+    }
+
+    /* HEADER */
+    header {
+      background: var(--surface);
+      border-bottom: 2px solid var(--cyan);
+      padding: 16px 32px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    .logo-mark {
+      width: 40px; height: 40px;
+      background: var(--cyan);
+      border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 900; font-size: 22px; color: #0d1117;
+    }
+    .logo-text strong { display: block; font-size: 15px; letter-spacing: 0.6px; }
+    .logo-text span { font-size: 10px; color: var(--cyan); letter-spacing: 1.5px; text-transform: uppercase; }
+    .header-nav { margin-left: auto; }
+    .header-nav a { color: var(--text-muted); text-decoration: none; font-size: 13px; }
+    .header-nav a:hover { color: var(--cyan); }
+
+    /* LAYOUT */
+    main { max-width: 1140px; margin: 0 auto; padding: 32px 24px; }
+
+    .page-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      margin-bottom: 28px;
+    }
+    .page-header h1 { font-size: 20px; }
+    .page-header .sub { font-size: 13px; color: var(--text-muted); margin-top: 4px; }
+
+    .btn-add {
+      background: var(--cyan);
+      color: #0d1117;
+      border: none;
+      border-radius: 6px;
+      padding: 10px 20px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+    .btn-add:hover { opacity: 0.88; }
+
+    /* STATS */
+    .stats-row {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      margin-bottom: 28px;
+    }
+    .stat-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 16px 20px;
+    }
+    .stat-label {
+      font-size: 10px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 8px;
+    }
+    .stat-value { font-size: 26px; font-weight: 700; }
+    .stat-value.cyan  { color: var(--cyan); }
+    .stat-value.green { color: var(--green); }
+    .stat-value.red   { color: var(--red); }
+    .stat-value.sm    { font-size: 15px; margin-top: 5px; }
+    .stat-sub { font-size: 11px; color: var(--text-muted); margin-top: 4px; }
+
+    /* FILTER TABS */
+    .filter-bar {
+      display: flex;
+      gap: 2px;
+      margin-bottom: 20px;
+      border-bottom: 1px solid var(--border);
+    }
+    .filter-tab {
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      font-size: 13px;
+      padding: 8px 14px;
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      margin-bottom: -1px;
+      border-radius: 4px 4px 0 0;
+      white-space: nowrap;
+    }
+    .filter-tab:hover { color: var(--text); }
+    .filter-tab.active {
+      color: var(--cyan);
+      border-bottom-color: var(--cyan);
+      background: rgba(0,212,232,0.06);
+    }
+    .filter-count {
+      display: inline-block;
+      background: rgba(139,148,158,0.15);
+      border-radius: 10px;
+      padding: 1px 7px;
+      font-size: 11px;
+      margin-left: 5px;
+    }
+    .filter-tab.active .filter-count {
+      background: rgba(0,212,232,0.15);
+      color: var(--cyan);
+    }
+
+    /* EMPTY STATE */
+    .empty-state {
+      text-align: center;
+      padding: 80px 20px;
+      color: var(--text-muted);
+    }
+    .empty-state .icon { font-size: 48px; margin-bottom: 16px; }
+    .empty-state h3 { font-size: 16px; color: var(--text); margin-bottom: 8px; }
+    .empty-state p { font-size: 13px; }
+
+    /* CARDS GRID */
+    .cards-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(310px, 1fr));
+      gap: 14px;
+    }
+
+    /* BID CARD */
+    .bid-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      overflow: hidden;
+      cursor: pointer;
+      transition: border-color 0.15s, transform 0.1s;
+    }
+    .bid-card:hover { border-color: var(--cyan); transform: translateY(-1px); }
+
+    .bid-card-bar { height: 4px; width: 100%; }
+    .urgency-red    { background: var(--red); }
+    .urgency-orange { background: var(--orange); }
+    .urgency-yellow { background: var(--yellow); }
+    .urgency-green  { background: var(--green); }
+    .urgency-gray   { background: var(--border); }
+
+    .bid-card-body { padding: 18px 18px 14px; }
+
+    .bid-card-top {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+    .platform-badge {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.8px;
+      text-transform: uppercase;
+      color: var(--cyan);
+      background: rgba(0,212,232,0.1);
+      border: 1px solid rgba(0,212,232,0.25);
+      padding: 2px 8px;
+      border-radius: 4px;
+    }
+    .card-delete-btn {
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      cursor: pointer;
+      font-size: 14px;
+      padding: 0 2px;
+      line-height: 1;
+      flex-shrink: 0;
+    }
+    .card-delete-btn:hover { color: var(--red); }
+
+    .bid-title {
+      font-size: 14px;
+      font-weight: 600;
+      margin-bottom: 3px;
+      line-height: 1.4;
+    }
+    .bid-client {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-bottom: 14px;
+    }
+
+    .bid-meta {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+    .meta-label {
+      font-size: 10px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      margin-bottom: 3px;
+    }
+    .meta-value { font-size: 13px; font-weight: 600; }
+    .meta-value.urgency-red    { color: var(--red); }
+    .meta-value.urgency-orange { color: var(--orange); }
+    .meta-value.urgency-yellow { color: var(--yellow); }
+    .meta-value.urgency-green  { color: var(--green); }
+    .meta-value.urgency-gray   { color: var(--text-muted); }
+
+    .bid-notes {
+      font-size: 12px;
+      color: var(--text-muted);
+      line-height: 1.5;
+      margin-bottom: 12px;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    .bid-card-footer {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding-top: 12px;
+      border-top: 1px solid var(--border);
+      flex-wrap: wrap;
+    }
+    .status-badge {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.8px;
+      text-transform: uppercase;
+      padding: 3px 9px;
+      border-radius: 4px;
+    }
+    .status-DRAFT     { color: var(--text-muted); background: rgba(139,148,158,0.12); border: 1px solid var(--border); }
+    .status-SUBMITTED { color: var(--cyan);   background: rgba(0,212,232,0.1);   border: 1px solid rgba(0,212,232,0.25); }
+    .status-INTERVIEW { color: var(--purple); background: rgba(188,140,255,0.1); border: 1px solid rgba(188,140,255,0.25); }
+    .status-WON       { color: var(--green);  background: rgba(63,185,80,0.1);   border: 1px solid rgba(63,185,80,0.25); }
+    .status-LOST      { color: var(--red);    background: rgba(248,81,73,0.1);   border: 1px solid rgba(248,81,73,0.25); }
+    .status-ARCHIVED  { color: var(--text-muted); background: rgba(139,148,158,0.07); border: 1px solid rgba(139,148,158,0.15); }
+
+    .go-badge {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.8px;
+      padding: 3px 8px;
+      border-radius: 4px;
+      color: var(--green);
+      background: rgba(63,185,80,0.08);
+      border: 1px solid rgba(63,185,80,0.22);
+    }
+    .followup-badge {
+      margin-left: auto;
+      font-size: 10px;
+      color: var(--yellow);
+      letter-spacing: 0.5px;
+    }
+
+    /* MODAL */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.78);
+      z-index: 100;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .modal-overlay.open { display: flex; }
+
+    .modal {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      width: 100%;
+      max-width: 540px;
+      max-height: 90vh;
+      overflow-y: auto;
+      padding: 28px;
+    }
+    .modal h2 { font-size: 17px; margin-bottom: 22px; }
+
+    .form-row { margin-bottom: 16px; }
+    .form-row label {
+      display: block;
+      font-size: 11px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      margin-bottom: 6px;
+    }
+    .form-row input,
+    .form-row select,
+    .form-row textarea {
+      width: 100%;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      color: var(--text);
+      font-size: 14px;
+      padding: 10px 12px;
+      outline: none;
+      font-family: inherit;
+    }
+    .form-row input:focus,
+    .form-row select:focus,
+    .form-row textarea:focus { border-color: var(--cyan); }
+    .form-row textarea { resize: vertical; min-height: 80px; }
+    .form-row select option { background: #1c2128; }
+
+    .form-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+
+    .modal-actions {
+      display: flex;
+      gap: 10px;
+      justify-content: flex-end;
+      margin-top: 22px;
+      padding-top: 18px;
+      border-top: 1px solid var(--border);
+    }
+    .btn-cancel {
+      background: none;
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      border-radius: 6px;
+      padding: 9px 18px;
+      font-size: 13px;
+      cursor: pointer;
+    }
+    .btn-cancel:hover { border-color: var(--text-muted); color: var(--text); }
+    .btn-save {
+      background: var(--cyan);
+      color: #0d1117;
+      border: none;
+      border-radius: 6px;
+      padding: 9px 20px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .btn-save:hover { opacity: 0.88; }
+
+    /* CONFIRM */
+    .confirm-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.78);
+      z-index: 200;
+      align-items: center;
+      justify-content: center;
+    }
+    .confirm-overlay.open { display: flex; }
+    .confirm-box {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 28px;
+      max-width: 360px;
+      width: 90%;
+      text-align: center;
+    }
+    .confirm-box h3 { font-size: 15px; margin-bottom: 10px; }
+    .confirm-box p { font-size: 13px; color: var(--text-muted); margin-bottom: 20px; }
+    .confirm-actions { display: flex; gap: 10px; justify-content: center; }
+    .btn-delete {
+      background: var(--red);
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      padding: 9px 20px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    /* RESPONSIVE */
+    @media (max-width: 640px) {
+      .stats-row { grid-template-columns: 1fr 1fr; }
+      .form-grid-2 { grid-template-columns: 1fr; gap: 0; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="logo-mark">R</div>
+  <div class="logo-text">
+    <strong>RAYBURN IDEAS</strong>
+    <span>Identity and Access Management</span>
+  </div>
+  <div class="header-nav">
+    <a href="index.html">← All Tools</a>
+  </div>
+</header>
+
+<main>
+  <div class="page-header">
+    <div>
+      <h1>Bid Pipeline</h1>
+      <div class="sub">Track active bids across all platforms. Stored in your browser.</div>
+    </div>
+    <button class="btn-add" onclick="openAddModal()">+ Add Bid</button>
+  </div>
+
+  <div class="stats-row" id="stats-row"></div>
+  <div class="filter-bar" id="filter-bar"></div>
+  <div id="cards-container"></div>
+</main>
+
+<!-- ADD / EDIT MODAL -->
+<div class="modal-overlay" id="modal-overlay">
+  <div class="modal">
+    <h2 id="modal-title">Add Bid</h2>
+
+    <div class="form-row">
+      <label>Platform</label>
+      <select id="f-platform">
+        <option value="">Select platform...</option>
+        <option value="GLG">GLG</option>
+        <option value="MBO Partners">MBO Partners</option>
+        <option value="Catalant">Catalant</option>
+        <option value="PwC Talent Exchange">PwC Talent Exchange</option>
+        <option value="GoFractional">GoFractional</option>
+        <option value="Arc.dev">Arc.dev</option>
+        <option value="Direct">Direct / Referral</option>
+        <option value="Other">Other</option>
+      </select>
+    </div>
+
+    <div class="form-row">
+      <label>Bid / Role Title *</label>
+      <input type="text" id="f-title" placeholder="e.g. IAM Architecture Review — Series B FinTech">
+    </div>
+
+    <div class="form-row">
+      <label>Client / Company</label>
+      <input type="text" id="f-client" placeholder="Optional">
+    </div>
+
+    <div class="form-grid-2">
+      <div class="form-row">
+        <label>Rate Quoted ($/hr)</label>
+        <input type="number" id="f-rate" placeholder="400">
+      </div>
+      <div class="form-row">
+        <label>Submission Deadline</label>
+        <input type="datetime-local" id="f-deadline">
+      </div>
+    </div>
+
+    <div class="form-grid-2">
+      <div class="form-row">
+        <label>Status</label>
+        <select id="f-status">
+          <option value="DRAFT">Draft</option>
+          <option value="SUBMITTED">Submitted</option>
+          <option value="INTERVIEW">Interview</option>
+          <option value="WON">Won</option>
+          <option value="LOST">Lost</option>
+          <option value="ARCHIVED">Archived</option>
+        </select>
+      </div>
+      <div class="form-row">
+        <label>Follow-Up Date</label>
+        <input type="date" id="f-followup">
+      </div>
+    </div>
+
+    <div class="form-row">
+      <label>GO Decision</label>
+      <select id="f-go">
+        <option value="">Not screened</option>
+        <option value="GO">GO</option>
+        <option value="NO_GO">NO-GO</option>
+      </select>
+    </div>
+
+    <div class="form-row">
+      <label>Notes</label>
+      <textarea id="f-notes" placeholder="Key requirements, contact, scope, next steps..."></textarea>
+    </div>
+
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeModal()">Cancel</button>
+      <button class="btn-save" onclick="saveBid()">Save Bid</button>
+    </div>
+  </div>
+</div>
+
+<!-- DELETE CONFIRM -->
+<div class="confirm-overlay" id="confirm-overlay">
+  <div class="confirm-box">
+    <h3>Delete this bid?</h3>
+    <p>This action cannot be undone.</p>
+    <div class="confirm-actions">
+      <button class="btn-cancel" onclick="closeConfirm()">Cancel</button>
+      <button class="btn-delete" onclick="confirmDelete()">Delete</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ─── DATA ────────────────────────────────────────────────────────
+const STORAGE_KEY = 'iam_pipeline_v1';
+let bids = [];
+let editingId = null;
+let deletingId = null;
+let activeFilter = 'ACTIVE';
+
+function loadData() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    bids = raw ? JSON.parse(raw) : [];
+  } catch(e) { bids = []; }
+}
+
+function saveData() {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(bids));
+}
+
+function genId() {
+  return Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+}
+
+// ─── URGENCY ─────────────────────────────────────────────────────
+function getUrgency(deadline) {
+  if (!deadline) return { level: 'gray', label: 'No deadline' };
+  const now = new Date();
+  const dl  = new Date(deadline);
+  const ms  = dl - now;
+  const hrs = ms / 3600000;
+
+  if (ms < 0) {
+    const d = Math.ceil(Math.abs(ms) / 86400000);
+    return { level: 'gray', label: d <= 1 ? 'Overdue today' : `Overdue ${d}d ago` };
+  }
+  const label = formatCountdown(ms);
+  if (hrs < 48)  return { level: 'red',    label };
+  if (hrs < 120) return { level: 'orange', label };
+  if (hrs < 240) return { level: 'yellow', label };
+  return { level: 'green', label };
+}
+
+function formatCountdown(ms) {
+  const totalMins = Math.floor(ms / 60000);
+  const d = Math.floor(totalMins / 1440);
+  const h = Math.floor((totalMins % 1440) / 60);
+  const m = totalMins % 60;
+  if (d > 0) return `${d}d ${h}h left`;
+  if (h > 0) return `${h}h ${m}m left`;
+  return `${m}m left`;
+}
+
+// ─── STATS ───────────────────────────────────────────────────────
+function renderStats() {
+  const active  = bids.filter(b => ['DRAFT','SUBMITTED','INTERVIEW'].includes(b.status));
+  const won     = bids.filter(b => b.status === 'WON');
+  const now     = new Date();
+
+  const urgent  = active.filter(b => {
+    if (!b.deadline) return false;
+    const h = (new Date(b.deadline) - now) / 3600000;
+    return h > 0 && h < 48;
+  });
+
+  const overdue = active.filter(b => b.deadline && new Date(b.deadline) < now);
+
+  const upcoming = active
+    .filter(b => b.deadline && new Date(b.deadline) > now)
+    .sort((a, b) => new Date(a.deadline) - new Date(b.deadline));
+
+  let nextLabel = 'None';
+  let nextColor = 'var(--text)';
+  if (upcoming.length > 0) {
+    const u = getUrgency(upcoming[0].deadline);
+    nextLabel = u.label;
+    const map = { red:'var(--red)', orange:'var(--orange)', yellow:'var(--yellow)', green:'var(--green)', gray:'var(--text-muted)' };
+    nextColor = map[u.level] || 'var(--text)';
+  }
+
+  document.getElementById('stats-row').innerHTML = `
+    <div class="stat-card">
+      <div class="stat-label">Active Bids</div>
+      <div class="stat-value cyan">${active.length}</div>
+      <div class="stat-sub">${bids.length} total tracked</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Urgent (&lt;48h)</div>
+      <div class="stat-value ${urgent.length > 0 ? 'red' : 'green'}">${urgent.length}</div>
+      <div class="stat-sub">${overdue.length} overdue</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Next Deadline</div>
+      <div class="stat-value sm" style="color:${nextColor}">${nextLabel}</div>
+      <div class="stat-sub">${upcoming.length} upcoming</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Won</div>
+      <div class="stat-value green">${won.length}</div>
+      <div class="stat-sub">of ${bids.length} total</div>
+    </div>`;
+}
+
+// ─── FILTER TABS ─────────────────────────────────────────────────
+const FILTERS = [
+  { key: 'ACTIVE',    label: 'Active',    statuses: ['DRAFT','SUBMITTED','INTERVIEW'] },
+  { key: 'DRAFT',     label: 'Draft',     statuses: ['DRAFT'] },
+  { key: 'SUBMITTED', label: 'Submitted', statuses: ['SUBMITTED'] },
+  { key: 'INTERVIEW', label: 'Interview', statuses: ['INTERVIEW'] },
+  { key: 'WON',       label: 'Won',       statuses: ['WON'] },
+  { key: 'LOST',      label: 'Lost',      statuses: ['LOST'] },
+  { key: 'ALL',       label: 'All',       statuses: null },
+];
+
+function renderFilterBar() {
+  const html = FILTERS.map(f => {
+    const count = f.statuses
+      ? bids.filter(b => f.statuses.includes(b.status)).length
+      : bids.length;
+    const active = activeFilter === f.key ? 'active' : '';
+    return `<button class="filter-tab ${active}" onclick="setFilter('${f.key}')">${f.label}<span class="filter-count">${count}</span></button>`;
+  }).join('');
+  document.getElementById('filter-bar').innerHTML = html;
+}
+
+function setFilter(key) {
+  activeFilter = key;
+  render();
+}
+
+// ─── CARDS ───────────────────────────────────────────────────────
+function getFiltered() {
+  const f = FILTERS.find(x => x.key === activeFilter);
+  let list = f.statuses ? bids.filter(b => f.statuses.includes(b.status)) : [...bids];
+  const now = new Date();
+  list.sort((a, b) => {
+    const aUp = a.deadline && new Date(a.deadline) > now;
+    const bUp = b.deadline && new Date(b.deadline) > now;
+    if (aUp && bUp) return new Date(a.deadline) - new Date(b.deadline);
+    if (aUp) return -1;
+    if (bUp) return 1;
+    return new Date(b.createdAt) - new Date(a.createdAt);
+  });
+  return list;
+}
+
+function renderCards() {
+  const list = getFiltered();
+  const el   = document.getElementById('cards-container');
+
+  if (list.length === 0) {
+    el.innerHTML = `<div class="empty-state"><div class="icon">📋</div><h3>No bids here</h3><p>Click "+ Add Bid" to track your first bid.</p></div>`;
+    return;
+  }
+
+  const now = new Date();
+  const cards = list.map(bid => {
+    const u      = getUrgency(bid.deadline);
+    const rate   = bid.rateQuoted ? `$${bid.rateQuoted}/hr` : '—';
+    const notes  = bid.notes  ? `<div class="bid-notes">${esc(bid.notes)}</div>` : '';
+    const client = bid.client ? `<div class="bid-client">${esc(bid.client)}</div>` : '<div class="bid-client" style="margin-bottom:14px"></div>';
+    const goBadge = bid.goDecision === 'GO' ? '<span class="go-badge">GO</span>' : '';
+
+    let followupHtml = '';
+    if (bid.followUpDate) {
+      const fu = new Date(bid.followUpDate);
+      const diff = Math.ceil((fu - now) / 86400000);
+      const label = diff === 0 ? 'Follow up today' : diff === 1 ? 'Follow up tomorrow' : diff > 0 ? `Follow up in ${diff}d` : 'Follow up overdue';
+      followupHtml = `<span class="followup-badge">⏰ ${label}</span>`;
+    }
+
+    return `
+      <div class="bid-card" onclick="openEditModal('${bid.id}')">
+        <div class="bid-card-bar urgency-${u.level}"></div>
+        <div class="bid-card-body">
+          <div class="bid-card-top">
+            <span class="platform-badge">${esc(bid.platform || 'Unknown')}</span>
+            <button class="card-delete-btn" onclick="event.stopPropagation();promptDelete('${bid.id}')" title="Delete">✕</button>
+          </div>
+          <div class="bid-title">${esc(bid.title || 'Untitled')}</div>
+          ${client}
+          <div class="bid-meta">
+            <div>
+              <div class="meta-label">Deadline</div>
+              <div class="meta-value urgency-${u.level}">${u.label}</div>
+            </div>
+            <div>
+              <div class="meta-label">Rate</div>
+              <div class="meta-value">${rate}</div>
+            </div>
+          </div>
+          ${notes}
+          <div class="bid-card-footer">
+            <span class="status-badge status-${bid.status}">${bid.status}</span>
+            ${goBadge}
+            ${followupHtml}
+          </div>
+        </div>
+      </div>`;
+  }).join('');
+
+  el.innerHTML = `<div class="cards-grid">${cards}</div>`;
+}
+
+function esc(s) {
+  return String(s)
+    .replace(/&/g,'&amp;')
+    .replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;');
+}
+
+// ─── RENDER ALL ───────────────────────────────────────────────────
+function render() {
+  renderStats();
+  renderFilterBar();
+  renderCards();
+}
+
+// ─── MODAL ───────────────────────────────────────────────────────
+function openAddModal() {
+  editingId = null;
+  document.getElementById('modal-title').textContent = 'Add Bid';
+  clearForm();
+  document.getElementById('modal-overlay').classList.add('open');
+}
+
+function openEditModal(id) {
+  const b = bids.find(x => x.id === id);
+  if (!b) return;
+  editingId = id;
+  document.getElementById('modal-title').textContent = 'Edit Bid';
+  document.getElementById('f-platform').value = b.platform    || '';
+  document.getElementById('f-title').value    = b.title       || '';
+  document.getElementById('f-client').value   = b.client      || '';
+  document.getElementById('f-rate').value     = b.rateQuoted  || '';
+  document.getElementById('f-deadline').value = b.deadline ? b.deadline.slice(0,16) : '';
+  document.getElementById('f-status').value   = b.status      || 'DRAFT';
+  document.getElementById('f-followup').value = b.followUpDate || '';
+  document.getElementById('f-go').value       = b.goDecision  || '';
+  document.getElementById('f-notes').value    = b.notes       || '';
+  document.getElementById('modal-overlay').classList.add('open');
+}
+
+function closeModal() {
+  document.getElementById('modal-overlay').classList.remove('open');
+  editingId = null;
+}
+
+function clearForm() {
+  ['f-platform','f-title','f-client','f-rate','f-deadline','f-followup','f-notes']
+    .forEach(id => { document.getElementById(id).value = ''; });
+  document.getElementById('f-status').value = 'DRAFT';
+  document.getElementById('f-go').value     = '';
+}
+
+function saveBid() {
+  const title = document.getElementById('f-title').value.trim();
+  if (!title) { alert('Please enter a bid title.'); return; }
+
+  const data = {
+    platform:    document.getElementById('f-platform').value,
+    title,
+    client:      document.getElementById('f-client').value.trim(),
+    rateQuoted:  parseInt(document.getElementById('f-rate').value) || null,
+    deadline:    document.getElementById('f-deadline').value || null,
+    status:      document.getElementById('f-status').value,
+    followUpDate:document.getElementById('f-followup').value || null,
+    goDecision:  document.getElementById('f-go').value || null,
+    notes:       document.getElementById('f-notes').value.trim(),
+  };
+
+  if (editingId) {
+    const i = bids.findIndex(b => b.id === editingId);
+    if (i !== -1) bids[i] = { ...bids[i], ...data, updatedAt: new Date().toISOString() };
+  } else {
+    bids.unshift({ id: genId(), ...data, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() });
+  }
+
+  saveData();
+  closeModal();
+  render();
+}
+
+// ─── DELETE ──────────────────────────────────────────────────────
+function promptDelete(id) {
+  deletingId = id;
+  document.getElementById('confirm-overlay').classList.add('open');
+}
+function closeConfirm() {
+  document.getElementById('confirm-overlay').classList.remove('open');
+  deletingId = null;
+}
+function confirmDelete() {
+  if (!deletingId) return;
+  bids = bids.filter(b => b.id !== deletingId);
+  saveData();
+  closeConfirm();
+  render();
+}
+
+// ─── CLOSE ON BACKDROP ───────────────────────────────────────────
+document.getElementById('modal-overlay').addEventListener('click', function(e) {
+  if (e.target === this) closeModal();
+});
+document.getElementById('confirm-overlay').addEventListener('click', function(e) {
+  if (e.target === this) closeConfirm();
+});
+
+// ─── LIVE REFRESH (countdown updates) ───────────────────────────
+setInterval(() => { renderStats(); renderCards(); }, 60000);
+
+// ─── INIT ────────────────────────────────────────────────────────
+loadData();
+render();
+</script>
+</body>
+</html>
