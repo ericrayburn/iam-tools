@@ -1,0 +1,703 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bid Qualification Screener | Rayburn Ideas</title>
+    <style>
+        :root {
+            --bg: #0d1117;
+            --surface: #161b22;
+            --surface2: #1c2230;
+            --border: #30363d;
+            --cyan: #00d4e8;
+            --text: #e6edf3;
+            --text-muted: #8b949e;
+            --red: #f85149;
+            --orange: #d29922;
+            --green: #3fb950;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            background: var(--bg);
+            color: var(--text);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            font-size: 14px;
+            min-height: 100vh;
+        }
+
+        /* ── Header ── */
+        header {
+            background: var(--surface);
+            border-bottom: 2px solid var(--cyan);
+            padding: 14px 24px;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .logo-mark {
+            width: 38px; height: 38px;
+            background: var(--cyan);
+            border-radius: 7px;
+            display: flex; align-items: center; justify-content: center;
+            font-weight: 900; font-size: 20px; color: #0d1117;
+            flex-shrink: 0;
+        }
+
+        .logo-text strong {
+            display: block; font-size: 14px; letter-spacing: 0.6px; color: var(--text);
+        }
+
+        .logo-text span {
+            font-size: 10px; color: var(--cyan); letter-spacing: 1.5px; text-transform: uppercase;
+        }
+
+        .nav-home {
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 12px;
+            padding: 5px 10px;
+            border: 1px solid var(--border);
+            border-radius: 5px;
+            transition: color 0.15s, border-color 0.15s;
+        }
+        .nav-home:hover { color: var(--cyan); border-color: var(--cyan); }
+
+        .app-badge {
+            margin-left: auto;
+            background: rgba(0,212,232,0.12);
+            color: var(--cyan);
+            font-size: 11px; font-weight: 600;
+            padding: 4px 10px; border-radius: 20px;
+            border: 1px solid rgba(0,212,232,0.3);
+            letter-spacing: 0.5px;
+        }
+
+        /* ── Layout ── */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px 24px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 18px;
+        }
+
+        @media (max-width: 800px) { .container { grid-template-columns: 1fr; } }
+
+        .panel {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .panel-header {
+            padding: 11px 16px;
+            border-bottom: 1px solid var(--border);
+            font-size: 11px; font-weight: 700;
+            color: var(--text-muted);
+            text-transform: uppercase; letter-spacing: 1px;
+            display: flex; align-items: center; justify-content: space-between;
+            background: var(--surface2);
+        }
+
+        /* ── Input ── */
+        textarea {
+            flex: 1;
+            min-height: 480px;
+            background: var(--bg);
+            color: var(--text);
+            border: none;
+            padding: 16px;
+            font-size: 14px; line-height: 1.7;
+            resize: vertical;
+            font-family: inherit;
+            outline: none;
+        }
+        textarea::placeholder { color: var(--text-muted); }
+
+        .input-footer {
+            padding: 11px 16px;
+            border-top: 1px solid var(--border);
+            display: flex; gap: 10px; align-items: center;
+            background: var(--surface2);
+        }
+
+        .btn-run {
+            background: var(--cyan);
+            color: #0d1117;
+            border: none; border-radius: 6px;
+            padding: 8px 22px;
+            font-size: 13px; font-weight: 700;
+            cursor: pointer; transition: opacity 0.15s;
+        }
+        .btn-run:hover { opacity: 0.85; }
+
+        .btn-clear {
+            background: transparent;
+            color: var(--text-muted);
+            border: 1px solid var(--border);
+            border-radius: 6px; padding: 8px 16px;
+            font-size: 12px; cursor: pointer;
+            transition: color 0.15s;
+        }
+        .btn-clear:hover { color: var(--text); }
+
+        .char-count { font-size: 11px; color: var(--text-muted); margin-left: auto; }
+
+        /* ── Results ── */
+        .results-body {
+            flex: 1; padding: 18px;
+            overflow-y: auto;
+            display: flex; flex-direction: column; gap: 14px;
+        }
+
+        .placeholder-msg {
+            color: var(--text-muted);
+            font-size: 13px; line-height: 1.7;
+            text-align: center;
+            padding: 60px 20px;
+        }
+
+        /* ── Result Block ── */
+        .result-block {
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            border-radius: 6px; overflow: hidden;
+        }
+
+        .result-block-header {
+            padding: 8px 14px;
+            font-size: 10px; font-weight: 700;
+            color: var(--text-muted);
+            text-transform: uppercase; letter-spacing: 1px;
+            background: rgba(0,0,0,0.3);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .result-block-body { padding: 14px; }
+
+        /* ── Platform ── */
+        .platform-name { font-size: 18px; font-weight: 700; color: var(--cyan); }
+        .platform-sub { font-size: 12px; color: var(--text-muted); margin-top: 4px; line-height: 1.5; }
+
+        /* ── Level Bars ── */
+        .level-row {
+            display: flex; align-items: center; gap: 12px;
+            margin-bottom: 10px;
+        }
+        .level-row:last-child { margin-bottom: 0; }
+
+        .level-label {
+            width: 28px; font-size: 11px; font-weight: 700;
+            color: var(--text-muted); flex-shrink: 0;
+        }
+
+        .level-bar-track {
+            flex: 1; height: 8px;
+            background: rgba(255,255,255,0.06);
+            border-radius: 4px; overflow: hidden;
+        }
+        .level-bar-fill { height: 100%; border-radius: 4px; transition: width 0.4s ease; }
+        .l3-fill { background: var(--green); }
+        .l2-fill { background: var(--cyan); }
+        .l1-fill { background: var(--orange); }
+
+        .level-pct { width: 38px; font-size: 12px; font-weight: 700; text-align: right; flex-shrink: 0; }
+        .level-count { width: 64px; font-size: 11px; color: var(--text-muted); text-align: right; flex-shrink: 0; }
+
+        /* ── Decision Steps ── */
+        .decision-step {
+            display: flex; gap: 10px; align-items: flex-start;
+            padding: 9px 0;
+            border-bottom: 1px solid rgba(48,54,61,0.5);
+        }
+        .decision-step:last-child { border-bottom: none; padding-bottom: 0; }
+
+        .step-icon {
+            width: 20px; height: 20px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 11px; font-weight: 900;
+            flex-shrink: 0; margin-top: 1px;
+        }
+        .step-pass { background: rgba(63,185,80,0.2); color: var(--green); }
+        .step-fail { background: rgba(248,81,73,0.2); color: var(--red); }
+
+        .step-label strong {
+            display: block; color: var(--text);
+            font-size: 12px; margin-bottom: 2px;
+        }
+        .step-label span { font-size: 11px; color: var(--text-muted); }
+
+        /* ── Red Flags ── */
+        .flag-item {
+            font-size: 12px; color: var(--red);
+            padding: 4px 0;
+            display: flex; align-items: flex-start; gap: 8px;
+        }
+        .flag-icon { flex-shrink: 0; }
+        .no-flags { font-size: 12px; color: var(--green); }
+
+        /* ── Verdict ── */
+        .verdict-display { text-align: center; padding: 20px 10px; }
+        .verdict-badge {
+            display: inline-block;
+            font-size: 34px; font-weight: 900;
+            padding: 12px 40px; border-radius: 8px;
+            letter-spacing: 3px;
+        }
+        .verdict-go {
+            background: rgba(63,185,80,0.15);
+            color: var(--green);
+            border: 2px solid var(--green);
+        }
+        .verdict-nogo {
+            background: rgba(248,81,73,0.15);
+            color: var(--red);
+            border: 2px solid var(--red);
+        }
+        .verdict-reason {
+            margin-top: 10px;
+            font-size: 12px; color: var(--text-muted);
+            line-height: 1.5;
+        }
+
+        /* ── Case Study ── */
+        .case-study-card {
+            padding: 12px;
+            background: rgba(0,212,232,0.06);
+            border: 1px solid rgba(0,212,232,0.2);
+            border-radius: 6px;
+        }
+        .case-study-title {
+            font-size: 13px; font-weight: 700;
+            color: var(--cyan); margin-bottom: 5px;
+        }
+        .case-study-detail { font-size: 12px; color: var(--text-muted); line-height: 1.5; }
+
+        .multi-case { display: flex; flex-direction: column; gap: 8px; }
+    </style>
+</head>
+<body>
+
+<header>
+    <div class="logo-mark">R</div>
+    <div class="logo-text">
+        <strong>RAYBURN IDEAS</strong>
+        <span>Identity and Access Management</span>
+    </div>
+    <a href="index.html" class="nav-home">← All Tools</a>
+    <div class="app-badge">APP 02</div>
+</header>
+
+<div class="container">
+
+    <!-- Left: Input -->
+    <div class="panel">
+        <div class="panel-header">
+            <span>Bid Posting</span>
+            <span id="charCount" class="char-count">0 chars</span>
+        </div>
+        <textarea id="bidInput" placeholder="Paste the full bid posting here.&#10;&#10;Include the job description, platform details, questions asked, required skills, and any scope notes. The screener will detect the platform and run the full GO / NO-GO qualification guardrail."></textarea>
+        <div class="input-footer">
+            <button class="btn-run" onclick="runScreener()">Run Screener</button>
+            <button class="btn-clear" onclick="clearAll()">Clear</button>
+        </div>
+    </div>
+
+    <!-- Right: Results -->
+    <div class="panel">
+        <div class="panel-header">
+            <span>Qualification Report</span>
+        </div>
+        <div class="results-body" id="resultsBody">
+            <div class="placeholder-msg">
+                Paste a bid posting on the left.<br>
+                Click <strong>Run Screener</strong> to get the GO / NO-GO verdict.
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<script>
+// ─────────────────────────────────────────────────────────────
+// UTILITIES
+// ─────────────────────────────────────────────────────────────
+const INPUT   = document.getElementById('bidInput');
+const RESULTS = document.getElementById('resultsBody');
+const CHARS   = document.getElementById('charCount');
+
+INPUT.addEventListener('input', () => {
+    CHARS.textContent = INPUT.value.length.toLocaleString() + ' chars';
+});
+
+function clearAll() {
+    INPUT.value = '';
+    CHARS.textContent = '0 chars';
+    RESULTS.innerHTML = '<div class="placeholder-msg">Paste a bid posting on the left.<br>Click <strong>Run Screener</strong> to get the GO / NO-GO verdict.</div>';
+}
+
+// Match keyword — use word boundary for short terms to avoid false positives
+function matchKw(text, kw) {
+    if (kw.length <= 5) {
+        try {
+            const re = new RegExp('\\b' + kw.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '\\b', 'i');
+            return re.test(text);
+        } catch(e) { return false; }
+    }
+    return text.toLowerCase().includes(kw.toLowerCase());
+}
+
+// ─────────────────────────────────────────────────────────────
+// PLATFORM DETECTION
+// ─────────────────────────────────────────────────────────────
+const PLATFORMS = [
+    {
+        id: 'glg',
+        name: 'GLG',
+        fullName: 'Gerson Lehrman Group',
+        format: 'RFI — 200 to 400 words per question',
+        keywords: ['glg', 'gerson lehrman', 'glg expert', 'glg network', 'council member', 'expert network call', '24-48 hours', '24 to 48 hours', 'glg council']
+    },
+    {
+        id: 'mbo',
+        name: 'MBO Partners',
+        fullName: 'MBO Partners',
+        format: 'RFP Proposal — 1 to 2 pages',
+        keywords: ['mbo partners', 'statement of work', 'request for proposal', 'master services agreement']
+    },
+    {
+        id: 'catalant',
+        name: 'Catalant',
+        fullName: 'Catalant',
+        format: 'Expert Call Brief',
+        keywords: ['catalant', 'expert call', 'call topic', 'call fee', 'expert network']
+    },
+    {
+        id: 'pwc',
+        name: 'PwC Talent Exchange',
+        fullName: 'PricewaterhouseCoopers Talent Exchange',
+        format: 'Rate Negotiation + Scope Summary',
+        keywords: ['pwc talent', 'pricewaterhousecoopers', 'talent exchange', 'daily rate', 'weekly rate']
+    },
+    {
+        id: 'gofractional',
+        name: 'GoFractional',
+        fullName: 'GoFractional',
+        format: 'Profile Match — 3 to 6 month fractional engagement',
+        keywords: ['gofractional', 'go fractional', 'new opportunity matched', 'fractional cto', 'fractional ciso', 'fractional engagement']
+    },
+    {
+        id: 'arc',
+        name: 'Arc.dev',
+        fullName: 'Arc.dev',
+        format: 'Advisory Only — $300+/hr',
+        keywords: ['arc.dev', 'arcdev', 'apply to this role']
+    }
+];
+
+function detectPlatform(raw) {
+    let best = null, bestScore = 0;
+    for (const p of PLATFORMS) {
+        let score = p.keywords.reduce((n, kw) => n + (matchKw(raw, kw) ? 1 : 0), 0);
+        if (score > bestScore) { bestScore = score; best = p; }
+    }
+    return bestScore > 0 ? best : null;
+}
+
+// ─────────────────────────────────────────────────────────────
+// KNOWLEDGE LEVEL KEYWORDS
+// ─────────────────────────────────────────────────────────────
+const L3 = [
+    'iam architecture','identity architecture','identity and access management','iam strategy','identity strategy',
+    'access management architecture','identity program','iam roadmap','iam maturity','iam assessment',
+    'jml','joiner','mover','leaver','identity lifecycle','lifecycle management','joiners movers leavers','onboarding automation',
+    'zero downtime','migration strategy','cutover plan','cutover strategy','zero-downtime',
+    'saas governance','license optimization','license harvesting','saas spend','saas capital','software asset management','license reclamation',
+    'active directory','ad ds','windows server','active directory domain services',
+    'powershell','ad automation',
+    'saml 2.0','saml','scim 2.0','scim','federation','single sign-on','federated identity','oauth 2.0','oidc','openid connect',
+    'hybrid infrastructure','hybrid infra','on-premises','on-prem','hybrid environment',
+    'privileged access management','privileged identity','privileged account',
+    'pam','mfa','multi-factor authentication','multifactor','phishing-resistant',
+    'provisioning','deprovisioning','access governance','access certification','access review','recertification','user access review',
+    'role-based access control','rbac','abac','attribute-based',
+    'identity governance','iga','identity governance and administration',
+    'zero trust','agdlp','group policy','fine grained password','fine-grained password',
+    'access control framework','entitlement management','separation of duties','least privilege','principle of least privilege',
+    'sod','jit provisioning','just in time provisioning','just-in-time'
+];
+
+const L2 = [
+    'okta','azure ad','entra id','microsoft entra','sailpoint','cyberark','forgerock','ping identity','onelogin','beyondtrust','beyond trust',
+    'saviynt','identitynow','sailpoint identitynow',
+    'soc 2','soc2','hipaa','gdpr','compliance framework','audit readiness','iso 27001','nist','cmmc','fedramp',
+    'cloud security','cloud iam','cloud infrastructure','cloud architecture',
+    'aws iam','azure active directory','google workspace',
+    'terraform','infrastructure as code',
+    'api integration','rest api','webhook','integration design',
+    'pam evaluation','pam product','delinea','thycotic','hashicorp vault',
+    'n8n','gearset','scim provisioning','scim integration'
+];
+
+const L1 = [
+    'kubernetes','k8s','docker','container orchestration',
+    'machine learning','deep learning','neural network',
+    'react framework','angular framework','frontend development','ui development',
+    'okta workflows developer','sailpoint connector development','connector coding',
+    'workflow developer','connector developer',
+    'data engineering','data pipeline','apache spark','kafka',
+    'mobile development','ios development','android development',
+    'gpu cluster','hardware specification'
+];
+
+function scoreKeywords(raw) {
+    function collect(list) {
+        return list.filter(kw => matchKw(raw, kw));
+    }
+    const l3 = collect(L3);
+    const l2 = collect(L2);
+    const l1 = collect(L1);
+    const total = l3.length + l2.length + l1.length;
+    return { l3, l2, l1, total };
+}
+
+// ─────────────────────────────────────────────────────────────
+// RED FLAG DETECTION
+// ─────────────────────────────────────────────────────────────
+const RED_FLAGS = [
+    { pattern: 'okta workflows developer',         label: 'Vendor specialist role: Okta Workflows developer' },
+    { pattern: 'okta workflows dev',               label: 'Vendor specialist role: Okta Workflows dev' },
+    { pattern: 'sailpoint connector',              label: 'Vendor specialist role: SailPoint connector development' },
+    { pattern: 'connector coding',                 label: 'Implementation task: connector coding required' },
+    { pattern: 'write code',                       label: 'Implementation task: writing code required' },
+    { pattern: 'coding skills',                    label: 'Implementation role: coding skills listed as requirement' },
+    { pattern: 'programming skills',               label: 'Implementation role: programming skills required' },
+    { pattern: 'software engineer',                label: 'Engineering role — not architecture' },
+    { pattern: 'hands-on coding',                  label: 'Implementation task: hands-on coding' },
+    { pattern: 'hands-on development',             label: 'Implementation task: hands-on development' },
+    { pattern: 'workflow developer',               label: 'Vendor workflow developer role' },
+    { pattern: 'connector developer',              label: 'Connector developer role' },
+    { pattern: 'full-stack developer',             label: 'Full-stack developer role' },
+    { pattern: 'frontend developer',               label: 'Frontend developer role' }
+];
+
+function detectRedFlags(raw) {
+    return RED_FLAGS.filter(f => raw.toLowerCase().includes(f.pattern));
+}
+
+// ─────────────────────────────────────────────────────────────
+// ROLE TYPE DETECTION (Architecture vs. Implementation)
+// ─────────────────────────────────────────────────────────────
+const ARCH_SIGNALS = [
+    'architect','architecture','advisory','advisor','consultant','consulting',
+    'assessment','audit','governance','framework','roadmap','design',
+    'planning','evaluate','recommend','oversight','fractional ciso',
+    'fractional','advisory role','executive consultant','interim ciso',
+    'strategy','advise','guide','expert opinion'
+];
+
+const IMPL_SIGNALS = [
+    'build and implement','implement and build','hands-on implementation',
+    'technical implementation','full implementation','deliver the build',
+    'engineering deliverable','write and deploy','code and deploy',
+    'build the system','build the integration','develop and deploy',
+    'software development','developer role'
+];
+
+function detectRoleType(raw) {
+    const lower = raw.toLowerCase();
+    let arch = ARCH_SIGNALS.filter(s => lower.includes(s)).length;
+    let impl = IMPL_SIGNALS.filter(s => lower.includes(s)).length;
+    if (arch === 0 && impl === 0) return { type: 'Unknown', arch, impl };
+    if (impl > arch) return { type: 'Implementation', arch, impl };
+    return { type: 'Architecture', arch, impl };
+}
+
+// ─────────────────────────────────────────────────────────────
+// CASE STUDY MATCH
+// ─────────────────────────────────────────────────────────────
+const CASE_STUDIES = [
+    {
+        title: 'Case 1 — JIT Provisioning',
+        triggers: ['jml','joiner','mover','leaver','provisioning','deprovisioning','onboarding','identity lifecycle','lifecycle management','access governance','access certification','jit provisioning','just-in-time'],
+        detail: '1,500-user FinServ | 600 orphaned admin accounts | Zero Touch onboarding, 55% IT ticket reduction'
+    },
+    {
+        title: 'Case 2 — Zero Downtime Migration',
+        triggers: ['migration','cutover','zero downtime','active directory migration','domain migration','consolidation','zero-downtime','migration strategy'],
+        detail: '300-user FinServ (Diamond) | Sandboxed VNet, AGDLP + SSO validated | Zero Downtime on all migrations'
+    },
+    {
+        title: 'Case 3 — PAM / MFA Compliance',
+        triggers: ['pam','privileged access','mfa','multi-factor','multifactor','soc2','soc 2','hipaa','password policy','fine grained','compliance','privileged identity'],
+        detail: '300-user FinServ (Diamond) | PAM + Fine Grained Password Policies | 100% MFA compliance in revenue roles'
+    },
+    {
+        title: 'Case 4 — SaaS Capital Recovery',
+        triggers: ['saas','license','cost reduction','budget','saas spend','deprovisioning','software asset','license harvesting','saas governance','n8n','gearset','spend reclaim'],
+        detail: '300-user FinServ (Diamond) | Lab First audits + n8n/Gearset automation | 30% SaaS spend reclaimed in 30 days'
+    }
+];
+
+function recommendCaseStudies(raw) {
+    const scored = CASE_STUDIES.map(cs => ({
+        ...cs,
+        score: cs.triggers.filter(t => matchKw(raw, t)).length
+    })).filter(cs => cs.score > 0).sort((a,b) => b.score - a.score);
+    return scored.slice(0, 2); // top 2 matches
+}
+
+// ─────────────────────────────────────────────────────────────
+// MAIN SCREENER
+// ─────────────────────────────────────────────────────────────
+function runScreener() {
+    const raw = INPUT.value.trim();
+    if (!raw) { alert('Paste a bid posting first.'); return; }
+
+    const platform  = detectPlatform(raw);
+    const { l3, l2, l1, total } = scoreKeywords(raw);
+    const flags     = detectRedFlags(raw);
+    const roleType  = detectRoleType(raw);
+
+    // ── Decision Logic ──
+    const hiConf    = l3.length + l2.length;
+    const hiConfPct = total > 0 ? Math.round((hiConf / total) * 100) : 0;
+    const l1Pct     = total > 0 ? Math.round((l1.length / total) * 100) : 0;
+    const l3Pct     = total > 0 ? Math.round((l3.length / total) * 100) : 0;
+    const l2Pct     = total > 0 ? Math.round((l2.length / total) * 100) : 0;
+
+    // Q1: 70%+ signals at L3 or L2
+    const q1Pass = total > 0 && hiConfPct >= 70;
+    // Q2: Architecture scope, not implementation
+    const q2Pass = roleType.type !== 'Implementation';
+    // Q3: No vendor specialist / coding red flags
+    const q3Pass = flags.length === 0;
+    // Q4: L1 content under 20%
+    const q4Pass = total === 0 || l1Pct <= 20;
+
+    const go = q1Pass && q2Pass && q3Pass && q4Pass;
+
+    const matchedCases = go ? recommendCaseStudies(raw) : [];
+
+    // ── Render ──
+    let html = '';
+
+    // Platform
+    html += block('Platform Detected', `
+        <div class="platform-name">${platform ? platform.name : 'Unknown'}</div>
+        <div class="platform-sub">${platform
+            ? platform.fullName + '<br>' + platform.format
+            : 'No platform pattern matched. Verify manually before responding.'
+        }</div>
+    `);
+
+    // Level Breakdown
+    html += block(`Knowledge Level Breakdown — ${total} signal${total !== 1 ? 's' : ''}`, `
+        ${levelRow('L3', 'var(--green)', 'l3-fill', l3Pct, l3.length, 'IAM architecture, JML, migrations, AD/PS, SAML, PAM, MFA')}
+        ${levelRow('L2', 'var(--cyan)',  'l2-fill', l2Pct, l2.length, 'Okta / Entra / SailPoint, SOC2/HIPAA, cloud, integrations')}
+        ${levelRow('L1', 'var(--orange)','l1-fill', l1Pct, l1.length, 'Kubernetes, ML/AI, front-end dev, connector coding')}
+        ${total === 0 ? '<div style="font-size:12px;color:var(--text-muted);margin-top:10px">No IAM signals detected. Confirm posting is IAM-related.</div>' : ''}
+    `);
+
+    // Red Flags
+    const flagsHtml = flags.length === 0
+        ? '<div class="no-flags">✓ No red flags detected</div>'
+        : flags.map(f => `<div class="flag-item"><span class="flag-icon">⚑</span>${f.label}</div>`).join('');
+    html += block('Red Flags', flagsHtml);
+
+    // Decision Steps
+    const stepsHtml = [
+        step(q1Pass,
+            'Q1: 70%+ signals at L3 or L2?',
+            total === 0
+                ? 'No signals detected — cannot evaluate'
+                : `${hiConfPct}% are L3/L2 (${hiConf} of ${total} signals)`
+        ),
+        step(q2Pass,
+            'Q2: Architecture scope, not implementation?',
+            `Role type: ${roleType.type} (arch signals: ${roleType.arch}, impl signals: ${roleType.impl})`
+        ),
+        step(q3Pass,
+            'Q3: No vendor specialist or coding red flags?',
+            flags.length > 0 ? `${flags.length} red flag(s) found — see above` : 'Clean'
+        ),
+        step(q4Pass,
+            'Q4: L1 out-of-scope content under 20%?',
+            `L1 is ${l1Pct}% of all signals (${l1.length} signal${l1.length !== 1 ? 's' : ''})`
+        )
+    ].join('');
+    html += block('Decision Logic', stepsHtml);
+
+    // Verdict
+    const reasonLines = go
+        ? '<span style="color:var(--green)">All four guardrail checks passed. Proceed with bid response.</span>'
+        : (() => {
+            const r = [];
+            if (!q1Pass) r.push(total === 0 ? 'No IAM signals found' : `L3/L2 coverage too low (${hiConfPct}% — need 70%+)`);
+            if (!q2Pass) r.push('Implementation-focused role detected');
+            if (!q3Pass) r.push(`${flags.length} red flag(s) present`);
+            if (!q4Pass) r.push(`L1 content at ${l1Pct}% — exceeds 20% threshold`);
+            return r.join('<br>');
+        })();
+
+    html += block('Verdict', `
+        <div class="verdict-display">
+            <div class="verdict-badge ${go ? 'verdict-go' : 'verdict-nogo'}">${go ? 'GO' : 'NO-GO'}</div>
+            <div class="verdict-reason">${reasonLines}</div>
+        </div>
+    `);
+
+    // Case Study (GO only)
+    if (go) {
+        const csHtml = matchedCases.length > 0
+            ? `<div class="multi-case">${matchedCases.map(cs => `
+                <div class="case-study-card">
+                    <div class="case-study-title">${cs.title}</div>
+                    <div class="case-study-detail">${cs.detail}</div>
+                </div>`).join('')}</div>`
+            : '<div style="font-size:12px;color:var(--text-muted)">No strong case study match. Review all four manually.</div>';
+        html += block('Recommended Case Study', csHtml);
+    }
+
+    RESULTS.innerHTML = html;
+}
+
+// ── HTML helpers ──
+function block(title, body) {
+    return `<div class="result-block">
+        <div class="result-block-header">${title}</div>
+        <div class="result-block-body">${body}</div>
+    </div>`;
+}
+
+function levelRow(label, color, fillClass, pct, count, desc) {
+    return `<div class="level-row">
+        <div class="level-label" style="color:${color}">${label}</div>
+        <div class="level-bar-track">
+            <div class="level-bar-fill ${fillClass}" style="width:${pct}%"></div>
+        </div>
+        <div class="level-pct" style="color:${color}">${pct}%</div>
+        <div class="level-count">${count} signal${count !== 1 ? 's' : ''}</div>
+    </div>`;
+}
+
+function step(pass, label, detail) {
+    return `<div class="decision-step">
+        <div class="step-icon ${pass ? 'step-pass' : 'step-fail'}">${pass ? '✓' : '✗'}</div>
+        <div class="step-label">
+            <strong>${label}</strong>
+            <span>${detail}</span>
+        </div>
+    </div>`;
+}
+</script>
+</body>
+</html>
