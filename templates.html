@@ -1,0 +1,615 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Response Template Builder | IAM Tools</title>
+    <style>
+        :root {
+            --bg: #0d1117;
+            --surface: #161b22;
+            --border: #30363d;
+            --cyan: #00d4e8;
+            --text: #e6edf3;
+            --text-muted: #8b949e;
+            --green: #3fb950;
+            --red: #f85149;
+            --yellow: #d29922;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            background: var(--bg);
+            color: var(--text);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            min-height: 100vh;
+        }
+        header {
+            background: var(--surface);
+            border-bottom: 2px solid var(--cyan);
+            padding: 16px 32px;
+        }
+        h1 { font-size: 20px; margin-bottom: 4px; }
+        .subtitle { color: var(--text-muted); font-size: 13px; }
+
+        main {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 32px 24px;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+            margin-bottom: 32px;
+        }
+
+        .panel {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 20px;
+        }
+
+        label {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--text-muted);
+        }
+
+        select, textarea {
+            width: 100%;
+            background: #0d1117;
+            color: var(--text);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 10px 12px;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            font-size: 13px;
+            margin-bottom: 12px;
+            transition: border 0.2s;
+        }
+
+        select:focus, textarea:focus {
+            outline: none;
+            border-color: var(--cyan);
+        }
+
+        textarea {
+            min-height: 200px;
+            resize: vertical;
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+        }
+
+        .recommendation {
+            background: #0d1117;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 16px;
+            margin-bottom: 16px;
+        }
+
+        .rec-label {
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--text-muted);
+            margin-bottom: 6px;
+        }
+
+        .rec-value {
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--cyan);
+            margin-bottom: 8px;
+        }
+
+        .case-study-list {
+            font-size: 12px;
+            color: var(--text-muted);
+            line-height: 1.6;
+        }
+
+        .scaffold {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 24px;
+        }
+
+        .scaffold h3 {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            color: var(--cyan);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .scaffold-content {
+            font-size: 13px;
+            line-height: 1.7;
+            color: var(--text);
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+            background: #0d1117;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 16px;
+            max-height: 600px;
+            overflow-y: auto;
+            margin-bottom: 12px;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 12px;
+            margin-top: 16px;
+        }
+
+        button {
+            flex: 1;
+            background: var(--green);
+            color: #0d1117;
+            border: none;
+            border-radius: 6px;
+            padding: 10px 16px;
+            font-weight: 600;
+            font-size: 13px;
+            cursor: pointer;
+            transition: opacity 0.2s;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        button:hover { opacity: 0.9; }
+
+        button.secondary {
+            background: transparent;
+            color: var(--cyan);
+            border: 1px solid var(--cyan);
+        }
+
+        .info-box {
+            background: #0d1117;
+            border-left: 3px solid var(--cyan);
+            padding: 12px;
+            border-radius: 4px;
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-bottom: 16px;
+        }
+
+        .role-keywords {
+            font-size: 11px;
+            color: var(--text-muted);
+            margin-top: 6px;
+            font-style: italic;
+        }
+
+        @media (max-width: 768px) {
+            .grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Response Template Builder</h1>
+        <div class="subtitle">Platform + Job Description → Scaffold + Case Study</div>
+    </header>
+
+    <main>
+        <div class="grid">
+            <!-- LEFT: INPUTS -->
+            <div class="panel">
+                <label for="platform">Platform</label>
+                <select id="platform">
+                    <option value="">Select a platform</option>
+                    <option value="glg">GLG (RFI Response)</option>
+                    <option value="catalant">Catalant (Expert Call Prep)</option>
+                    <option value="mbo">MBO Partners (RFP Proposal)</option>
+                    <option value="pwc">PWC Talent Exchange (Rate Negotiation)</option>
+                </select>
+
+                <label for="jobDesc">Paste Job Description</label>
+                <textarea id="jobDesc" placeholder="Paste the full job posting or scope here..."></textarea>
+
+                <div class="info-box">
+                    Type or paste a job description. The tool will scan for role keywords and recommend the matching case study.
+                </div>
+            </div>
+
+            <!-- RIGHT: RECOMMENDATION -->
+            <div class="panel">
+                <h3 style="font-size: 13px; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 16px; color: var(--text-muted);">Recommendation</h3>
+
+                <div class="recommendation">
+                    <div class="rec-label">Detected Role Type</div>
+                    <div class="rec-value" id="roleType">–</div>
+                </div>
+
+                <div class="recommendation">
+                    <div class="rec-label">Recommended Case Study</div>
+                    <div class="rec-value" id="caseStudyName">–</div>
+                    <div class="case-study-list" id="caseStudyDetail"></div>
+                </div>
+
+                <div class="recommendation">
+                    <div class="rec-label">Response Format</div>
+                    <div class="rec-value" id="formatName">–</div>
+                </div>
+
+                <button class="secondary" id="copyPrompt" style="margin-top: 12px;">Copy Prompt to Claude</button>
+            </div>
+        </div>
+
+        <!-- SCAFFOLD OUTPUT -->
+        <div class="scaffold" id="scaffoldContainer" style="display: none;">
+            <h3 id="scaffoldTitle"></h3>
+            <div class="scaffold-content" id="scaffoldContent"></div>
+            <div class="btn-group">
+                <button id="copyScaffold">Copy Scaffold</button>
+                <button class="secondary" id="downloadScaffold">Download as .txt</button>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        const ROLE_KEYWORDS = {
+            jml: ['jml', 'provisioning', 'deprovisioning', 'onboarding', 'offboarding', 'lifecycle', 'joiner', 'leaver', 'mover'],
+            migration: ['migration', 'legacy', 'cutover', 'modernization', 'sso', 'identity platform', 'directory service', 'upgrade'],
+            mfa: ['mfa', 'mfp', 'multi factor', 'multi-factor', 'pam', 'privilege', 'compliance', 'audit', 'hipaa', 'soc2', 'hardening', 'policy'],
+            saas: ['saas', 'license', 'budget', 'sprawl', 'orphaned', 'entitlement', 'spend', 'vendor', 'cost recovery']
+        };
+
+        const CASE_STUDIES = {
+            jml: {
+                name: 'Zero Touch JML Provisioning',
+                shortCode: 'CS1',
+                detail: 'Client: 1,500-user financial services firm. Problem: 72 hour JML delays, 600 unreviewed admin accounts. Action: SAML 2.0 JIT pipeline, validated in 600 user simulated forest. Result: Zero Touch onboarding. 55% IT ticket reduction.'
+            },
+            migration: {
+                name: 'Zero Downtime Identity Migration',
+                shortCode: 'CS2',
+                detail: 'Client: 300-user financial services firm. Problem: Migration downtime risk on legacy infrastructure. Action: 100 user sandboxed VNet. AGDLP and SSO validated pre-production. Result: Zero Downtime across all migration events.'
+            },
+            mfa: {
+                name: 'PAM and MFA Hardening',
+                shortCode: 'CS3',
+                detail: 'Client: 300-user financial services firm. Problem: Inconsistent MFA in revenue roles, PAM absent. Action: PAM principles + Fine Grained Password Policies, lab-validated. Result: 100% MFA compliance across all revenue roles.'
+            },
+            saas: {
+                name: 'SaaS Capital Recovery',
+                shortCode: 'CS4',
+                detail: 'Client: 300-user financial services firm. Problem: 30% SaaS budget lost to untracked entitlements. Action: Lab First audits, automated deprovisioning via n8n, license harvesting via Gearset. Result: 30% SaaS spend reclaimed in 30 days.'
+            }
+        };
+
+        const SCAFFOLDS = {
+            glg: {
+                format: 'GLG RFI Response',
+                template: `GLG RFI RESPONSE TEMPLATE — RAYBURN IDEAS
+Principal IAM Architect | Eric Rayburn | ericrayburn1@gmail.com
+Rate: $400/hr | Entity: Rayburn Solutions Inc.
+================================================================================
+
+OPENING (1 sentence — state the problem, not your credentials):
+
+[CLIENT INDUSTRY] organizations with [EMPLOYEE COUNT]-range workforces consistently face
+[CORE IAM PROBLEM]. The cost is measured in hours, audit findings, and recoverable spend.
+
+BODY — OPERATIONAL AND FINANCIAL IMPACT TABLE:
+
+| OPERATIONAL IMPACT (CTO) | FINANCIAL IMPACT (CEO) |
+|--------------------------|------------------------|
+| [Metric 1 e.g., JML reduced from 72 hours to under 4] | [Cost e.g., 55% IT ticket reduction = X hrs/week] |
+| [Metric 2 e.g., 100% MFA coverage across revenue roles] | [Cost e.g., audit finding avoidance — SOC2 fines avoided] |
+| [Metric 3 e.g., Zero Downtime identity migration events] | [Cost e.g., zero unplanned downtime — no revenue loss] |
+| [Metric 4 e.g., SaaS license deprovisioning automated] | [Cost e.g., 30% SaaS budget reclaimed within 30 days] |
+
+CASE STUDY REFERENCES:
+
+[SELECT 2 OF THE 4 CASE STUDIES BELOW BASED ON CLIENT PAIN POINT]
+
+CLOSING (1 sentence — Lab First methodology):
+
+Every recommendation in this response traces to a validated outcome in our
+600 user Windows Server 2025 Hyper-V simulation environment. We do not propose
+what we have not tested.
+
+VERIFICATION CHECKLIST (run before sending):
+[ ] No banned words used
+[ ] No M-dashes present
+[ ] All sentences under 20 words
+[ ] Active voice throughout
+[ ] No contractions present
+[ ] At least 2 case studies with specific metrics
+[ ] Operational|Financial table complete with at least 3 rows
+[ ] Word count 200-400 per question
+[ ] Clinical tone — no adjectives, no selling language`
+            },
+            catalant: {
+                format: 'Catalant Expert Call Prep',
+                template: `CATALANT EXPERT CALL PREP SHEET — RAYBURN IDEAS
+Principal IAM Architect | Eric Rayburn | ericrayburn1@gmail.com
+Rate: $400/hr | Call Duration: 30-90 minutes typical
+================================================================================
+
+SECTION 1 — PRE-CALL RESEARCH CHECKLIST
+
+COMPANY BASICS:
+[ ] Company name, industry vertical, employee count
+[ ] Funding stage (Series A/B/C) and most recent round size
+[ ] Headquarters — U.S. or international? Remote or hybrid workforce?
+[ ] Current tech stack if discoverable (LinkedIn, job postings, Crunchbase)
+[ ] Recent news: acquisitions, compliance events, layoffs, rapid growth
+
+IDENTITY AND ACCESS SIGNALS (read their job postings):
+[ ] Do they post for Okta/Azure AD/SailPoint roles? (signals current platform)
+[ ] Do postings mention SOC2, HIPAA, or GDPR? (signals compliance pressure)
+[ ] Do postings mention JML, provisioning, or deprovisioning? (signals lifecycle pain)
+[ ] Do they list SaaS tools? (signals license sprawl potential)
+[ ] Any recent CISO or IT Director hires? (signals IAM investment cycle)
+
+CALL CONTEXT:
+[ ] What is the stated topic for this call?
+[ ] What questions did Catalant share in advance?
+[ ] What level is the client contact? (CISO, CTO, IT Director, VP Eng)
+[ ] Is this an exploratory call or a specific engagement scoping call?
+
+TONE CALIBRATION:
+[ ] CISO/CTO: Lead with risk and architecture
+[ ] CFO/CEO: Lead with cost and recovered spend
+[ ] IT Director: Lead with operational relief and ticket reduction
+[ ] VP Engineering: Lead with uptime and Zero Downtime outcomes
+
+SECTION 2 — CASE STUDY SELECTION
+
+Have all 4 ready. Most calls use 2-3. Match the client's primary pain point to the lead case study.
+
+[SELECT PRIMARY CASE STUDY BASED ON PAIN POINT]
+
+SECTION 3 — 10 LIKELY QUESTIONS WITH PREPARED ANSWERS
+
+Q1: How do you handle legacy system integration during IAM modernization?
+[PREPARE 200-300 word answer based on case study and client context]
+
+Q2: What is your approach to zero-downtime cutover?
+[PREPARE 200-300 word answer]
+
+[Continue with 8 more typical IAM questions based on call scope]
+
+VERIFICATION CHECKLIST (run before call):
+[ ] Section 1 research complete
+[ ] Primary case study selected and stat memorized
+[ ] All 10 Q&A answers reviewed
+[ ] Client contact level identified — tone calibrated
+[ ] Rate confirmed: $400/hr
+[ ] No contractions, no selling language in prepared answers`
+            },
+            mbo: {
+                format: 'MBO Partners RFP Proposal',
+                template: `MBO PARTNERS RFP PROPOSAL TEMPLATE — RAYBURN IDEAS
+Principal IAM Architect | Eric Rayburn | ericrayburn1@gmail.com
+Rate: $400/hr Advisory | $150–$225/hr Fractional | $2,500 Fixed Fee Audit
+Entity: Rayburn Solutions Inc. (Florida S Corp)
+================================================================================
+
+EXECUTIVE SUMMARY (100 words max)
+
+[CLIENT COMPANY] faces [PRIMARY IAM PROBLEM]. This engagement delivers
+[CORE OUTCOME] across a [DURATION] fixed scope. Rayburn Ideas brings 14 years
+of IAM architecture experience and a 600 user Windows Server 2025 simulation
+environment where every recommendation is validated before client deployment.
+Prior engagements reduced JML delays by 72 hours, achieved 100% MFA compliance,
+eliminated migration downtime, and reclaimed 30% of SaaS spend within 30 days.
+We deliver architecture, not theory.
+
+THE PROBLEM
+
+[CLIENT COMPANY] operates in [INDUSTRY] with [EMPLOYEE COUNT] users across
+[SYSTEM COUNT]. Current state presents [2-3 SPECIFIC PAIN POINTS from RFP].
+
+Common patterns we address:
+- Manual JML processes causing provisioning backlogs and orphaned entitlements
+- Inconsistent MFA enforcement creating audit exposure in revenue roles
+- SaaS license sprawl driving 20–30% budget leakage
+- Migration risk from legacy infrastructure with no validated rollback plan
+
+OUR APPROACH
+
+PHASE 1 — DISCOVERY AND CURRENT STATE ASSESSMENT (Weeks [X]–[X])
+Deliverables:
+- Identity inventory: all accounts, entitlements, and role assignments
+- JML lifecycle map: current state vs. target state
+- SaaS license audit: active, inactive, and orphaned licenses
+- MFA coverage gap analysis by role and system criticality
+- Risk register: findings ranked by audit exposure and revenue impact
+
+PHASE 2 — ARCHITECTURE AND DESIGN (Weeks [X]–[X])
+Deliverables:
+- IAM architecture blueprint (AD DS, Entra ID, SAML 2.0/SCIM 2.0 as applicable)
+- JML automation design: Zero Touch provisioning pipeline
+- AGDLP group structure and role assignment framework
+- MFA enforcement policy by role tier
+- SaaS deprovisioning workflow design (n8n/Gearset where applicable)
+
+PHASE 3 — VALIDATION AND PILOT (Weeks [X]–[X])
+Deliverables:
+- Lab-validated architecture against client environment specs
+- Pilot group deployment (10–50 users, non-production)
+- Cutover runbook with rollback procedures
+- Downtime risk assessment and mitigation plan
+
+PHASE 4 — ADVISORY OVERSIGHT AND KNOWLEDGE TRANSFER (Weeks [X]–[X])
+Deliverables:
+- Architecture decision log and rationale documentation
+- IT team runbook for ongoing identity operations
+- SOC2/HIPAA control mapping for completed work
+- 30 day post-deployment advisory availability
+
+WHY RAYBURN IDEAS
+
+- 14 years IAM architecture experience across FinTech, HealthTech, Cyber
+- 600 user Windows Server 2025 Hyper-V lab validates every design
+- SOC2 and HIPAA control alignment on every engagement
+- All 4 engagement outcomes are documented with specific metrics
+- No implementation dependency — we architect, you execute
+- U.S. based, available for advisory calls within 24 hours
+
+INVESTMENT
+
+| Engagement Type    | Rate              | Notes                          |
+|--------------------|-------------------|--------------------------------|
+| Advisory / Expert  | $400/hr           | Architecture reviews, calls    |
+| Fractional         | $150–$225/hr      | Ongoing embedded advisory      |
+| Fixed Fee Audit    | $2,500            | Identity and SaaS license      |
+| Project Estimate   | [CALCULATE]       | Phase count × hours × rate     |
+
+Availability: [INSERT — e.g., 20 hrs/week starting DATE]
+
+NEXT STEP
+
+A 30-minute scoping call confirms fit and scope. No commitment required.
+Contact: Eric Rayburn | ericrayburn1@gmail.com`
+            },
+            pwc: {
+                format: 'PWC Talent Exchange (Rate Negotiation)',
+                template: `PWC TALENT EXCHANGE RATE NEGOTIATION — RAYBURN IDEAS
+Principal IAM Architect | Eric Rayburn | ericrayburn1@gmail.com
+Engagement Type: [ADVISORY / FRACTIONAL / AUDIT]
+================================================================================
+
+RATE JUSTIFICATION
+
+Engagement Background:
+[CLIENT COMPANY] operates in [INDUSTRY]. This engagement addresses [PRIMARY PROBLEM].
+Scope: [SPECIFIC DELIVERABLES], Timeline: [DURATION], Engagement Type: [ADVISORY/FRACTIONAL/AUDIT].
+
+Market Rate Context:
+- Principal IAM architects in FinTech and HealthTech: $350–$450/hr advisory
+- Post-engagement embedded advisory: $150–$250/hr
+- Fixed scope audits: $2,000–$3,500
+
+Rayburn Ideas Positioning:
+- 14 years IAM architecture, FinTech/HealthTech specialization
+- 600 user Windows Server 2025 lab validates every recommendation pre-deployment
+- SOC2/HIPAA control mapping included on all engagements
+- Prior outcomes: JML delays eliminated (72→4 hours), 100% MFA compliance, zero downtime migrations, 30% SaaS budget recovery
+
+Proposed Rate:
+- Advisory: $400/hr
+- Fractional: $150–$225/hr (depends on embedded vs. part-time)
+- Audit: $2,500 fixed
+
+This rate reflects experience depth and Lab First validation methodology.
+No implementation overhead — client executes or delegates to MSP.
+
+Availability and Logistics:
+[CONFIRM HOURS/WEEK], [CONFIRM START DATE], [CONFIRM PRIMARY CONTACT AND COMMUNICATION CADENCE]
+
+Next Steps:
+Rate confirmation and SOW. No retainer required. Time-and-materials or fixed engagement accepted.
+Contact: Eric Rayburn | ericrayburn1@gmail.com`
+            }
+        };
+
+        const platformEl = document.getElementById('platform');
+        const jobDescEl = document.getElementById('jobDesc');
+        const roleTypeEl = document.getElementById('roleType');
+        const caseStudyNameEl = document.getElementById('caseStudyName');
+        const caseStudyDetailEl = document.getElementById('caseStudyDetail');
+        const formatNameEl = document.getElementById('formatName');
+        const scaffoldContainer = document.getElementById('scaffoldContainer');
+        const scaffoldTitle = document.getElementById('scaffoldTitle');
+        const scaffoldContent = document.getElementById('scaffoldContent');
+
+        function detectRole(text) {
+            if (!text) return null;
+            const lower = text.toLowerCase();
+            let scores = { jml: 0, migration: 0, mfa: 0, saas: 0 };
+
+            for (const [role, keywords] of Object.entries(ROLE_KEYWORDS)) {
+                keywords.forEach(kw => {
+                    const regex = new RegExp(`\\b${kw}\\b`, 'gi');
+                    scores[role] += (text.match(regex) || []).length;
+                });
+            }
+
+            const topRole = Object.entries(scores).sort((a, b) => b[1] - a[1])[0];
+            return topRole[1] > 0 ? topRole[0] : null;
+        }
+
+        function updateRecommendation() {
+            const platform = platformEl.value;
+            const jobDesc = jobDescEl.value;
+            const role = detectRole(jobDesc);
+
+            if (!platform) {
+                roleTypeEl.textContent = '–';
+                caseStudyNameEl.textContent = '–';
+                caseStudyDetailEl.textContent = '';
+                formatNameEl.textContent = '–';
+                scaffoldContainer.style.display = 'none';
+                return;
+            }
+
+            // Show role detection
+            const roleNames = { jml: 'JML / Provisioning', migration: 'Migration / Modernization', mfa: 'MFA / Compliance', saas: 'SaaS / License' };
+            roleTypeEl.textContent = role ? roleNames[role] : 'General IAM';
+
+            // Show case study
+            const cs = role ? CASE_STUDIES[role] : null;
+            caseStudyNameEl.textContent = cs ? `${cs.shortCode} — ${cs.name}` : 'Review all 4 case studies';
+            caseStudyDetailEl.textContent = cs ? cs.detail : '';
+
+            // Show format
+            const scaffold = SCAFFOLDS[platform];
+            formatNameEl.textContent = scaffold.format;
+
+            // Show scaffold
+            if (scaffold) {
+                scaffoldTitle.textContent = `${scaffold.format} Scaffold`;
+                scaffoldContent.textContent = scaffold.template;
+                scaffoldContainer.style.display = 'block';
+                document.getElementById('copyScaffold').onclick = () => copyToClipboard(scaffold.template, 'Scaffold');
+                document.getElementById('downloadScaffold').onclick = () => downloadFile(scaffold.template, `${platform}-scaffold.txt`);
+            }
+        }
+
+        function copyToClipboard(text, label) {
+            navigator.clipboard.writeText(text).then(() => {
+                alert(`${label} copied to clipboard!`);
+            });
+        }
+
+        function downloadFile(text, filename) {
+            const blob = new Blob([text], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        platformEl.addEventListener('change', updateRecommendation);
+        jobDescEl.addEventListener('input', updateRecommendation);
+
+        document.getElementById('copyPrompt').addEventListener('click', () => {
+            const platform = platformEl.value;
+            if (!platform) { alert('Select a platform first'); return; }
+            const prompt = `I am responding to a ${platform.toUpperCase()} posting. Use the appropriate scaffold and recommend which case study fits best. I will paste the job description next.`;
+            copyToClipboard(prompt, 'Prompt');
+        });
+    </script>
+</body>
+</html>
