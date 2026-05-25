@@ -801,39 +801,6 @@ function step(pass, label, detail) {
     </div>`;
 }
 
-function copyClaudePrompt() {
-    if (!_claudePrompt) return;
-    navigator.clipboard.writeText(_claudePrompt).then(() => {
-        const btn = document.getElementById('btnCopyPrompt');
-        if (btn) {
-            btn.textContent = '✓ Copied — Paste into Claude Code';
-            btn.classList.add('copied');
-            setTimeout(() => {
-                btn.textContent = 'Copy Prompt for Claude';
-                btn.classList.remove('copied');
-            }, 3000);
-        }
-    }).catch(() => {
-        // Fallback for browsers that block clipboard API
-        const ta = document.createElement('textarea');
-        ta.value = _claudePrompt;
-        ta.style.position = 'fixed';
-        ta.style.opacity = '0';
-        document.body.appendChild(ta);
-        ta.select();
-        document.execCommand('copy');
-        document.body.removeChild(ta);
-        const btn = document.getElementById('btnCopyPrompt');
-        if (btn) {
-            btn.textContent = '✓ Copied — Paste into Claude Code';
-            btn.classList.add('copied');
-            setTimeout(() => {
-                btn.textContent = 'Copy Prompt for Claude';
-                btn.classList.remove('copied');
-            }, 3000);
-        }
-    });
-}
 </script>
 </body>
 </html>
