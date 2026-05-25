@@ -409,6 +409,59 @@
       cursor: pointer;
     }
 
+    /* EXPORT MODAL */
+    .export-modal {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      width: 100%;
+      max-width: 640px;
+      max-height: 90vh;
+      display: flex;
+      flex-direction: column;
+      padding: 28px;
+    }
+    .export-modal h2 { font-size: 17px; margin-bottom: 6px; }
+    .export-modal .export-sub { font-size: 12px; color: var(--text-muted); margin-bottom: 18px; }
+    .export-textarea {
+      width: 100%;
+      flex: 1;
+      min-height: 320px;
+      background: #0d1117;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      color: var(--text);
+      font-size: 12px;
+      font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+      padding: 14px;
+      resize: vertical;
+      outline: none;
+      line-height: 1.6;
+    }
+    .export-actions {
+      display: flex;
+      gap: 10px;
+      justify-content: flex-end;
+      margin-top: 16px;
+      padding-top: 16px;
+      border-top: 1px solid var(--border);
+    }
+    .btn-export {
+      background: none;
+      border: 1px solid var(--cyan);
+      color: var(--cyan);
+      border-radius: 6px;
+      padding: 9px 18px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .btn-export:hover { background: rgba(0,212,232,0.08); }
+    .btn-export.copied {
+      background: rgba(0,212,232,0.12);
+      border-color: var(--cyan);
+    }
+
     /* RESPONSIVE */
     @media (max-width: 640px) {
       .stats-row { grid-template-columns: 1fr 1fr; }
@@ -435,7 +488,10 @@
       <h1>Bid Pipeline</h1>
       <div class="sub">Track active bids across all platforms. Stored in your browser.</div>
     </div>
-    <button class="btn-add" onclick="openAddModal()">+ Add Bid</button>
+    <div style="display:flex;gap:10px;flex-shrink:0;">
+      <button class="btn-export" onclick="openExportModal()">Export</button>
+      <button class="btn-add" onclick="openAddModal()">+ Add Bid</button>
+    </div>
   </div>
 
   <div class="stats-row" id="stats-row"></div>
@@ -519,6 +575,19 @@
     <div class="modal-actions">
       <button class="btn-cancel" onclick="closeModal()">Cancel</button>
       <button class="btn-save" onclick="saveBid()">Save Bid</button>
+    </div>
+  </div>
+</div>
+
+<!-- EXPORT MODAL -->
+<div class="modal-overlay" id="export-overlay">
+  <div class="export-modal">
+    <h2>Export Pipeline</h2>
+    <div class="export-sub">Copy and paste into Claude with the GSD skill to get your daily priorities.</div>
+    <textarea class="export-textarea" id="export-text" readonly></textarea>
+    <div class="export-actions">
+      <button class="btn-cancel" onclick="closeExportModal()">Close</button>
+      <button class="btn-export" id="btn-copy-export" onclick="copyExport()">Copy to Clipboard</button>
     </div>
   </div>
 </div>
@@ -835,12 +904,97 @@ function confirmDelete() {
   render();
 }
 
+// ─── EXPORT ──────────────────────────────────────────────────────
+function buildExportText() {
+  const now   = new Date();
+  const dateStr = now.toLocaleDateString('en-US', { weekday:'long', year:'numeric', month:'long', day:'numeric' });
+  const active  = bids.filter(b => ['DRAFT','SUBMITTED','INTERVIEW'].includes(b.status));
+  const won     = bids.filter(b => b.status === 'WON');
+  const urgent  = active.filter(b => b.deadline && (new Date(b.deadline) - now) / 3600000 < 48 && new Date(b.deadline) > now);
+  const overdue = active.filter(b => b.deadline && new Date(b.deadline) < now);
+
+  let lines = [];
+  lines.push('BID PIPELINE SNAPSHOT — ' + dateStr);
+  lines.push('═'.repeat(52));
+  lines.push('');
+  lines.push(`ACTIVE BIDS: ${active.length}   URGENT (<48h): ${urgent.length}   OVERDUE: ${overdue.length}   WON: ${won.length}`);
+  lines.push('');
+
+  if (active.length === 0) {
+    lines.push('No active bids.');
+  } else {
+    const sorted = [...active].sort((a, b) => {
+      const aHas = a.deadline && new Date(a.deadline) > now;
+      const bHas = b.deadline && new Date(b.deadline) > now;
+      if (aHas && bHas) return new Date(a.deadline) - new Date(b.deadline);
+      if (aHas) return -1;
+      if (bHas) return 1;
+      return 0;
+    });
+    sorted.forEach((b, i) => {
+      const u = getUrgency(b.deadline);
+      const urgFlag = u.level === 'red' ? ' ⚠ URGENT' : u.level === 'gray' && b.deadline && new Date(b.deadline) < now ? ' ✖ OVERDUE' : '';
+      lines.push(`${i+1}. [${b.platform || 'Unknown'}] ${b.title}${urgFlag}`);
+      if (b.client)      lines.push(`   Client:   ${b.client}`);
+                         lines.push(`   Status:   ${b.status}`);
+                         lines.push(`   Deadline: ${u.label}`);
+      if (b.rateQuoted)  lines.push(`   Rate:     $${b.rateQuoted}/hr`);
+      if (b.goDecision)  lines.push(`   Screened: ${b.goDecision}`);
+      if (b.notes) {
+        const snippet = b.notes.split('\n')[0].slice(0, 120);
+        lines.push(`   Notes:    ${snippet}`);
+      }
+      if (b.followUpDate) {
+        const fu   = new Date(b.followUpDate);
+        const diff = Math.ceil((fu - now) / 86400000);
+        const fuLabel = diff === 0 ? 'TODAY' : diff === 1 ? 'tomorrow' : diff > 0 ? `in ${diff}d` : 'OVERDUE';
+        lines.push(`   Follow-up: ${fuLabel}`);
+      }
+      lines.push('');
+    });
+  }
+
+  lines.push('─'.repeat(52));
+  lines.push(`Total tracked: ${bids.length}   Won: ${won.length}   Submitted: ${bids.filter(b=>b.status==='SUBMITTED').length}   Interview: ${bids.filter(b=>b.status==='INTERVIEW').length}`);
+  lines.push('');
+  lines.push('Run the GSD skill and use this snapshot for today\'s priorities.');
+
+  return lines.join('\n');
+}
+
+function openExportModal() {
+  document.getElementById('export-text').value = buildExportText();
+  document.getElementById('btn-copy-export').textContent = 'Copy to Clipboard';
+  document.getElementById('btn-copy-export').classList.remove('copied');
+  document.getElementById('export-overlay').classList.add('open');
+}
+
+function closeExportModal() {
+  document.getElementById('export-overlay').classList.remove('open');
+}
+
+function copyExport() {
+  const text = document.getElementById('export-text').value;
+  navigator.clipboard.writeText(text).then(() => {
+    const btn = document.getElementById('btn-copy-export');
+    btn.textContent = '✓ Copied';
+    btn.classList.add('copied');
+    setTimeout(() => {
+      btn.textContent = 'Copy to Clipboard';
+      btn.classList.remove('copied');
+    }, 2200);
+  });
+}
+
 // ─── CLOSE ON BACKDROP ───────────────────────────────────────────
 document.getElementById('modal-overlay').addEventListener('click', function(e) {
   if (e.target === this) closeModal();
 });
 document.getElementById('confirm-overlay').addEventListener('click', function(e) {
   if (e.target === this) closeConfirm();
+});
+document.getElementById('export-overlay').addEventListener('click', function(e) {
+  if (e.target === this) closeExportModal();
 });
 
 // ─── LIVE REFRESH (countdown updates) ───────────────────────────
