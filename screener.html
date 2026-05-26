@@ -729,6 +729,20 @@ function runScreener() {
             : '<div style="font-size:12px;color:var(--text-muted)">No strong case study match. Review all four manually.</div>';
         html += block('Recommended Case Study', csHtml);
 
+        // ── Next Step: Response Template Builder ──
+        const templateBuilderPlatform = platform ? platform.id.toUpperCase() : 'N/A';
+        html += block('Next Step', `
+            <div class="bridge-body">
+                <div class="bridge-desc">
+                    Use the Response Template Builder to get the correct scaffold for this platform.
+                </div>
+                <a href="templates.html" style="display:inline-block; background:var(--cyan); color:#0d1117; text-decoration:none; padding:10px 24px; border-radius:6px; font-weight:700; font-size:13px; cursor:pointer; transition:opacity 0.15s;" onmouseover="this.style.opacity='0.85'" onmouseout="this.style.opacity='1'">
+                    Open Response Template Builder → ${templateBuilderPlatform}
+                </a>
+                <div class="bridge-note">Select platform: <strong>${templateBuilderPlatform}</strong> | Paste job description | Get scaffold with pre-filled case study</div>
+            </div>
+        `);
+
         // ── Build Claude Bridge Prompt ──
         const platformLine = platform
             ? `${platform.name} (${platform.fullName}) — ${platform.format}`
