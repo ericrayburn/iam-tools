@@ -619,16 +619,39 @@ function recommendCaseStudies(raw) {
 }
 
 // ─────────────────────────────────────────────────────────────
+// ENGAGEMENT TYPE DETECTION
+// ─────────────────────────────────────────────────────────────
+function detectEngagementType(raw) {
+    const lower = raw.toLowerCase();
+    const types = {
+        fte: ['full-time','full time','employee','w2','salary','benefits','401k','permanent'],
+        fractional: ['fractional','part-time','part time','contract','1099','hourly','engagement duration'],
+        staffAug: ['staff aug','staff augmentation','contract hire','project-based','consulting company','client','vendor'],
+        advisory: ['advisory','advisor','board','retainer','consulting','expert network','expert call']
+    };
+
+    const found = {};
+    for (const [type, signals] of Object.entries(types)) {
+        found[type] = signals.filter(s => lower.includes(s)).length;
+    }
+
+    const sorted = Object.entries(found).sort((a,b) => b[1] - a[1]);
+    if (sorted[0][1] === 0) return { type: 'Unknown', signals: found };
+    return { type: sorted[0][0], signals: found };
+}
+
+// ─────────────────────────────────────────────────────────────
 // MAIN SCREENER
 // ─────────────────────────────────────────────────────────────
 function runScreener() {
     const raw = INPUT.value.trim();
     if (!raw) { alert('Paste a bid posting first.'); return; }
 
-    const platform  = detectPlatform(raw);
+    const platform      = detectPlatform(raw);
     const { l3, l2, l1, total } = scoreKeywords(raw);
-    const flags     = detectRedFlags(raw);
-    const roleType  = detectRoleType(raw);
+    const flags         = detectRedFlags(raw);
+    const roleType      = detectRoleType(raw);
+    const engagement    = detectEngagementType(raw);
 
     // ── Decision Logic ──
     const hiConf    = l3.length + l2.length;
@@ -637,16 +660,19 @@ function runScreener() {
     const l3Pct     = total > 0 ? Math.round((l3.length / total) * 100) : 0;
     const l2Pct     = total > 0 ? Math.round((l2.length / total) * 100) : 0;
 
-    // Q1: 70%+ signals at L3 or L2
-    const q1Pass = total > 0 && hiConfPct >= 70;
-    // Q2: Architecture scope, not implementation
-    const q2Pass = roleType.type !== 'Implementation';
-    // Q3: No vendor specialist / coding red flags
-    const q3Pass = flags.length === 0;
-    // Q4: L1 content under 20%
-    const q4Pass = total === 0 || l1Pct <= 20;
+    // Q1: Architecture-level scope, not implementation/coding
+    const q1Pass = roleType.type !== 'Implementation';
+    // Q2: 70%+ signals at L3 or L2
+    const q2Pass = total > 0 && hiConfPct >= 70;
+    // Q3: Engagement type matches positioning (FTE flags as warning, not auto-fail)
+    const q3Pass = engagement.type !== 'fte';
+    const q3Warning = engagement.type === 'fte' ? 'FTE role detected — verify contract-to-hire status before proceeding' : null;
+    // Q4: No vendor specialist / coding red flags
+    const q4Pass = flags.length === 0;
+    // Q5: L1 content under 20% (optional threshold check)
+    const q5Pass = total === 0 || l1Pct <= 20;
 
-    const go = q1Pass && q2Pass && q3Pass && q4Pass;
+    const go = q1Pass && q2Pass && q3Pass && q4Pass && q5Pass;
 
     const matchedCases = go ? recommendCaseStudies(raw) : [];
 
@@ -679,21 +705,25 @@ function runScreener() {
     // Decision Steps
     const stepsHtml = [
         step(q1Pass,
-            'Q1: 70%+ signals at L3 or L2?',
+            'Q1: Architecture-level scope, not implementation/coding?',
+            `Role type: ${roleType.type} (arch signals: ${roleType.arch}, impl signals: ${roleType.impl})`
+        ),
+        step(q2Pass,
+            'Q2: 70%+ signals at L3 or L2?',
             total === 0
                 ? 'No signals detected — cannot evaluate'
                 : `${hiConfPct}% are L3/L2 (${hiConf} of ${total} signals)`
         ),
-        step(q2Pass,
-            'Q2: Architecture scope, not implementation?',
-            `Role type: ${roleType.type} (arch signals: ${roleType.arch}, impl signals: ${roleType.impl})`
-        ),
         step(q3Pass,
-            'Q3: No vendor specialist or coding red flags?',
-            flags.length > 0 ? `${flags.length} red flag(s) found — see above` : 'Clean'
+            'Q3: Engagement type matches positioning?',
+            engagement.type ? `Type: ${engagement.type.toUpperCase()} ${q3Warning ? '⚠️ ' + q3Warning : '(clean)'}` : 'Unknown'
         ),
         step(q4Pass,
-            'Q4: L1 out-of-scope content under 20%?',
+            'Q4: No vendor specialist or coding red flags?',
+            flags.length > 0 ? `${flags.length} red flag(s) found — see above` : 'Clean'
+        ),
+        step(q5Pass,
+            'Q5: L1 out-of-scope content under 20%?',
             `L1 is ${l1Pct}% of all signals (${l1.length} signal${l1.length !== 1 ? 's' : ''})`
         )
     ].join('');
@@ -701,13 +731,14 @@ function runScreener() {
 
     // Verdict
     const reasonLines = go
-        ? '<span style="color:var(--green)">All four guardrail checks passed. Proceed with bid response.</span>'
+        ? '<span style="color:var(--green)">All five guardrail checks passed. Proceed with bid response.</span>'
         : (() => {
             const r = [];
-            if (!q1Pass) r.push(total === 0 ? 'No IAM signals found' : `L3/L2 coverage too low (${hiConfPct}% — need 70%+)`);
-            if (!q2Pass) r.push('Implementation-focused role detected');
-            if (!q3Pass) r.push(`${flags.length} red flag(s) present`);
-            if (!q4Pass) r.push(`L1 content at ${l1Pct}% — exceeds 20% threshold`);
+            if (!q1Pass) r.push('Implementation-focused role detected — not architecture-level');
+            if (!q2Pass) r.push(total === 0 ? 'No IAM signals found' : `L3/L2 coverage too low (${hiConfPct}% — need 70%+)`);
+            if (!q3Pass) r.push('FTE role — verify contract-to-hire status or decline');
+            if (!q4Pass) r.push(`${flags.length} red flag(s) present — implementation or vendor specialist signals`);
+            if (!q5Pass) r.push(`L1 content at ${l1Pct}% — exceeds 20% threshold`);
             return r.join('<br>');
         })();
 
