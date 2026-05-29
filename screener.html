@@ -151,6 +151,32 @@
 
         .char-count { font-size: 11px; color: var(--text-muted); margin-left: auto; }
 
+        /* ── Platform Selector ── */
+        .platform-selector-row {
+            padding: 8px 16px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: var(--surface2);
+        }
+        .selector-label {
+            font-size: 11px; font-weight: 700;
+            color: var(--text-muted);
+            text-transform: uppercase; letter-spacing: 1px;
+            flex-shrink: 0; width: 64px;
+        }
+        #platformSelect {
+            background: var(--bg);
+            color: var(--text);
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            padding: 5px 8px;
+            font-size: 12px; font-family: inherit;
+            cursor: pointer; flex: 1;
+        }
+        #platformSelect:focus { outline: none; border-color: var(--cyan); }
+
         /* ── Results ── */
         .results-body {
             flex: 1; padding: 18px;
@@ -332,6 +358,18 @@
             <span>Bid Posting</span>
             <span id="charCount" class="char-count">0 chars</span>
         </div>
+        <div class="platform-selector-row">
+            <span class="selector-label">Platform</span>
+            <select id="platformSelect">
+                <option value="">Auto-detect from text</option>
+                <option value="glg">GLG</option>
+                <option value="catalant">Catalant</option>
+                <option value="mbo">MBO Partners</option>
+                <option value="pwc">PwC Talent Exchange</option>
+                <option value="gofractional">GoFractional</option>
+                <option value="arc">Arc.dev</option>
+            </select>
+        </div>
         <textarea id="bidInput" placeholder="Paste the full bid posting here.&#10;&#10;Include the job description, platform details, questions asked, required skills, and any scope notes. The screener will detect the platform and run the full GO / NO-GO qualification guardrail."></textarea>
         <div class="input-footer">
             <button class="btn-run" onclick="runScreener()">Run Screener</button>
@@ -372,6 +410,7 @@ function clearAll() {
     INPUT.value = '';
     CHARS.textContent = '0 chars';
     _claudePrompt = '';
+    document.getElementById('platformSelect').value = '';
     RESULTS.innerHTML = '<div class="placeholder-msg">Paste a bid posting on the left.<br>Click <strong>Run Screener</strong> to get the GO / NO-GO verdict.</div>';
 }
 
@@ -647,7 +686,8 @@ function runScreener() {
     const raw = INPUT.value.trim();
     if (!raw) { alert('Paste a bid posting first.'); return; }
 
-    const platform      = detectPlatform(raw);
+    const manualId  = document.getElementById('platformSelect').value;
+    const platform  = manualId ? (PLATFORMS.find(p => p.id === manualId) || null) : detectPlatform(raw);
     const { l3, l2, l1, total } = scoreKeywords(raw);
     const flags         = detectRedFlags(raw);
     const roleType      = detectRoleType(raw);
