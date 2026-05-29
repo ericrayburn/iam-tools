@@ -680,6 +680,75 @@ function detectEngagementType(raw) {
 }
 
 // ─────────────────────────────────────────────────────────────
+// LOCATION DETECTION
+// ─────────────────────────────────────────────────────────────
+const REMOTE_SIGNALS = [
+    'fully remote','100% remote','remote-first','remote first','work from home',
+    'work from anywhere','distributed team','remote only','remote position',
+    'remote role','anywhere in the us','anywhere in us','wfh'
+];
+const HYBRID_SIGNALS = [
+    'hybrid','flexible remote','mostly remote','occasional travel',
+    'occasional on-site','occasional onsite','flexible location'
+];
+const ONSITE_SIGNALS = [
+    'on-site required','onsite required','must be on-site','must be onsite',
+    'in-office required','in office required','local candidates only',
+    'must be located in','must reside in','must live in','on site required',
+    'required to be on-site','required to be onsite','in-person required'
+];
+const NON_US_SIGNALS = [
+    'canada','united kingdom',' uk ','germany','france','india','australia',
+    'netherlands','singapore','ireland','emea','apac','latin america',
+    'europe only','eu based','eu-based','outside the us','outside us',
+    'non-us','international only'
+];
+const US_SIGNALS = [
+    'united states','usa','u.s.','us-based','us based','u.s. based',
+    'new york','los angeles','san francisco','bay area','chicago','boston',
+    'austin','seattle','denver','miami','atlanta','dallas','houston',
+    'washington dc','washington, dc','new jersey','california','texas',
+    'florida','illinois','massachusetts','georgia','colorado','ohio',
+    'north carolina','virginia','pennsylvania','minnesota','oregon',
+    'arizona','nevada','utah','tennessee','maryland','connecticut'
+];
+
+function detectLocation(raw) {
+    const lower = raw.toLowerCase();
+    const hasRemote = REMOTE_SIGNALS.some(s => lower.includes(s));
+    const hasHybrid = HYBRID_SIGNALS.some(s => lower.includes(s));
+    const hasOnsite = ONSITE_SIGNALS.some(s => lower.includes(s));
+    const hasNonUS  = NON_US_SIGNALS.some(s => lower.includes(s));
+    const hasUS     = US_SIGNALS.some(s => lower.includes(s));
+
+    let locationType;
+    if (hasRemote)       locationType = 'Remote';
+    else if (hasHybrid)  locationType = 'Hybrid';
+    else if (hasOnsite)  locationType = 'On-site';
+    else                 locationType = 'Not specified';
+
+    let region;
+    if (hasNonUS && !hasUS) region = 'Non-US';
+    else if (hasUS)          region = 'US';
+    else                     region = 'Not specified';
+
+    let status, reason;
+    if (hasNonUS && !hasRemote && !hasUS) {
+        status = 'fail';
+        reason = 'Non-US location required — outside target market';
+    } else if (hasOnsite && !hasRemote && !hasHybrid) {
+        status = 'warning';
+        reason = 'On-site required — confirm location is acceptable before bidding';
+    } else {
+        status = 'pass';
+        reason = locationType === 'Not specified'
+            ? 'No location restriction detected'
+            : locationType + (region !== 'Not specified' ? ' — ' + region : '');
+    }
+    return { locationType, region, status, reason };
+}
+
+// ─────────────────────────────────────────────────────────────
 // MAIN SCREENER
 // ─────────────────────────────────────────────────────────────
 function runScreener() {
@@ -692,6 +761,7 @@ function runScreener() {
     const flags         = detectRedFlags(raw);
     const roleType      = detectRoleType(raw);
     const engagement    = detectEngagementType(raw);
+    const location      = detectLocation(raw);
 
     // ── Decision Logic ──
     const hiConf    = l3.length + l2.length;
@@ -711,8 +781,11 @@ function runScreener() {
     const q4Pass = flags.length === 0;
     // Q5: L1 content under 20% (optional threshold check)
     const q5Pass = total === 0 || l1Pct <= 20;
+    // Q6: Location compatible (remote, hybrid, US-based, or unspecified)
+    const q6Pass    = location.status !== 'fail';
+    const q6Warning = location.status === 'warning' ? location.reason : null;
 
-    const go = q1Pass && q2Pass && q3Pass && q4Pass && q5Pass;
+    const go = q1Pass && q2Pass && q3Pass && q4Pass && q5Pass && q6Pass;
 
     const matchedCases = go ? recommendCaseStudies(raw) : [];
 
@@ -726,6 +799,19 @@ function runScreener() {
             ? platform.fullName + '<br>' + platform.format
             : 'No platform pattern matched. Verify manually before responding.'
         }</div>
+    `);
+
+    // Location
+    const locColor = location.status === 'fail' ? 'var(--red)' : location.status === 'warning' ? 'var(--orange)' : 'var(--green)';
+    const locIcon  = location.status === 'fail' ? '✗' : location.status === 'warning' ? '⚠' : '✓';
+    html += block('Location', `
+        <div style="display:flex;align-items:flex-start;gap:10px">
+            <div style="width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:900;flex-shrink:0;background:${location.status==='fail'?'rgba(248,81,73,0.2)':location.status==='warning'?'rgba(210,153,34,0.2)':'rgba(63,185,80,0.2)'};color:${locColor}">${locIcon}</div>
+            <div>
+                <div style="font-size:13px;font-weight:700;color:${locColor};margin-bottom:3px">${location.locationType}${location.region !== 'Not specified' ? ' — ' + location.region : ''}</div>
+                <div style="font-size:11px;color:var(--text-muted)">${location.reason}</div>
+            </div>
+        </div>
     `);
 
     // Level Breakdown
@@ -765,6 +851,10 @@ function runScreener() {
         step(q5Pass,
             'Q5: L1 out-of-scope content under 20%?',
             `L1 is ${l1Pct}% of all signals (${l1.length} signal${l1.length !== 1 ? 's' : ''})`
+        ),
+        step(q6Pass,
+            'Q6: Location compatible?',
+            q6Warning ? `⚠️ ${q6Warning}` : location.reason
         )
     ].join('');
     html += block('Decision Logic', stepsHtml);
@@ -779,6 +869,7 @@ function runScreener() {
             if (!q3Pass) r.push('FTE role — verify contract-to-hire status or decline');
             if (!q4Pass) r.push(`${flags.length} red flag(s) present — implementation or vendor specialist signals`);
             if (!q5Pass) r.push(`L1 content at ${l1Pct}% — exceeds 20% threshold`);
+            if (!q6Pass) r.push(location.reason);
             return r.join('<br>');
         })();
 
