@@ -502,6 +502,27 @@ const PLATFORMS = [
         fullName: 'Arc.dev',
         format: 'Advisory Only — $300+/hr',
         keywords: ['arc.dev', 'arcdev', 'apply to this role']
+    },
+    {
+        id: 'dice',
+        name: 'Dice',
+        fullName: 'Dice (Job Board)',
+        format: 'WARNING: Job board posting — likely FTE or staffing firm placement. Verify direct engagement before bidding.',
+        keywords: ['dice.com', 'dice id:', 'dhi service', 'dhijobs', 'copyright © 1990', 'dice is a dhi']
+    },
+    {
+        id: 'linkedin',
+        name: 'LinkedIn',
+        fullName: 'LinkedIn Jobs',
+        format: 'WARNING: Job board posting — likely FTE or recruiter placement. Verify direct engagement before bidding.',
+        keywords: ['linkedin.com/jobs', 'linkedin job', 'easy apply', 'apply on linkedin']
+    },
+    {
+        id: 'indeed',
+        name: 'Indeed',
+        fullName: 'Indeed',
+        format: 'WARNING: Job board posting — likely FTE or staffing firm placement. Verify direct engagement before bidding.',
+        keywords: ['indeed.com', 'indeed job', 'posted on indeed']
     }
 ];
 
@@ -557,7 +578,10 @@ const L1 = [
     'workflow developer','connector developer',
     'data engineering','data pipeline','apache spark','kafka',
     'mobile development','ios development','android development',
-    'gpu cluster','hardware specification'
+    'gpu cluster','hardware specification',
+    'saviynt eic','saviynt enterprise identity cloud',
+    'oracle identity manager','oim','oracle identity governance',
+    'groovy','groovy scripting','groovy scripts'
 ];
 
 function scoreKeywords(raw) {
@@ -588,7 +612,12 @@ const RED_FLAGS = [
     { pattern: 'workflow developer',               label: 'Vendor workflow developer role' },
     { pattern: 'connector developer',              label: 'Connector developer role' },
     { pattern: 'full-stack developer',             label: 'Full-stack developer role' },
-    { pattern: 'frontend developer',               label: 'Frontend developer role' }
+    { pattern: 'frontend developer',               label: 'Frontend developer role' },
+    { pattern: 'groovy',                           label: 'Vendor scripting: Groovy (Saviynt/SailPoint customization)' },
+    { pattern: 'develop custom api',               label: 'Development task: custom API development required' },
+    { pattern: 'configure and customize',          label: 'Vendor specialist task: configure and customize workflows/connectors' },
+    { pattern: 'custom connector',                 label: 'Implementation task: custom connector development' },
+    { pattern: 'saviynt eic',                      label: 'Vendor specialist scope: Saviynt EIC platform-specific role' }
 ];
 
 function detectRedFlags(raw) {
@@ -665,7 +694,11 @@ function detectEngagementType(raw) {
     const types = {
         fte: ['full-time','full time','employee','w2','salary','benefits','401k','permanent'],
         fractional: ['fractional','part-time','part time','contract','1099','hourly','engagement duration'],
-        staffAug: ['staff aug','staff augmentation','contract hire','project-based','consulting company','client','vendor'],
+        staffingFirm: ['staffing firm','staffing company','staffing solutions','talent resourcing',
+                       'corp-to-corp','c2c','w-2 through','placed with our client','our client is',
+                       'our client has','placement role','third-party placement','depends on experience',
+                       'staffing agency','recruiting firm'],
+        staffAug: ['staff aug','staff augmentation','contract hire','project-based'],
         advisory: ['advisory','advisor','board','retainer','consulting','expert network','expert call']
     };
 
@@ -774,9 +807,13 @@ function runScreener() {
     const q1Pass = roleType.type !== 'Implementation';
     // Q2: 70%+ signals at L3 or L2
     const q2Pass = total > 0 && hiConfPct >= 70;
-    // Q3: Engagement type matches positioning (FTE flags as warning, not auto-fail)
+    // Q3: Engagement type matches positioning (FTE and staffing firm flag as warning)
     const q3Pass = engagement.type !== 'fte';
-    const q3Warning = engagement.type === 'fte' ? 'FTE role detected — verify contract-to-hire status before proceeding' : null;
+    const q3Warning = engagement.type === 'fte'
+        ? 'FTE role detected — verify contract-to-hire status before proceeding'
+        : engagement.type === 'staffingFirm'
+            ? 'Staffing firm placement detected — not a direct consulting engagement. Verify before bidding.'
+            : null;
     // Q4: No vendor specialist / coding red flags
     const q4Pass = flags.length === 0;
     // Q5: L1 content under 20% (optional threshold check)
