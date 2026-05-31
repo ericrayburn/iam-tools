@@ -177,6 +177,18 @@
         }
         #platformSelect:focus { outline: none; border-color: var(--cyan); }
 
+        #bidUrl {
+            background: var(--bg);
+            color: var(--text);
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            padding: 5px 8px;
+            font-size: 12px; font-family: inherit;
+            flex: 1;
+        }
+        #bidUrl:focus { outline: none; border-color: var(--cyan); }
+        #bidUrl::placeholder { color: var(--text-muted); }
+
         /* ── Results ── */
         .results-body {
             flex: 1; padding: 18px;
@@ -288,6 +300,22 @@
             color: var(--red);
             border: 2px solid var(--red);
         }
+        .verdict-strong {
+            background: rgba(63,185,80,0.15);
+            color: var(--green);
+            border: 2px solid var(--green);
+        }
+        .verdict-borderline {
+            background: rgba(210,153,34,0.15);
+            color: var(--orange);
+            border: 2px solid var(--orange);
+            font-size: 26px;
+        }
+        .verdict-drop {
+            background: rgba(248,81,73,0.15);
+            color: var(--red);
+            border: 2px solid var(--red);
+        }
         .verdict-reason {
             margin-top: 10px;
             font-size: 12px; color: var(--text-muted);
@@ -359,15 +387,29 @@
             <span id="charCount" class="char-count">0 chars</span>
         </div>
         <div class="platform-selector-row">
+            <span class="selector-label">Link</span>
+            <input id="bidUrl" type="url" placeholder="Paste the posting URL (optional — auto-detects platform)" />
+        </div>
+        <div class="platform-selector-row">
             <span class="selector-label">Platform</span>
             <select id="platformSelect">
                 <option value="">Auto-detect from text</option>
-                <option value="glg">GLG</option>
-                <option value="catalant">Catalant</option>
-                <option value="mbo">MBO Partners</option>
-                <option value="pwc">PwC Talent Exchange</option>
-                <option value="gofractional">GoFractional</option>
-                <option value="arc">Arc.dev</option>
+                <optgroup label="Consulting platforms">
+                    <option value="glg">GLG</option>
+                    <option value="catalant">Catalant</option>
+                    <option value="mbo">MBO Partners</option>
+                    <option value="pwc">PwC Talent Exchange</option>
+                    <option value="gofractional">GoFractional</option>
+                    <option value="arc">Arc.dev</option>
+                </optgroup>
+                <optgroup label="Job boards">
+                    <option value="linkedin">LinkedIn</option>
+                    <option value="dice">Dice</option>
+                    <option value="glassdoor">Glassdoor</option>
+                    <option value="indeed">Indeed</option>
+                    <option value="monster">Monster</option>
+                    <option value="ziprecruiter">ZipRecruiter</option>
+                </optgroup>
             </select>
         </div>
         <textarea id="bidInput" placeholder="Paste the full bid posting here.&#10;&#10;Include the job description, platform details, questions asked, required skills, and any scope notes. The screener will detect the platform and run the full GO / NO-GO qualification guardrail."></textarea>
@@ -397,6 +439,7 @@
 // UTILITIES
 // ─────────────────────────────────────────────────────────────
 let _claudePrompt = ''; // holds generated prompt for clipboard bridge
+let _outreachShort = '', _outreachEmail = ''; // holds recruiter outreach drafts
 
 const INPUT   = document.getElementById('bidInput');
 const RESULTS = document.getElementById('resultsBody');
@@ -406,10 +449,17 @@ INPUT.addEventListener('input', () => {
     CHARS.textContent = INPUT.value.length.toLocaleString() + ' chars';
 });
 
+const URLINPUT = document.getElementById('bidUrl');
+URLINPUT.addEventListener('input', () => {
+    const hit = detectPlatformFromUrl(URLINPUT.value.trim());
+    if (hit) document.getElementById('platformSelect').value = hit.id;
+});
+
 function clearAll() {
     INPUT.value = '';
     CHARS.textContent = '0 chars';
     _claudePrompt = '';
+    document.getElementById('bidUrl').value = '';
     document.getElementById('platformSelect').value = '';
     RESULTS.innerHTML = '<div class="placeholder-msg">Paste a bid posting on the left.<br>Click <strong>Run Screener</strong> to get the GO / NO-GO verdict.</div>';
 }
@@ -446,6 +496,36 @@ function copyClaudePrompt() {
     }
 }
 
+function copyOutreach(kind) {
+    const text = kind === 'short' ? _outreachShort : _outreachEmail;
+    const btn  = document.getElementById(kind === 'short' ? 'btnCopyShort' : 'btnCopyEmail');
+    if (!text) return;
+
+    function onCopied() {
+        if (!btn) return;
+        const original = btn.getAttribute('data-label') || btn.textContent;
+        btn.setAttribute('data-label', original);
+        btn.textContent = '✓ Copied';
+        btn.classList.add('copied');
+        setTimeout(() => { btn.textContent = original; btn.classList.remove('copied'); }, 2000);
+    }
+    function fallbackCopy() {
+        const ta = document.createElement('textarea');
+        ta.value = text;
+        ta.style.cssText = 'position:fixed;opacity:0;top:0;left:0';
+        document.body.appendChild(ta);
+        ta.focus(); ta.select();
+        try { document.execCommand('copy'); onCopied(); } catch (e) {}
+        document.body.removeChild(ta);
+    }
+
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(onCopied).catch(fallbackCopy);
+    } else {
+        fallbackCopy();
+    }
+}
+
 // Match keyword — use word boundary for short terms to avoid false positives
 function matchKw(text, kw) {
     if (kw.length <= 5) {
@@ -455,6 +535,23 @@ function matchKw(text, kw) {
         } catch(e) { return false; }
     }
     return text.toLowerCase().includes(kw.toLowerCase());
+}
+
+// ─────────────────────────────────────────────────────────────
+// SCREENING LOG (feeds the Insights dashboard — deterministic, local only)
+// ─────────────────────────────────────────────────────────────
+const SCREENER_LOG_KEY = 'iam_screener_log_v1';
+
+function logScreening(rec) {
+    try {
+        rec.ts = Date.now();
+        const raw = localStorage.getItem(SCREENER_LOG_KEY);
+        const log = raw ? JSON.parse(raw) : [];
+        log.push(rec);
+        // Cap history so storage never bloats.
+        if (log.length > 1000) log.splice(0, log.length - 1000);
+        localStorage.setItem(SCREENER_LOG_KEY, JSON.stringify(log));
+    } catch (e) { /* storage unavailable — screening still works */ }
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -523,8 +620,45 @@ const PLATFORMS = [
         fullName: 'Indeed',
         format: 'WARNING: Job board posting — likely FTE or staffing firm placement. Verify direct engagement before bidding.',
         keywords: ['indeed.com', 'indeed job', 'posted on indeed']
+    },
+    {
+        id: 'glassdoor',
+        name: 'Glassdoor',
+        fullName: 'Glassdoor',
+        format: 'WARNING: Job board posting — likely FTE or staffing firm placement. Verify direct engagement before bidding.',
+        keywords: ['glassdoor.com', 'glassdoor job', 'posted on glassdoor']
+    },
+    {
+        id: 'monster',
+        name: 'Monster',
+        fullName: 'Monster.com',
+        format: 'WARNING: Job board posting — likely FTE or staffing firm placement. Verify direct engagement before bidding.',
+        keywords: ['monster.com', 'monster job', 'posted on monster']
+    },
+    {
+        id: 'ziprecruiter',
+        name: 'ZipRecruiter',
+        fullName: 'ZipRecruiter',
+        format: 'WARNING: Job board posting — likely FTE or staffing firm placement. Verify direct engagement before bidding.',
+        keywords: ['ziprecruiter.com', 'ziprecruiter', 'posted on ziprecruiter']
     }
 ];
+
+// Domain map for URL auto-detect. Hostname substring match wins.
+const PLATFORM_DOMAINS = {
+    glg:          ['glginsights.com', 'glg.it', 'glgresearch.com'],
+    mbo:          ['mbopartners.com'],
+    catalant:     ['catalant.com', 'gocatalant.com'],
+    pwc:          ['talentexchange.pwc.com', 'pwc.com'],
+    gofractional: ['gofractional.com'],
+    arc:          ['arc.dev'],
+    dice:         ['dice.com'],
+    linkedin:     ['linkedin.com', 'lnkd.in'],
+    indeed:       ['indeed.com'],
+    glassdoor:    ['glassdoor.com'],
+    monster:      ['monster.com'],
+    ziprecruiter: ['ziprecruiter.com']
+};
 
 function detectPlatform(raw) {
     let best = null, bestScore = 0;
@@ -533,6 +667,20 @@ function detectPlatform(raw) {
         if (score > bestScore) { bestScore = score; best = p; }
     }
     return bestScore > 0 ? best : null;
+}
+
+// Detect platform from a posting URL by hostname.
+function detectPlatformFromUrl(url) {
+    if (!url) return null;
+    let host = '';
+    try { host = new URL(url).hostname.toLowerCase(); }
+    catch (e) { host = url.toLowerCase(); }
+    for (const [id, domains] of Object.entries(PLATFORM_DOMAINS)) {
+        if (domains.some(d => host.includes(d))) {
+            return PLATFORMS.find(p => p.id === id) || null;
+        }
+    }
+    return null;
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -782,6 +930,116 @@ function detectLocation(raw) {
 }
 
 // ─────────────────────────────────────────────────────────────
+// RECRUITER / STAFFING DETECTION + OUTREACH (P3)
+// ─────────────────────────────────────────────────────────────
+const RECRUITER_SIGNALS = [
+    'recruiter','recruiting','talent acquisition','staffing','staffing firm','staffing agency',
+    'recruiting firm','our client','placed with','placement','headhunter','search firm',
+    'on behalf of our client','sourcing for','talent partner','resourcing','agency'
+];
+
+function detectRecruiter(raw, engagement) {
+    const lower = raw.toLowerCase();
+    const sigHits = RECRUITER_SIGNALS.filter(s => lower.includes(s));
+    const isRecruiter = engagement.type === 'staffingFirm' || sigHits.length > 0;
+    return { isRecruiter, sigHits };
+}
+
+// Deterministic outreach drafts. No model, no cost. Built from the consultant profile.
+function buildOutreach() {
+    const short = [
+        'Hello. I am an IAM architect consultant, 14 years in identity and access management.',
+        'I advise US Series B and C startups on IAM architecture, JML automation, PAM, and MFA.',
+        'Please keep me on file for future identity roles. Remote or hybrid preferred.'
+    ].join(' ');
+
+    const email = [
+        'Subject: IAM architecture consultant, keep me on file',
+        '',
+        'Hello.',
+        '',
+        'I am an IAM architect consultant with 14 years in identity and access management.',
+        'I work with US Series B and C startups, 150 to 600 employees, in FinTech, HealthTech, and Cyber.',
+        'My focus: IAM architecture, joiner mover leaver automation, Zero Downtime migration, PAM, MFA, and SaaS license recovery.',
+        'I take advisory and fractional engagements, remote or hybrid.',
+        'This role may not fit. Please add me to your database for future identity work.',
+        'I can share case studies on request.',
+        '',
+        'Thank you.',
+        'Eric Rayburn',
+        'Rayburn Ideas'
+    ].join('\n');
+
+    return { short, email };
+}
+
+// ─────────────────────────────────────────────────────────────
+// THREE-BUCKET FIT SCORE (DROP / BORDERLINE / STRONG)
+// ─────────────────────────────────────────────────────────────
+// Agentic / generative AI standing exclusion. Tight phrases only,
+// so IAM bids that mention AI in passing still survive.
+const AI_EXCLUSION = [
+    'agentic ai','generative ai','genai','gen ai','ai agent','ai agents',
+    'llm deployment','enterprise ai','deploy ai','build an ai','ai platform',
+    'rag pipeline','prompt engineering','ai chatbot','model deployment'
+];
+
+// Ideal client profile. These ADD points. They never knock out.
+const TARGET_CLIENT = [
+    'series b','series c','series b/c','fintech','healthtech','health tech',
+    'soc 2','soc2','hipaa','startup','scale up','high growth',
+    '150 employees','200 employees','300 employees','400 employees','500 employees'
+];
+
+const W = {
+    l3: 3, l2: 2, l1: -2,
+    archSignal: 5, knownPlatform: 5,
+    remote: 3, hybrid: 2, onsiteUS: -3,
+    caseMatch: 2, targetClient: 2,
+    fte: -4, staffingFirm: -6, jobBoard: -3
+};
+
+// The two dials you tune in the weekly recalibration loop.
+const THRESHOLDS = { drop: 6, strong: 16 };
+
+const CONSULTING_PLATFORMS = ['glg','mbo','catalant','pwc','gofractional','arc'];
+const JOB_BOARDS           = ['linkedin','dice','glassdoor','indeed','monster','ziprecruiter'];
+
+function scoreFit(raw, ctx) {
+    let s = 0;
+    s += ctx.l3.length * W.l3;
+    s += ctx.l2.length * W.l2;
+    s += ctx.l1.length * W.l1;
+    if (ctx.roleType.arch > ctx.roleType.impl) s += W.archSignal;
+    if (ctx.platform && CONSULTING_PLATFORMS.includes(ctx.platform.id)) s += W.knownPlatform;
+    if (ctx.platform && JOB_BOARDS.includes(ctx.platform.id))           s += W.jobBoard;
+    if (ctx.location.locationType === 'Remote')  s += W.remote;
+    if (ctx.location.locationType === 'Hybrid')  s += W.hybrid;
+    if (ctx.location.status === 'warning')        s += W.onsiteUS;
+    s += Math.min(ctx.caseCount, 2) * W.caseMatch;
+    const tc = TARGET_CLIENT.filter(t => matchKw(raw, t)).length;
+    s += Math.min(tc, 3) * W.targetClient;
+    if (ctx.engagement.type === 'fte')          s += W.fte;
+    if (ctx.engagement.type === 'staffingFirm') s += W.staffingFirm;
+
+    // Knockouts override the number. Any hit forces DROP.
+    const knockouts = [];
+    if (ctx.roleType.type === 'Implementation') knockouts.push('Implementation / coding role, not architecture');
+    if (ctx.flags.length > 0)                   knockouts.push('Vendor specialist or coding red flag');
+    if (ctx.aiHits > 0)                         knockouts.push('Agentic / generative AI scope (standing exclusion)');
+    if (ctx.location.status === 'fail')         knockouts.push('Non-US required, no remote option');
+    if (ctx.total > 0 && ctx.l1Pct > 20)        knockouts.push('L1 out-of-scope content over 20%');
+
+    let bucket;
+    if (knockouts.length > 0)         bucket = 'DROP';
+    else if (s < THRESHOLDS.drop)     bucket = 'DROP';
+    else if (s < THRESHOLDS.strong)   bucket = 'BORDERLINE';
+    else                              bucket = 'STRONG';
+
+    return { score: s, bucket, knockouts };
+}
+
+// ─────────────────────────────────────────────────────────────
 // MAIN SCREENER
 // ─────────────────────────────────────────────────────────────
 function runScreener() {
@@ -789,12 +1047,16 @@ function runScreener() {
     if (!raw) { alert('Paste a bid posting first.'); return; }
 
     const manualId  = document.getElementById('platformSelect').value;
-    const platform  = manualId ? (PLATFORMS.find(p => p.id === manualId) || null) : detectPlatform(raw);
+    const bidUrl    = document.getElementById('bidUrl').value.trim();
+    const platform  = manualId
+        ? (PLATFORMS.find(p => p.id === manualId) || null)
+        : (detectPlatformFromUrl(bidUrl) || detectPlatform(raw));
     const { l3, l2, l1, total } = scoreKeywords(raw);
     const flags         = detectRedFlags(raw);
     const roleType      = detectRoleType(raw);
     const engagement    = detectEngagementType(raw);
     const location      = detectLocation(raw);
+    const recruiter     = detectRecruiter(raw, engagement);
 
     // ── Decision Logic ──
     const hiConf    = l3.length + l2.length;
@@ -822,9 +1084,43 @@ function runScreener() {
     const q6Pass    = location.status !== 'fail';
     const q6Warning = location.status === 'warning' ? location.reason : null;
 
-    const go = q1Pass && q2Pass && q3Pass && q4Pass && q5Pass && q6Pass;
+    // ── Three-bucket fit score (DROP / BORDERLINE / STRONG) ──
+    const aiHits      = AI_EXCLUSION.filter(k => matchKw(raw, k)).length;
+    const caseMatches = recommendCaseStudies(raw);
+    const fit = scoreFit(raw, {
+        l3, l2, l1, total, l1Pct, roleType, engagement, location, platform,
+        flags, aiHits, caseCount: caseMatches.length
+    });
+    const biddable    = fit.bucket !== 'DROP';
+    const VERDICT_MAP = { STRONG: 'GO', BORDERLINE: 'BORDERLINE', DROP: 'NO-GO' };
 
-    const matchedCases = go ? recommendCaseStudies(raw) : [];
+    // ── Capture this run for the Insights dashboard (P4) ──
+    const failedChecks = [];
+    if (!q1Pass) failedChecks.push('Implementation role, not architecture');
+    if (!q2Pass) failedChecks.push(total === 0 ? 'No IAM signals' : 'L3/L2 coverage under 70%');
+    if (!q3Pass) failedChecks.push('FTE role');
+    if (!q4Pass) failedChecks.push('Red flag: vendor or coding');
+    if (!q5Pass) failedChecks.push('L1 out-of-scope over 20%');
+    if (!q6Pass) failedChecks.push('Location: ' + location.reason);
+    if (aiHits > 0) failedChecks.push('Agentic / generative AI scope');
+    logScreening({
+        platform:    platform ? platform.name : 'Unknown',
+        platformId:  platform ? platform.id : '',
+        verdict:     VERDICT_MAP[fit.bucket],
+        bucket:      fit.bucket,
+        score:       fit.score,
+        l3: l3.length, l2: l2.length, l1: l1.length, total, l1Pct,
+        roleType:    roleType.type,
+        engagement:  engagement.type,
+        location:    location.status,
+        recruiter:   recruiter.isRecruiter,
+        flags:       flags.map(f => f.label),
+        failedChecks,
+        l3kw: l3, l2kw: l2, l1kw: l1,
+        url: bidUrl
+    });
+
+    const matchedCases = biddable ? caseMatches : [];
 
     // ── Render ──
     let html = '';
@@ -865,6 +1161,31 @@ function runScreener() {
         : flags.map(f => `<div class="flag-item"><span class="flag-icon">⚑</span>${f.label}</div>`).join('');
     html += block('Red Flags', flagsHtml);
 
+    // Recruiter / staffing outreach — renders on ANY verdict, GO or NO-GO
+    if (recruiter.isRecruiter) {
+        const outreach = buildOutreach();
+        _outreachShort = outreach.short;
+        _outreachEmail = outreach.email;
+        html += block('Recruiter Outreach', `
+            <div class="bridge-body">
+                <div class="bridge-desc">
+                    Staffing or recruiter post detected. Even on a NO-GO, enter their database for future identity roles.
+                </div>
+                <div style="width:100%">
+                    <div style="font-size:10px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px">Short connection note</div>
+                    <div style="white-space:pre-wrap;background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:10px;font-size:12px;line-height:1.6">${_outreachShort}</div>
+                    <button class="btn-copy-prompt" id="btnCopyShort" style="margin-top:8px" onclick="copyOutreach('short')">Copy connection note</button>
+                </div>
+                <div style="width:100%;margin-top:6px">
+                    <div style="font-size:10px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px">Email / InMail</div>
+                    <div style="white-space:pre-wrap;background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:10px;font-size:12px;line-height:1.6">${_outreachEmail}</div>
+                    <button class="btn-copy-prompt" id="btnCopyEmail" style="margin-top:8px" onclick="copyOutreach('email')">Copy email</button>
+                </div>
+                <div class="bridge-note">Deterministic draft. Run it through the Writing Constraint Linter before sending.</div>
+            </div>
+        `, 'bridge-block');
+    }
+
     // Decision Steps
     const stepsHtml = [
         step(q1Pass,
@@ -896,29 +1217,30 @@ function runScreener() {
     ].join('');
     html += block('Decision Logic', stepsHtml);
 
-    // Verdict
-    const reasonLines = go
-        ? '<span style="color:var(--green)">All five guardrail checks passed. Proceed with bid response.</span>'
-        : (() => {
-            const r = [];
-            if (!q1Pass) r.push('Implementation-focused role detected — not architecture-level');
-            if (!q2Pass) r.push(total === 0 ? 'No IAM signals found' : `L3/L2 coverage too low (${hiConfPct}% — need 70%+)`);
-            if (!q3Pass) r.push('FTE role — verify contract-to-hire status or decline');
-            if (!q4Pass) r.push(`${flags.length} red flag(s) present — implementation or vendor specialist signals`);
-            if (!q5Pass) r.push(`L1 content at ${l1Pct}% — exceeds 20% threshold`);
-            if (!q6Pass) r.push(location.reason);
-            return r.join('<br>');
-        })();
+    // Verdict — three buckets
+    const BUCKET_META = {
+        STRONG:     { cls: 'verdict-strong',     label: 'STRONG',     color: 'var(--green)',  note: 'Strong fit. Proceed with the bid response.' },
+        BORDERLINE: { cls: 'verdict-borderline', label: 'BORDERLINE', color: 'var(--orange)', note: 'Marginal fit. Review by hand before deciding. Do not auto-discard.' },
+        DROP:       { cls: 'verdict-drop',       label: 'DROP',       color: 'var(--red)',    note: 'Out of scope. Skip the bid.' }
+    };
+    const bm = BUCKET_META[fit.bucket];
+    const reasonLines = fit.knockouts.length > 0
+        ? '<span style="color:var(--red)">Knockout: ' + fit.knockouts.join('<br>Knockout: ') + '</span>'
+        : `<span style="color:${bm.color}">${bm.note}</span>`;
 
     html += block('Verdict', `
         <div class="verdict-display">
-            <div class="verdict-badge ${go ? 'verdict-go' : 'verdict-nogo'}">${go ? 'GO' : 'NO-GO'}</div>
+            <div class="verdict-badge ${bm.cls}">${bm.label}</div>
+            <div style="margin-top:10px;font-size:12px;color:var(--text-muted)">
+                Fit score: <strong style="color:${bm.color}">${fit.score}</strong>
+                &nbsp;|&nbsp; Drop &lt; ${THRESHOLDS.drop} &nbsp;·&nbsp; Strong ≥ ${THRESHOLDS.strong}
+            </div>
             <div class="verdict-reason">${reasonLines}</div>
         </div>
     `);
 
-    // Case Study (GO only)
-    if (go) {
+    // Case Study + bridge — show on STRONG and BORDERLINE, hide on DROP
+    if (biddable) {
         const csHtml = matchedCases.length > 0
             ? `<div class="multi-case">${matchedCases.map(cs => `
                 <div class="case-study-card">
@@ -971,7 +1293,7 @@ function runScreener() {
         html += block('Claude Bridge', `
             <div class="bridge-body">
                 <div class="bridge-desc">
-                    All four guardrail checks passed. Click below to generate the full prompt for Claude Code.
+                    This posting scored ${fit.bucket} (fit ${fit.score}). Click below to generate the full prompt for Claude Code.
                     Paste it into a new Claude Code message to trigger the iam-bid skill automatically.
                 </div>
                 <button class="btn-copy-prompt" id="btnCopyPrompt" onclick="copyClaudePrompt()">

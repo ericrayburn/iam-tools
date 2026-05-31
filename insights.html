@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Screener Insights | Rayburn Ideas</title>
+    <style>
+        :root {
+            --bg: #0d1117;
+            --surface: #161b22;
+            --surface2: #1c2230;
+            --border: #30363d;
+            --cyan: #00d4e8;
+            --text: #e6edf3;
+            --text-muted: #8b949e;
+            --red: #f85149;
+            --orange: #d29922;
+            --green: #3fb950;
+            --purple: #bc8cff;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            background: var(--bg);
+            color: var(--text);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            font-size: 14px;
+            min-height: 100vh;
+        }
+
+        header {
+            background: var(--surface);
+            border-bottom: 2px solid var(--cyan);
+            padding: 14px 24px;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+        .logo-mark {
+            width: 38px; height: 38px;
+            background: var(--cyan);
+            border-radius: 7px;
+            display: flex; align-items: center; justify-content: center;
+            font-weight: 900; font-size: 20px; color: #0d1117;
+            flex-shrink: 0;
+        }
+        .logo-text strong { display: block; font-size: 14px; letter-spacing: 0.6px; }
+        .logo-text span { font-size: 10px; color: var(--cyan); letter-spacing: 1.5px; text-transform: uppercase; }
+        .nav-home {
+            color: var(--text-muted); text-decoration: none; font-size: 12px;
+            padding: 5px 10px; border: 1px solid var(--border); border-radius: 5px;
+            transition: color 0.15s, border-color 0.15s;
+        }
+        .nav-home:hover { color: var(--cyan); border-color: var(--cyan); }
+        .app-badge {
+            margin-left: auto;
+            background: rgba(0,212,232,0.12); color: var(--cyan);
+            font-size: 11px; font-weight: 600; padding: 4px 10px; border-radius: 20px;
+            border: 1px solid rgba(0,212,232,0.3); letter-spacing: 0.5px;
+        }
+
+        main { max-width: 1140px; margin: 0 auto; padding: 28px 24px; }
+
+        .page-title { font-size: 20px; margin-bottom: 4px; }
+        .page-sub { font-size: 13px; color: var(--text-muted); margin-bottom: 24px; }
+
+        /* CONTROLS */
+        .controls {
+            display: flex; flex-wrap: wrap; gap: 10px; align-items: center;
+            margin-bottom: 24px;
+        }
+        .controls select {
+            background: var(--surface); color: var(--text);
+            border: 1px solid var(--border); border-radius: 6px;
+            padding: 7px 10px; font-size: 13px; font-family: inherit; cursor: pointer;
+        }
+        .controls select:focus { outline: none; border-color: var(--cyan); }
+        .btn {
+            background: transparent; color: var(--text-muted);
+            border: 1px solid var(--border); border-radius: 6px;
+            padding: 7px 14px; font-size: 12px; cursor: pointer;
+            transition: color 0.15s, border-color 0.15s; font-family: inherit;
+        }
+        .btn:hover { color: var(--text); border-color: var(--cyan); }
+        .btn.danger:hover { color: var(--red); border-color: var(--red); }
+        .spacer { margin-left: auto; }
+
+        /* STATS */
+        .stats-row {
+            display: grid; grid-template-columns: repeat(4, 1fr);
+            gap: 12px; margin-bottom: 28px;
+        }
+        @media (max-width: 720px) { .stats-row { grid-template-columns: repeat(2, 1fr); } }
+        .stat-card {
+            background: var(--surface); border: 1px solid var(--border);
+            border-radius: 8px; padding: 16px 20px;
+        }
+        .stat-label {
+            font-size: 10px; color: var(--text-muted);
+            text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px;
+        }
+        .stat-value { font-size: 26px; font-weight: 700; }
+        .stat-value.cyan { color: var(--cyan); }
+        .stat-value.green { color: var(--green); }
+        .stat-value.red { color: var(--red); }
+
+        /* SECTIONS */
+        .section {
+            background: var(--surface); border: 1px solid var(--border);
+            border-radius: 8px; margin-bottom: 20px; overflow: hidden;
+        }
+        .section-header {
+            padding: 12px 18px; border-bottom: 1px solid var(--border);
+            font-size: 11px; font-weight: 700; color: var(--text-muted);
+            text-transform: uppercase; letter-spacing: 1px; background: var(--surface2);
+        }
+        .section-body { padding: 18px; }
+        .section-body .hint { font-size: 12px; color: var(--text-muted); line-height: 1.6; margin-bottom: 14px; }
+
+        /* BAR LIST */
+        .bar-row { margin-bottom: 12px; }
+        .bar-row:last-child { margin-bottom: 0; }
+        .bar-top { display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 5px; }
+        .bar-top .lab { color: var(--text); }
+        .bar-top .cnt { color: var(--text-muted); flex-shrink: 0; margin-left: 12px; }
+        .bar-track { height: 8px; background: rgba(255,255,255,0.06); border-radius: 4px; overflow: hidden; }
+        .bar-fill { height: 100%; border-radius: 4px; }
+
+        /* TABLE */
+        table { width: 100%; border-collapse: collapse; font-size: 13px; }
+        th, td { text-align: left; padding: 10px 12px; border-bottom: 1px solid var(--border); vertical-align: top; }
+        th { font-size: 10px; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted); font-weight: 700; }
+        tr:last-child td { border-bottom: none; }
+        td.num { font-weight: 700; }
+        .advice { font-size: 12px; color: var(--cyan); line-height: 1.5; }
+        .reason-tag {
+            display: inline-block; font-size: 11px; padding: 2px 8px; border-radius: 10px;
+            background: rgba(210,153,34,0.12); color: var(--orange); border: 1px solid rgba(210,153,34,0.3);
+        }
+
+        /* KEYWORD CHIPS */
+        .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+        @media (max-width: 720px) { .two-col { grid-template-columns: 1fr; } }
+        .kw-col h4 { font-size: 12px; margin-bottom: 4px; }
+        .kw-col .kw-sub { font-size: 11px; color: var(--text-muted); margin-bottom: 12px; line-height: 1.5; }
+        .chip {
+            display: inline-flex; align-items: center; gap: 6px;
+            font-size: 12px; padding: 4px 10px; border-radius: 14px; margin: 0 6px 6px 0;
+            border: 1px solid var(--border); background: var(--surface2); color: var(--text);
+        }
+        .chip .c { font-size: 10px; color: var(--text-muted); }
+        .chip.neg { border-color: rgba(248,81,73,0.3); }
+        .chip.pos { border-color: rgba(63,185,80,0.3); }
+
+        /* EMPTY */
+        .empty-state { text-align: center; padding: 70px 20px; color: var(--text-muted); }
+        .empty-state .icon { font-size: 44px; margin-bottom: 14px; }
+        .empty-state h3 { font-size: 16px; color: var(--text); margin-bottom: 8px; }
+        .empty-state p { font-size: 13px; line-height: 1.7; }
+        .empty-state a { color: var(--cyan); }
+    </style>
+</head>
+<body>
+
+<header>
+    <div class="logo-mark">R</div>
+    <div class="logo-text">
+        <strong>RAYBURN IDEAS</strong>
+        <span>Identity and Access Management</span>
+    </div>
+    <a href="index.html" class="nav-home">← All Tools</a>
+    <div class="app-badge">APP 06</div>
+</header>
+
+<main>
+    <div class="page-title">Screener Insights</div>
+    <div class="page-sub">Patterns from every screened posting. Find why bids fail, by platform, and fix the search that feeds them.</div>
+
+    <div class="controls">
+        <select id="platformFilter"><option value="">All platforms</option></select>
+        <select id="verdictFilter">
+            <option value="">All buckets</option>
+            <option value="GO">Strong only</option>
+            <option value="BORDERLINE">Borderline only</option>
+            <option value="NO-GO">Drop only</option>
+        </select>
+        <select id="rangeFilter">
+            <option value="0">All time</option>
+            <option value="7">Last 7 days</option>
+            <option value="30">Last 30 days</option>
+        </select>
+        <div class="spacer"></div>
+        <button class="btn" onclick="render()">Refresh</button>
+        <button class="btn" onclick="exportCsv()">Export CSV</button>
+        <button class="btn danger" onclick="clearLog()">Clear log</button>
+    </div>
+
+    <div id="dashboard"></div>
+</main>
+
+<script>
+// ─────────────────────────────────────────────────────────────
+// DATA
+// ─────────────────────────────────────────────────────────────
+const SCREENER_LOG_KEY = 'iam_screener_log_v1';
+
+function loadLog() {
+    try {
+        const raw = localStorage.getItem(SCREENER_LOG_KEY);
+        return raw ? JSON.parse(raw) : [];
+    } catch (e) { return []; }
+}
+
+// Map a NO-GO record to one root-cause category.
+function categorize(rec) {
+    const f = (rec.failedChecks || []).join(' | ').toLowerCase();
+    const flags = (rec.flags || []).join(' ').toLowerCase();
+    if (flags || f.includes('red flag') || f.includes('implementation')) return 'ROLE_IMPL';
+    if (f.includes('fte')) return 'FTE';
+    if (f.includes('l1 out-of-scope') || f.includes('l1 over')) return 'L1_HIGH';
+    if (f.includes('location')) return 'LOCATION';
+    if (f.includes('coverage') || f.includes('no iam')) return 'LOW_FIT';
+    return 'OTHER';
+}
+
+const CATEGORY_LABEL = {
+    ROLE_IMPL: 'Implementation / vendor specialist role',
+    FTE:       'Full-time employee role',
+    L1_HIGH:   'Out-of-scope tech (L1) over 20%',
+    LOCATION:  'Location not compatible',
+    LOW_FIT:   'Weak IAM fit / off-topic posting',
+    OTHER:     'Other'
+};
+
+// Deterministic search-criteria advice, parameterized by platform.
+function adviceFor(category, platform) {
+    const p = platform && platform !== 'Unknown' ? platform : 'this platform';
+    switch (category) {
+        case 'ROLE_IMPL':
+            return 'Exclude implementation noise in ' + p + ': add NOT (developer OR engineer OR "hands-on" OR connector). Search titles for "architect" OR "advisory".';
+        case 'FTE':
+            return 'Filter ' + p + ' to contract work: add (contract OR fractional OR 1099 OR interim) and exclude (full-time OR salary OR benefits).';
+        case 'L1_HIGH':
+            return 'Your ' + p + ' query pulls adjacent tech. Exclude (kubernetes OR "machine learning" OR frontend OR "data engineering").';
+        case 'LOCATION':
+            return 'Add a location filter to ' + p + ': require (remote OR "United States") so foreign on-site posts drop before they reach you.';
+        case 'LOW_FIT':
+            return 'Your ' + p + ' query is too broad. Add IAM core terms: ("identity governance" OR PAM OR SailPoint OR Okta OR SAML) to raise signal.';
+        default:
+            return 'Review these ' + p + ' postings by hand. No single pattern dominates yet.';
+    }
+}
+
+// ─────────────────────────────────────────────────────────────
+// FILTERS
+// ─────────────────────────────────────────────────────────────
+function applyFilters(log) {
+    const plat = document.getElementById('platformFilter').value;
+    const verd = document.getElementById('verdictFilter').value;
+    const days = parseInt(document.getElementById('rangeFilter').value, 10) || 0;
+    const cutoff = days > 0 ? Date.now() - days * 86400000 : 0;
+    return log.filter(r =>
+        (!plat || r.platform === plat) &&
+        (!verd || r.verdict === verd) &&
+        (!cutoff || (r.ts || 0) >= cutoff)
+    );
+}
+
+function tally(arr) {
+    const m = {};
+    arr.forEach(k => { m[k] = (m[k] || 0) + 1; });
+    return Object.entries(m).sort((a, b) => b[1] - a[1]);
+}
+
+// ─────────────────────────────────────────────────────────────
+// RENDER
+// ─────────────────────────────────────────────────────────────
+function render() {
+    const allLog = loadLog();
+    const dash = document.getElementById('dashboard');
+
+    // Populate platform filter from data.
+    const pf = document.getElementById('platformFilter');
+    const known = Array.from(new Set(allLog.map(r => r.platform))).sort();
+    const current = pf.value;
+    pf.innerHTML = '<option value="">All platforms</option>' +
+        known.map(p => `<option value="${esc(p)}">${esc(p)}</option>`).join('');
+    pf.value = current;
+
+    if (allLog.length === 0) {
+        dash.innerHTML = `
+            <div class="empty-state">
+                <div class="icon">📊</div>
+                <h3>No screenings logged yet</h3>
+                <p>Run a few postings through the <a href="screener.html">Bid Qualification Screener</a>.<br>
+                Every run records here automatically. Patterns appear once data accumulates.</p>
+            </div>`;
+        return;
+    }
+
+    const log = applyFilters(allLog);
+    // DROP records carry verdict NO-GO; STRONG carry GO; BORDERLINE carry BORDERLINE.
+    const noGo       = log.filter(r => r.verdict === 'NO-GO');
+    const go         = log.filter(r => r.verdict === 'GO');
+    const borderline = log.filter(r => r.verdict === 'BORDERLINE');
+
+    let html = '';
+
+    // ── Stat row ──
+    html += `<div class="stats-row">
+        <div class="stat-card"><div class="stat-label">Screened</div><div class="stat-value">${log.length}</div></div>
+        <div class="stat-card"><div class="stat-label">Strong</div><div class="stat-value green">${go.length}</div></div>
+        <div class="stat-card"><div class="stat-label">Borderline</div><div class="stat-value" style="color:var(--orange)">${borderline.length}</div></div>
+        <div class="stat-card"><div class="stat-label">Drop</div><div class="stat-value red">${noGo.length}</div></div>
+    </div>`;
+
+    // ── NO-GO reason patterns ──
+    const catCounts = tally(noGo.map(categorize));
+    const maxCat = catCounts.length ? catCounts[0][1] : 1;
+    html += section('Why bids fail — root cause patterns',
+        noGo.length === 0
+            ? '<div class="hint">No NO-GO records in this view.</div>'
+            : '<div class="hint">The dominant cause tells you what to fix first in your search queries.</div>' +
+              catCounts.map(([cat, n]) => barRow(
+                  CATEGORY_LABEL[cat] || cat, n, Math.round((n / maxCat) * 100),
+                  cat === 'OTHER' ? 'var(--text-muted)' : 'var(--orange)'
+              )).join('')
+    );
+
+    // ── Per-platform breakdown + suggested fix ──
+    const byPlat = {};
+    noGo.forEach(r => {
+        const key = r.platform || 'Unknown';
+        (byPlat[key] = byPlat[key] || []).push(r);
+    });
+    const platRows = Object.entries(byPlat).sort((a, b) => b[1].length - a[1].length);
+    html += section('Per platform — search criteria fix',
+        platRows.length === 0
+            ? '<div class="hint">No NO-GO records in this view.</div>'
+            : '<div class="hint">Each platform gets advice based on its own dominant failure. Apply the fix to that platform\'s query.</div>' +
+              `<table><thead><tr><th>Platform</th><th>NO-GO</th><th>Top cause</th><th>Suggested search fix</th></tr></thead><tbody>` +
+              platRows.map(([plat, recs]) => {
+                  const topCat = tally(recs.map(categorize))[0][0];
+                  return `<tr>
+                      <td>${esc(plat)}</td>
+                      <td class="num">${recs.length}</td>
+                      <td><span class="reason-tag">${esc(CATEGORY_LABEL[topCat] || topCat)}</span></td>
+                      <td class="advice">${esc(adviceFor(topCat, plat))}</td>
+                  </tr>`;
+              }).join('') +
+              `</tbody></table>`
+    );
+
+    // ── Keyword signals: tune the FIND query ──
+    const negTerms = tally([].concat(...noGo.map(r => r.l1kw || []))).slice(0, 12);
+    const posTerms = tally([].concat(...go.map(r => (r.l3kw || []).concat(r.l2kw || [])))).slice(0, 12);
+    html += section('Search-term signals — feed your platform queries',
+        '<div class="hint">Left: out-of-scope terms that recur in failures. Add them as negative search terms. ' +
+        'Right: terms that recur in qualified postings. Make sure your FIND query includes them.</div>' +
+        `<div class="two-col">
+            <div class="kw-col">
+                <h4 style="color:var(--red)">Add as NEGATIVE terms</h4>
+                <div class="kw-sub">From L1 hits inside NO-GO postings.</div>
+                ${negTerms.length ? negTerms.map(([t, n]) => chip(t, n, 'neg')).join('') : '<div class="kw-sub">No L1 noise recorded yet.</div>'}
+            </div>
+            <div class="kw-col">
+                <h4 style="color:var(--green)">Confirm in FIND query</h4>
+                <div class="kw-sub">From L3 and L2 hits inside GO postings.</div>
+                ${posTerms.length ? posTerms.map(([t, n]) => chip(t, n, 'pos')).join('') : '<div class="kw-sub">No GO records yet.</div>'}
+            </div>
+        </div>`
+    );
+
+    dash.innerHTML = html;
+}
+
+// ── helpers ──
+function section(title, body) {
+    return `<div class="section">
+        <div class="section-header">${title}</div>
+        <div class="section-body">${body}</div>
+    </div>`;
+}
+function barRow(label, count, pct, color) {
+    return `<div class="bar-row">
+        <div class="bar-top"><span class="lab">${esc(label)}</span><span class="cnt">${count}</span></div>
+        <div class="bar-track"><div class="bar-fill" style="width:${pct}%;background:${color}"></div></div>
+    </div>`;
+}
+function chip(term, count, cls) {
+    return `<span class="chip ${cls}">${esc(term)} <span class="c">${count}</span></span>`;
+}
+function esc(s) {
+    return String(s == null ? '' : s)
+        .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+
+// ─────────────────────────────────────────────────────────────
+// EXPORT / CLEAR
+// ─────────────────────────────────────────────────────────────
+function exportCsv() {
+    const log = applyFilters(loadLog());
+    if (log.length === 0) { alert('No records to export in this view.'); return; }
+    const cols = ['ts', 'date', 'platform', 'verdict', 'category', 'l3', 'l2', 'l1', 'total', 'l1Pct', 'roleType', 'engagement', 'location', 'failedChecks', 'flags', 'url'];
+    const rows = log.map(r => {
+        const cat = r.verdict === 'NO-GO' ? categorize(r) : '';
+        return [
+            r.ts || '',
+            r.ts ? new Date(r.ts).toISOString() : '',
+            r.platform || '', r.verdict || '', cat,
+            r.l3 || 0, r.l2 || 0, r.l1 || 0, r.total || 0, r.l1Pct || 0,
+            r.roleType || '', r.engagement || '', r.location || '',
+            (r.failedChecks || []).join('; '), (r.flags || []).join('; '), r.url || ''
+        ].map(csvCell).join(',');
+    });
+    const csv = cols.join(',') + '\n' + rows.join('\n');
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'screener-log-' + new Date().toISOString().slice(0, 10) + '.csv';
+    a.click();
+    URL.revokeObjectURL(a.href);
+}
+function csvCell(v) {
+    const s = String(v);
+    return /[",\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s;
+}
+function clearLog() {
+    if (!confirm('Delete the entire screening log? This cannot be undone. Export first if you want a copy.')) return;
+    try { localStorage.removeItem(SCREENER_LOG_KEY); } catch (e) {}
+    render();
+}
+
+// init
+['platformFilter', 'verdictFilter', 'rangeFilter'].forEach(id =>
+    document.getElementById(id).addEventListener('change', render));
+render();
+</script>
+</body>
+</html>
