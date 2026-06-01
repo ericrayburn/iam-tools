@@ -1061,11 +1061,44 @@ function scoreFit(raw, ctx) {
 // MAIN SCREENER
 // ─────────────────────────────────────────────────────────────
 function runScreener() {
-    const raw = INPUT.value.trim();
-    if (!raw) { alert('Paste a bid posting first.'); return; }
+    const raw    = INPUT.value.trim();
+    const bidUrl = document.getElementById('bidUrl').value.trim();
+
+    if (!raw && !bidUrl) { alert('Paste a bid posting or a URL first.'); return; }
+
+    // URL-only mode: platform detected but no text to analyze.
+    if (!raw && bidUrl) {
+        const manualId  = document.getElementById('platformSelect').value;
+        const platform  = manualId
+            ? (PLATFORMS.find(p => p.id === manualId) || null)
+            : detectPlatformFromUrl(bidUrl);
+
+        let html = '';
+        html += block('Platform Detected', `
+            <div class="platform-name">${platform ? platform.name : 'Unknown'}</div>
+            <div class="platform-sub">${platform
+                ? platform.fullName + '<br>' + platform.format
+                : 'No platform pattern matched from URL. Select manually above.'
+            }</div>
+        `);
+        html += block('Posting Text Required', `
+            <div style="display:flex;flex-direction:column;gap:12px">
+                <div style="font-size:13px;color:var(--text-muted);line-height:1.7">
+                    Platform detected from the URL. Full analysis — keyword scoring, red flags, fit score, and verdict — requires the posting text.
+                </div>
+                <ol style="font-size:12px;color:var(--text-muted);line-height:2;padding-left:18px;margin:0">
+                    <li>Open the URL in your browser.</li>
+                    <li>Select all text on the page (Ctrl + A), then copy (Ctrl + C).</li>
+                    <li>Paste into the <strong style="color:var(--text)">Bid Posting</strong> field on the left.</li>
+                    <li>Click <strong style="color:var(--cyan)">Run Screener</strong> again.</li>
+                </ol>
+            </div>
+        `);
+        RESULTS.innerHTML = html;
+        return;
+    }
 
     const manualId  = document.getElementById('platformSelect').value;
-    const bidUrl    = document.getElementById('bidUrl').value.trim();
     const platform  = manualId
         ? (PLATFORMS.find(p => p.id === manualId) || null)
         : (detectPlatformFromUrl(bidUrl) || detectPlatform(raw));
