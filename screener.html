@@ -394,22 +394,18 @@
             <span class="selector-label">Platform</span>
             <select id="platformSelect">
                 <option value="">Auto-detect from text</option>
-                <optgroup label="Consulting platforms">
-                    <option value="glg">GLG</option>
-                    <option value="catalant">Catalant</option>
-                    <option value="mbo">MBO Partners</option>
-                    <option value="pwc">PwC Talent Exchange</option>
-                    <option value="gofractional">GoFractional</option>
-                    <option value="arc">Arc.dev</option>
-                </optgroup>
-                <optgroup label="Job boards">
-                    <option value="linkedin">LinkedIn</option>
-                    <option value="dice">Dice</option>
-                    <option value="glassdoor">Glassdoor</option>
-                    <option value="indeed">Indeed</option>
-                    <option value="monster">Monster</option>
-                    <option value="ziprecruiter">ZipRecruiter</option>
-                </optgroup>
+                <option value="linkedin">LinkedIn (Job Board)</option>
+                <option value="dice">Dice (Job Board)</option>
+                <option value="glassdoor">Glassdoor (Job Board)</option>
+                <option value="indeed">Indeed (Job Board)</option>
+                <option value="monster">Monster (Job Board)</option>
+                <option value="ziprecruiter">ZipRecruiter (Job Board)</option>
+                <option value="glg">GLG</option>
+                <option value="catalant">Catalant</option>
+                <option value="mbo">MBO Partners</option>
+                <option value="pwc">PwC Talent Exchange</option>
+                <option value="gofractional">GoFractional</option>
+                <option value="arc">Arc.dev</option>
             </select>
         </div>
         <textarea id="bidInput" placeholder="Paste the full bid posting here.&#10;&#10;Include the job description, platform details, questions asked, required skills, and any scope notes. The screener will detect the platform and run the full GO / NO-GO qualification guardrail."></textarea>
@@ -444,6 +440,28 @@ let _outreachShort = '', _outreachEmail = ''; // holds recruiter outreach drafts
 const INPUT   = document.getElementById('bidInput');
 const RESULTS = document.getElementById('resultsBody');
 const CHARS   = document.getElementById('charCount');
+
+// Force dropdown order: Job Boards first, then Consulting Platforms
+function orderPlatformDropdown() {
+    const select = document.getElementById('platformSelect');
+    const jobBoardValues = ['linkedin', 'dice', 'glassdoor', 'indeed', 'monster', 'ziprecruiter'];
+    const consultingValues = ['glg', 'catalant', 'mbo', 'pwc', 'gofractional', 'arc'];
+
+    // Collect all options
+    const options = [...select.options];
+    const autoDetect = options[0]; // keep first
+    const jobBoards = options.filter(o => jobBoardValues.includes(o.value));
+    const consulting = options.filter(o => consultingValues.includes(o.value));
+
+    // Clear and rebuild in correct order
+    select.innerHTML = '';
+    select.appendChild(autoDetect);
+    jobBoards.forEach(opt => select.appendChild(opt));
+    consulting.forEach(opt => select.appendChild(opt));
+}
+
+// Run on page load
+document.addEventListener('DOMContentLoaded', orderPlatformDropdown);
 
 INPUT.addEventListener('input', () => {
     CHARS.textContent = INPUT.value.length.toLocaleString() + ' chars';
