@@ -1,0 +1,686 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cover Letter Generator | Rayburn Ideas</title>
+    <style>
+        :root {
+            --bg: #eef1f6;
+            --surface: #ffffff;
+            --surface2: #f3f6fa;
+            --border: #d3dae3;
+            --cyan: #00b3c8;
+            --cyan-deep: #007d8c;
+            --text: #1b2530;
+            --text-muted: #5d6b7a;
+            --red: #c0392b;
+            --orange: #b9770e;
+            --green: #1e8e4e;
+            --shadow: 0 1px 3px rgba(27,37,48,0.06), 0 1px 2px rgba(27,37,48,0.04);
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            background: var(--bg);
+            color: var(--text);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            font-size: 14px;
+            min-height: 100vh;
+        }
+
+        /* Header */
+        header {
+            background: var(--surface);
+            border-bottom: 2px solid var(--cyan);
+            padding: 14px 24px;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            box-shadow: var(--shadow);
+        }
+        .logo-mark {
+            width: 38px; height: 38px;
+            background: var(--cyan);
+            border-radius: 7px;
+            display: flex; align-items: center; justify-content: center;
+            font-weight: 900; font-size: 20px; color: #ffffff;
+            flex-shrink: 0;
+        }
+        .logo-text strong { display: block; font-size: 14px; letter-spacing: 0.6px; color: var(--text); }
+        .logo-text span { font-size: 10px; color: var(--cyan-deep); letter-spacing: 1.5px; text-transform: uppercase; }
+        .app-badge {
+            margin-left: auto;
+            background: rgba(0,179,200,0.12);
+            color: var(--cyan-deep);
+            font-size: 11px; font-weight: 600;
+            padding: 4px 10px; border-radius: 20px;
+            border: 1px solid rgba(0,179,200,0.35);
+            letter-spacing: 0.5px;
+        }
+        .home-link {
+            color: var(--text-muted); text-decoration: none; font-size: 12px;
+            margin-right: 4px; padding: 4px 8px; border-radius: 6px;
+        }
+        .home-link:hover { color: var(--text); }
+
+        /* Layout */
+        .container {
+            max-width: 1280px; margin: 0 auto; padding: 20px 24px;
+            display: grid; grid-template-columns: 1fr 1fr; gap: 18px;
+            align-items: start;
+        }
+        @media (max-width: 900px) { .container { grid-template-columns: 1fr; } }
+
+        .panel {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            overflow: hidden;
+            display: flex; flex-direction: column;
+            box-shadow: var(--shadow);
+        }
+        .panel-header {
+            padding: 12px 16px;
+            border-bottom: 2px solid var(--cyan);
+            font-size: 11.5px; font-weight: 700; color: #f3f6fa;
+            text-transform: uppercase; letter-spacing: 1.2px;
+            display: flex; align-items: center; justify-content: space-between;
+            background: #243140;
+        }
+        .panel-header .sub { color: #9fb0c0 !important; }
+        .panel-body { padding: 16px; }
+
+        label.fld { display: block; font-size: 11px; font-weight: 700; color: #2c3a47; text-transform: uppercase; letter-spacing: 0.7px; margin: 16px 0 5px; }
+        label.fld:first-child { margin-top: 0; }
+
+        input[type=text], textarea, select {
+            width: 100%;
+            background: var(--surface);
+            color: var(--text);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 9px 11px;
+            font-size: 13px;
+            font-family: inherit;
+            outline: none;
+        }
+        input[type=text]:focus, textarea:focus, select:focus { border-color: var(--cyan); box-shadow: 0 0 0 3px rgba(0,179,200,0.12); }
+        textarea { line-height: 1.6; resize: vertical; }
+        ::placeholder { color: #9aa6b2; }
+        .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+
+        .hint { font-size: 11px; color: var(--text-muted); margin-top: 4px; line-height: 1.5; }
+
+        /* Toggle assets */
+        .asset-group { margin-top: 6px; }
+        .asset {
+            display: flex; align-items: flex-start; gap: 10px;
+            padding: 9px 11px; border: 1px solid var(--border);
+            border-radius: 6px; margin-bottom: 7px; background: var(--surface);
+            transition: border-color 0.12s, background 0.12s;
+        }
+        .asset.on { border-color: var(--cyan); background: rgba(0,179,200,0.06); }
+        .asset .sw { flex-shrink: 0; margin-top: 2px; }
+        .asset-txt strong { display: block; font-size: 13px; font-weight: 600; }
+        .asset-txt span { font-size: 11px; color: var(--text-muted); line-height: 1.45; display: block; margin-top: 2px; }
+
+        /* iOS-style switch */
+        .switch { position: relative; display: inline-block; width: 38px; height: 21px; cursor: pointer; }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider {
+            position: absolute; inset: 0; background: #cfd6df;
+            border-radius: 21px; transition: 0.18s; border: 1px solid var(--border);
+        }
+        .slider:before {
+            content: ""; position: absolute; height: 15px; width: 15px;
+            left: 2px; bottom: 2px; background: #ffffff;
+            border-radius: 50%; transition: 0.18s; box-shadow: 0 1px 2px rgba(0,0,0,0.2);
+        }
+        .switch input:checked + .slider { background: var(--cyan); border-color: var(--cyan); }
+        .switch input:checked + .slider:before { transform: translateX(17px); background: #ffffff; }
+
+        details.profile { margin-top: 6px; border: 1px solid var(--border); border-radius: 6px; background: var(--surface); }
+        details.profile summary { padding: 9px 11px; font-size: 12px; cursor: pointer; color: var(--text-muted); user-select: none; }
+        details.profile summary:hover { color: var(--text); }
+        details.profile[open] summary { border-bottom: 1px solid var(--border); }
+        details.profile .inner { padding: 11px; }
+
+        /* Buttons */
+        .btn-row { display: flex; gap: 10px; margin-top: 18px; flex-wrap: wrap; align-items: center; }
+        .btn {
+            border: none; border-radius: 6px; padding: 9px 18px;
+            font-size: 13px; font-weight: 700; cursor: pointer; transition: opacity 0.15s, color 0.15s, background 0.15s;
+            font-family: inherit;
+        }
+        .btn-primary { background: var(--cyan); color: #ffffff; }
+        .btn-primary:hover { background: var(--cyan-deep); }
+        .btn-primary:disabled { opacity: 0.5; cursor: default; }
+        .btn-ghost { background: var(--surface); color: var(--text-muted); border: 1px solid var(--border); }
+        .btn-ghost:hover { color: var(--text); border-color: var(--text-muted); }
+        .btn-green { background: var(--green); color: #ffffff; }
+        .btn-green:hover { opacity: 0.88; }
+        .btn.copied { background: var(--green) !important; color: #fff !important; }
+
+        .status { font-size: 12px; color: var(--text-muted); margin-left: auto; }
+        .status.err { color: var(--red); }
+        .status.ok { color: var(--green); }
+
+        /* Output */
+        #letter {
+            min-height: 480px; width: 100%;
+            background: #fffdf8; color: #1b2530;
+            border: 1px solid var(--border); border-radius: 6px;
+            padding: 18px; font-size: 13.5px; line-height: 1.75;
+            font-family: 'Georgia', 'Times New Roman', serif; resize: vertical; outline: none;
+        }
+        #letter:focus { border-color: var(--cyan); box-shadow: 0 0 0 3px rgba(0,179,200,0.12); }
+
+        /* Lint strip */
+        .lint {
+            margin-top: 14px; border: 1px solid var(--border); border-radius: 6px;
+            background: var(--surface2); overflow: hidden;
+        }
+        .lint-head {
+            padding: 9px 13px; display: flex; align-items: center; gap: 10px;
+            font-size: 12px; cursor: pointer; user-select: none;
+        }
+        .lint-dot { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; }
+        .d-pass { background: var(--green); } .d-warn { background: var(--orange); } .d-fail { background: var(--red); }
+        .lint-body { padding: 0 13px 11px; display: none; }
+        .lint-body.open { display: block; }
+        .lint-item { font-size: 12px; color: var(--text-muted); padding: 5px 0; border-top: 1px solid var(--border); line-height: 1.5; }
+        .lint-item code { background: rgba(192,57,43,0.12); color: var(--red); padding: 1px 5px; border-radius: 3px; font-size: 11px; }
+
+        .api-note { font-size: 11px; color: var(--text-muted); margin-top: 4px; line-height: 1.5; }
+    </style>
+</head>
+<body>
+
+<header>
+    <div class="logo-mark">R</div>
+    <div class="logo-text">
+        <strong>RAYBURN IDEAS</strong>
+        <span>Identity and Access Management</span>
+    </div>
+    <a class="home-link" href="index.html">← All Tools</a>
+    <div class="app-badge">Cover Letter Generator</div>
+</header>
+
+<div class="container">
+
+    <!-- ── LEFT: INPUTS ── -->
+    <div class="panel">
+        <div class="panel-header"><span>Job Input</span></div>
+        <div class="panel-body">
+
+            <div class="row2">
+                <div>
+                    <label class="fld">Role / Job Title</label>
+                    <input type="text" id="jobTitle" placeholder="Principal IAM Architect">
+                </div>
+                <div>
+                    <label class="fld">Company</label>
+                    <input type="text" id="company" placeholder="Acme Corp">
+                </div>
+            </div>
+
+            <label class="fld">Hiring Contact (optional)</label>
+            <input type="text" id="contact" placeholder="Leave blank for &quot;Hiring Team&quot;">
+
+            <label class="fld">Job Description (paste the text)</label>
+            <textarea id="jobDesc" rows="9" placeholder="Paste the full job posting text here. This is the reliable input. A pasted link cannot auto-load, because job boards block it."></textarea>
+
+            <label class="fld">Job Link (optional, for your records)</label>
+            <input type="text" id="jobLink" placeholder="https://...">
+
+            <!-- Case studies -->
+            <label class="fld">Case Studies — toggle which to draw from</label>
+            <div class="asset-group" id="caseGroup"></div>
+
+            <!-- Offerings -->
+            <label class="fld">Service Offerings — toggle which to mention</label>
+            <div class="asset-group" id="offerGroup"></div>
+
+            <!-- Profile / resume -->
+            <label class="fld">Your Profile / Resume</label>
+            <details class="profile">
+                <summary>View or edit the profile used in the letter</summary>
+                <div class="inner">
+                    <textarea id="profile" rows="9"></textarea>
+                    <div class="btn-row" style="margin-top:10px;">
+                        <button class="btn btn-ghost" onclick="document.getElementById('resumeFile').click()">Upload .txt resume</button>
+                        <button class="btn btn-ghost" onclick="resetProfile()">Reset to default</button>
+                        <input type="file" id="resumeFile" accept=".txt" style="display:none">
+                    </div>
+                    <div class="hint">Default profile is pre-loaded from your resume. Edit freely, or upload a plain-text resume to replace it.</div>
+                </div>
+            </details>
+
+            <div class="api-note">
+                This app runs on its own. No server, no internet, no API key. Click <strong>Copy Prompt</strong>,
+                paste it into Claude, then paste the letter back into the editor on the right.
+            </div>
+
+            <div class="btn-row">
+                <button class="btn btn-primary" id="btnCopyPrompt" onclick="copyPrompt()">Copy Prompt</button>
+                <span class="status" id="status"></span>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- ── RIGHT: OUTPUT ── -->
+    <div class="panel">
+        <div class="panel-header">
+            <span>Cover Letter — editable</span>
+            <span id="wc" style="font-size:11px; color:#9fb0c0; text-transform:none; letter-spacing:0;"></span>
+        </div>
+        <div class="panel-body">
+            <textarea id="letter" placeholder="Your cover letter appears here. Generate it, or paste it from Claude. Then edit directly. The constraint check below updates live."></textarea>
+
+            <!-- Live constraint lint -->
+            <div class="lint">
+                <div class="lint-head" onclick="this.nextElementSibling.classList.toggle('open')">
+                    <span class="lint-dot d-pass" id="lintDot"></span>
+                    <strong id="lintLabel">Writing constraints: paste or generate to check</strong>
+                    <span style="margin-left:auto; color:var(--text-muted); font-size:11px;">details ▸</span>
+                </div>
+                <div class="lint-body" id="lintBody"></div>
+            </div>
+
+            <div class="btn-row">
+                <button class="btn btn-green" onclick="downloadPdf()">Download PDF</button>
+                <button class="btn btn-ghost" id="btnCopyLetter" onclick="copyLetter()">Copy Text</button>
+                <span class="status" id="pdfStatus"></span>
+            </div>
+            <div class="hint">
+                PDF downloads as <strong>Ezra Rayburn.Cover Letter.pdf</strong>. It lands in your browser's download folder.
+                To make that the Desktop automatically, set the download location to Desktop once in your browser settings.
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════════════
+//  EMBEDDED ASSETS — pulled from your IAM_BIDDING files
+//  This app is fully self-contained. It runs by double-clicking
+//  the file. No server, no internet required for core features.
+// ═══════════════════════════════════════════════════════════
+
+const CONTACT = {
+    name: "Ezra Rayburn",
+    title: "Principal IAM Architect",
+    firm: "Rayburn Ideas",
+    location: "Boca Raton, FL",
+    phone: "(561) 206-2503",
+    email: "ericrayburn.apply@gmail.com",
+    linkedin: "https://www.linkedin.com/in/ezra-rayburn/",
+    site: "https://sites.google.com/view/i-am-ezra-rayburn/"
+};
+
+const DEFAULT_PROFILE =
+`Ezra Rayburn — Principal IAM Architect, Rayburn Ideas. 14 years of experience.
+Specializes in automated JML lifecycles, hybrid AD and Salesforce governance, PAM, and MFA enforcement.
+Core method: Lab First Validation. Every architecture is pre-validated in a Windows Server 2025 Hyper-V lab before production. Result: zero production downtime during identity migrations.
+Proven outcomes: provisioning cut from 72 hours to automated delivery, 55% reduction in access related support tickets, 100% MFA compliance ahead of SOC2 audit, 30% of annual SaaS spend reclaimed.
+Stack: Windows Server 2025, Active Directory (AGDLP, GPO, Fine Grained Password Policies), SAML and JIT provisioning, PowerShell, n8n orchestration, Gearset.`;
+
+const CASES = [
+    { id:"CS1", on:true,  title:"Zero Touch JML Provisioning",
+      blurb:"72h to automated provisioning, 55% fewer tickets",
+      detail:"Financial Services, 1,500 users, hybrid AD plus cloud. Built a SAML 2.0 JIT provisioning pipeline tied to HR joiner events, validated in a 600 user simulated Active Directory forest on Windows Server 2025, with automated leaver deprovisioning. Results: provisioning reduced from 72 hours to Zero Touch automated delivery, 55% reduction in IT support tickets within 60 days, 600 admin accounts audited and remediated, orphaned account risk eliminated." },
+    { id:"CS2", on:false, title:"Zero Downtime Identity Migration",
+      blurb:"Zero production downtime on full AD/SSO migration",
+      detail:"Financial Services, 300 users, on-premises AD with SSO modernization. Replicated production in a 100 user sandboxed network, restructured the AGDLP group model in the lab, tested SSO cutover end to end, and built a cutover runbook with a tested rollback for every step. Results: zero production downtime across all migration events, AGDLP restructure with no role assignment errors, SSO cutover with no service interruption to any revenue generating system." },
+    { id:"CS3", on:false, title:"PAM and MFA Hardening",
+      blurb:"100% MFA compliance, zero open SOC2 findings",
+      detail:"Financial Services, 300 users, hybrid AD facing a SOC2 audit. Mapped all revenue generating roles and MFA gaps, applied PAM to privileged accounts (least privilege, just in time access, session monitoring), deployed Fine Grained Password Policies by role tier, validated everything in the lab, and produced SOC2 control mapping documentation. Results: 100% MFA compliance across revenue generating roles, all privileged accounts under least privilege controls, SOC2 access control findings resolved prior to the audit window." },
+    { id:"CS4", on:false, title:"SaaS Capital Recovery",
+      blurb:"30% of annual SaaS budget reclaimed in 30 days",
+      detail:"Financial Services, 300 users, multi-SaaS AD connected with no automated deprovisioning. Ran a Lab First SaaS audit, identified orphaned accounts by cross-referencing AD leaver events against SaaS entitlements, built automated deprovisioning with n8n, and deployed license harvesting via Gearset. Results: 30% of annual SaaS spend reclaimed, 30 days from audit start to license reclamation complete, automated deprovisioning active for all future leaver events." }
+];
+
+const OFFERS = [
+    { id:"PKG1", on:false, title:"The Identity Audit — $2,500",
+      blurb:"48 hour baseline of identity posture. Pays for itself in 30 days.",
+      detail:"The Identity Audit. Fixed fee $2,500, delivered within 48 business hours. Audits JML lifecycle, orphaned accounts, SaaS license waste, and MFA coverage gaps, with a prioritized remediation roadmap. No production access required. Most clients recover the fee within 30 days." },
+    { id:"PKG2", on:false, title:"The Identity Engine — $5,000",
+      blurb:"Automated JML pipeline via n8n. HRIS to SaaS, hands free.",
+      detail:"The Identity Engine. Fixed fee $5,000, delivered in 2 to 3 weeks. Builds a complete Joiner Mover Leaver automation pipeline using n8n, connecting HRIS to the SaaS stack. New hire provisioning moves from days to hours. Validated in a sandboxed lab before production." },
+    { id:"PKG3", on:false, title:"The Identity Fortress — $10,000",
+      blurb:"PAM hardening, MFA compliance, SOC2 audit ready.",
+      detail:"The Identity Fortress. Fixed fee $10,000, delivered in 3 to 4 weeks. Hardens privileged access, enforces MFA across all revenue generating roles, and delivers SOC2 audit ready documentation. Every configuration is validated in a dedicated lab before production. Client enters the audit window with zero open findings." }
+];
+
+const CONSTRAINTS =
+`WRITING CONSTRAINTS (mandatory, no exceptions):
+- No hyphens in compound modifiers. Write "Zero Touch" not "Zero-Touch".
+- Active voice only. "We manage" not "is managed".
+- No contractions. "we will" not "we'll".
+- Maximum 20 words per sentence.
+- No em dashes or en dashes. Use periods or commas.
+- Banned words, never use any of these: passionate, empower, excited, delve, comprehensive, tailored, unique, transform, mission critical, solution, leverage, synergy, paradigm, holistic, strategic, game-changer, next-generation, cutting-edge, best-in-class, world-class, optimize, facilitate, revolutionize, innovative, robust, seamless.
+- Tone: clinical, direct, peer level. Confidence from experience, not assertion.`;
+
+// ═══════════════════════════════════════════════════════════
+//  SAFE STORAGE (file:// can block localStorage — never crash)
+// ═══════════════════════════════════════════════════════════
+function storeGet(k){ try { return localStorage.getItem(k); } catch(e){ return null; } }
+function storeSet(k,v){ try { localStorage.setItem(k,v); } catch(e){ /* unavailable */ } }
+
+// ═══════════════════════════════════════════════════════════
+//  CLIPBOARD (works under file:// via execCommand fallback)
+// ═══════════════════════════════════════════════════════════
+function copyText(text, btn, okMsg) {
+    function flash() {
+        if (btn) {
+            const orig = btn.getAttribute('data-label') || btn.textContent;
+            btn.setAttribute('data-label', orig);
+            btn.textContent = '✓ Copied';
+            btn.classList.add('copied');
+            setTimeout(() => { btn.textContent = orig; btn.classList.remove('copied'); }, 2000);
+        }
+    }
+    function fallback() {
+        const ta = document.createElement('textarea');
+        ta.value = text;
+        ta.style.cssText = 'position:fixed;opacity:0;top:0;left:0';
+        document.body.appendChild(ta);
+        ta.focus(); ta.select();
+        let ok = false;
+        try { ok = document.execCommand('copy'); } catch(e) {}
+        document.body.removeChild(ta);
+        return ok;
+    }
+    if (navigator.clipboard && navigator.clipboard.writeText && window.isSecureContext) {
+        navigator.clipboard.writeText(text).then(flash, () => { if (fallback()) flash(); });
+    } else {
+        if (fallback()) flash();
+    }
+}
+
+// ═══════════════════════════════════════════════════════════
+//  RENDER ASSET TOGGLES
+// ═══════════════════════════════════════════════════════════
+
+function renderAssets(list, containerId) {
+    const c = document.getElementById(containerId);
+    c.innerHTML = list.map((a,i) => `
+        <div class="asset ${a.on?'on':''}" id="asset-${a.id}">
+            <label class="switch">
+                <input type="checkbox" ${a.on?'checked':''} onchange="toggleAsset('${containerId}',${i},this.checked)">
+                <span class="slider"></span>
+            </label>
+            <div class="asset-txt">
+                <strong>${a.id} · ${a.title}</strong>
+                <span>${a.blurb}</span>
+            </div>
+        </div>`).join('');
+}
+function toggleAsset(containerId, i, on) {
+    const list = containerId === 'caseGroup' ? CASES : OFFERS;
+    list[i].on = on;
+    document.getElementById('asset-'+list[i].id).classList.toggle('on', on);
+}
+renderAssets(CASES, 'caseGroup');
+renderAssets(OFFERS, 'offerGroup');
+document.getElementById('profile').value = DEFAULT_PROFILE;
+function resetProfile(){ document.getElementById('profile').value = DEFAULT_PROFILE; }
+
+// Resume upload (.txt)
+document.getElementById('resumeFile').addEventListener('change', function(e){
+    const f = e.target.files[0]; if(!f) return;
+    const r = new FileReader();
+    r.onload = ev => { document.getElementById('profile').value = ev.target.result.trim(); };
+    r.readAsText(f);
+});
+
+// ═══════════════════════════════════════════════════════════
+//  PROMPT ASSEMBLY
+// ═══════════════════════════════════════════════════════════
+
+function gather() {
+    return {
+        jobTitle: document.getElementById('jobTitle').value.trim(),
+        company:  document.getElementById('company').value.trim(),
+        contact:  document.getElementById('contact').value.trim(),
+        jobDesc:  document.getElementById('jobDesc').value.trim(),
+        jobLink:  document.getElementById('jobLink').value.trim(),
+        profile:  document.getElementById('profile').value.trim(),
+        cases:    CASES.filter(c => c.on),
+        offers:   OFFERS.filter(o => o.on)
+    };
+}
+
+function buildPrompt(g) {
+    const caseTxt = g.cases.length
+        ? g.cases.map(c => `${c.id} ${c.title}: ${c.detail}`).join("\n\n")
+        : "(none selected — rely on the profile only)";
+    const offerTxt = g.offers.length
+        ? g.offers.map(o => `${o.title}: ${o.detail}`).join("\n\n")
+        : "(none selected — do not pitch a paid package)";
+
+    return `You are writing a cover letter for ${CONTACT.name}, ${CONTACT.title} at ${CONTACT.firm}.
+
+GOAL: Produce a high converting cover letter for the role below. The letter must read as written by a senior peer, not a vendor. It must make the hiring reader want a conversation.
+
+ROLE: ${g.jobTitle || "(see description)"}
+COMPANY: ${g.company || "(see description)"}
+ADDRESSEE: ${g.contact || "Hiring Team"}
+
+JOB DESCRIPTION:
+${g.jobDesc || "(none pasted — infer the role from the title and company)"}
+
+CANDIDATE PROFILE:
+${g.profile}
+
+CASE STUDIES TO DRAW FROM (use only the ones provided, cite specific metrics):
+${caseTxt}
+
+SERVICE OFFERINGS TO MENTION (only if relevant to the role; omit if the role is a salaried position rather than a consulting engagement):
+${offerTxt}
+
+${CONSTRAINTS}
+
+STRUCTURE:
+1. A direct opening that names the role and states the single most relevant strength. No throat clearing.
+2. Two short body paragraphs. Each anchors one claim to a case study metric that matches the role's needs.
+3. One paragraph connecting the method (Lab First Validation, zero production downtime) to the company's risk or growth stage.
+4. A confident close requesting a conversation. State availability plainly.
+
+OUTPUT RULES:
+- Return only the body of the letter. Start with the salutation line "Dear ${g.contact || "Hiring Team"},".
+- Do not include the date, addresses, or a signature block. The app adds those.
+- 250 to 380 words.
+- Obey every writing constraint above. Check sentence length before finishing.`;
+}
+
+// ═══════════════════════════════════════════════════════════
+//  COPY PROMPT  (independent workflow — paste into Claude)
+// ═══════════════════════════════════════════════════════════
+
+function setStatus(msg, cls) {
+    const s = document.getElementById('status');
+    s.textContent = msg; s.className = 'status' + (cls ? ' '+cls : '');
+}
+
+function copyPrompt() {
+    const g = gather();
+    if (!g.jobDesc && !g.jobTitle) { setStatus('Add a job description or title first.', 'err'); return; }
+    copyText(buildPrompt(g), document.getElementById('btnCopyPrompt'));
+    setStatus('Prompt copied to clipboard.', 'ok');
+}
+
+function copyLetter() {
+    const t = document.getElementById('letter').value;
+    if (!t.trim()) return;
+    copyText(t, document.getElementById('btnCopyLetter'));
+}
+
+// ═══════════════════════════════════════════════════════════
+//  LIVE WRITING CONSTRAINT CHECK  (mirrors the Linter app)
+// ═══════════════════════════════════════════════════════════
+
+const BANNED = ['passionate','empower','empowers','empowering','empowered','empowerment','excited','excitement','exciting','delve','delves','delved','delving','comprehensive','tailored','tailoring','tailor','unique','uniquely','uniqueness','transform','transforms','transformed','transforming','transformation','solution','solutions','leverage','leverages','leveraged','leveraging','synergy','synergies','synergistic','paradigm','paradigms','holistic','holistically','strategic','strategically','game-changer','game-changing','gamechanger','next-generation','next generation','cutting-edge','cutting edge','best-in-class','best in class','world-class','world class','optimize','optimizes','optimized','optimizing','optimization','facilitate','facilitates','facilitated','facilitating','facilitation','revolutionize','revolutionizes','revolutionized','revolutionizing','innovative','innovate','innovates','innovation','robust','seamless','seamlessly','seamlessness','mission-critical'];
+const CONTRACTIONS = ["don't","doesn't","didn't","won't","wouldn't","can't","couldn't","isn't","aren't","wasn't","weren't","haven't","hasn't","hadn't","we'll","they'll","i'll","you'll","he'll","she'll","it'll","we're","they're","i'm","you're","he's","she's","it's","that's","there's","here's","who's","what's","where's","how's","we've","they've","i've","could've","should've","would've","let's","i'd","you'd","he'd","she'd","we'd","they'd"];
+
+function lintText(text) {
+    const issues = [];
+    for (const w of BANNED) {
+        const esc = w.replace(/[-\s]/g,'[\\s\\-]?');
+        const re = new RegExp(`(?<![a-z])${esc}(?![a-z])`, 'gi');
+        let m; while ((m = re.exec(text)) !== null) issues.push({ type:'Banned word', flag:m[0] });
+    }
+    for (const c of CONTRACTIONS) {
+        const p = c.replace(/'/g, "['\\u2019]");
+        const re = new RegExp(`\\b${p}\\b`, 'gi');
+        let m; while ((m = re.exec(text)) !== null) issues.push({ type:'Contraction', flag:m[0] });
+    }
+    let m; const dre = /—|–|--/g;
+    while ((m = dre.exec(text)) !== null) issues.push({ type:'Em/En dash', flag:m[0] });
+    const sentences = text.split(/(?<=[.!?])\s+/).map(s=>s.trim()).filter(s=>s.length>1);
+    for (const s of sentences) {
+        const wc = s.split(/\s+/).filter(Boolean).length;
+        if (wc > 20) issues.push({ type:'Over 20 words', flag:wc+' words', ctx: s.slice(0,90)+(s.length>90?'…':'') });
+    }
+    return issues;
+}
+
+function refreshLetter() {
+    const text = document.getElementById('letter').value;
+    const words = text.trim() ? text.trim().split(/\s+/).length : 0;
+    document.getElementById('wc').textContent = words ? words + ' words' : '';
+
+    const dot = document.getElementById('lintDot');
+    const label = document.getElementById('lintLabel');
+    const body = document.getElementById('lintBody');
+
+    if (!text.trim()) {
+        dot.className = 'lint-dot d-pass';
+        label.textContent = 'Writing constraints: paste or generate to check';
+        body.innerHTML = ''; return;
+    }
+    const issues = lintText(text);
+    if (issues.length === 0) {
+        dot.className = 'lint-dot d-pass';
+        label.textContent = 'Writing constraints: clean. Clear to send.';
+        body.innerHTML = '<div class="lint-item">No violations found.</div>';
+    } else {
+        dot.className = 'lint-dot ' + (issues.length <= 3 ? 'd-warn' : 'd-fail');
+        label.textContent = `Writing constraints: ${issues.length} to review`;
+        body.innerHTML = issues.map(i =>
+            `<div class="lint-item"><strong>${i.type}:</strong> <code>${(i.flag+'').replace(/</g,'&lt;')}</code>${i.ctx ? ' — '+i.ctx.replace(/</g,'&lt;') : ''}</div>`
+        ).join('');
+    }
+}
+document.getElementById('letter').addEventListener('input', refreshLetter);
+
+// ═══════════════════════════════════════════════════════════
+//  PDF EXPORT  →  "Ezra Rayburn.Cover Letter.pdf"
+//  Loads the vendored local jsPDF first (works offline via
+//  file://). Falls back to CDN, then to the print dialog.
+// ═══════════════════════════════════════════════════════════
+
+function todayLong() {
+    return new Date().toLocaleDateString('en-US', { year:'numeric', month:'long', day:'numeric' });
+}
+
+function loadJsPdf() {
+    return new Promise((resolve, reject) => {
+        if (window.jspdf) return resolve(window.jspdf);
+        function tryScript(src, next) {
+            const s = document.createElement('script');
+            s.src = src;
+            s.onload = () => resolve(window.jspdf);
+            s.onerror = next;
+            document.head.appendChild(s);
+        }
+        tryScript('jspdf.umd.min.js',
+            () => tryScript('https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js',
+            () => reject(new Error('no-pdf'))));
+    });
+}
+
+async function downloadPdf() {
+    const body = document.getElementById('letter').value.trim();
+    const ps = document.getElementById('pdfStatus');
+    if (!body) { ps.textContent = 'Write or generate the letter first.'; ps.className='status err'; return; }
+
+    const g = gather();
+    ps.textContent = 'Building PDF…'; ps.className = 'status';
+
+    try {
+        const { jsPDF } = await loadJsPdf();
+        const doc = new jsPDF({ unit:'pt', format:'letter' });
+        const M = 72;
+        const W = doc.internal.pageSize.getWidth();
+        const H = doc.internal.pageSize.getHeight();
+        const maxW = W - M*2;
+        let y = M;
+
+        doc.setFont('times','bold'); doc.setFontSize(18);
+        doc.text(CONTACT.name, M, y); y += 20;
+        doc.setFont('times','normal'); doc.setFontSize(10.5); doc.setTextColor(90);
+        doc.text(`${CONTACT.title}  |  ${CONTACT.firm}  |  ${CONTACT.location}`, M, y); y += 14;
+        doc.text(`${CONTACT.phone}  |  ${CONTACT.email}`, M, y); y += 14;
+        doc.text(CONTACT.linkedin, M, y); y += 18;
+        doc.setDrawColor(180); doc.line(M, y, W-M, y); y += 24;
+
+        doc.setTextColor(20); doc.setFontSize(11);
+        doc.text(todayLong(), M, y); y += 22;
+        if (g.company) { doc.text(g.company, M, y); y += 15; }
+        if (g.jobTitle) { doc.text('Re: ' + g.jobTitle, M, y); y += 15; }
+        y += 8;
+
+        doc.setFontSize(11.5);
+        const lineH = 16;
+        const paras = body.split(/\n\s*\n/).map(p => p.replace(/\n/g,' ').trim()).filter(Boolean);
+        for (const p of paras) {
+            const lines = doc.splitTextToSize(p, maxW);
+            for (const ln of lines) {
+                if (y > H - M) { doc.addPage(); y = M; }
+                doc.text(ln, M, y); y += lineH;
+            }
+            y += lineH * 0.6;
+        }
+
+        y += lineH;
+        if (y > H - M - 40) { doc.addPage(); y = M; }
+        doc.text('Sincerely,', M, y); y += 34;
+        doc.setFont('times','bold'); doc.text(CONTACT.name, M, y);
+
+        doc.save('Ezra Rayburn.Cover Letter.pdf');
+        ps.textContent = 'Downloaded: Ezra Rayburn.Cover Letter.pdf'; ps.className = 'status ok';
+    } catch (e) {
+        ps.textContent = 'PDF engine unavailable. Opening print dialog — choose "Save as PDF".';
+        ps.className = 'status';
+        printFallback(body, g);
+    }
+}
+
+function printFallback(body, g) {
+    const w = window.open('', '_blank');
+    if (!w) { document.getElementById('pdfStatus').textContent = 'Allow pop-ups to print, or use Copy Text.'; return; }
+    const esc = s => s.replace(/&/g,'&amp;').replace(/</g,'&lt;');
+    const paras = body.split(/\n\s*\n/).map(p => `<p>${esc(p).replace(/\n/g,'<br>')}</p>`).join('');
+    w.document.write(`<html><head><title>Ezra Rayburn.Cover Letter</title>
+        <style>body{font-family:Georgia,serif;font-size:12pt;line-height:1.6;margin:1in;color:#111;}
+        h1{font-size:18pt;margin:0;} .meta{color:#555;font-size:10pt;margin:4px 0;}
+        hr{border:none;border-top:1px solid #999;margin:14px 0;} p{margin:0 0 12px;}</style></head>
+        <body><h1>${esc(CONTACT.name)}</h1>
+        <div class="meta">${esc(CONTACT.title)} | ${esc(CONTACT.firm)} | ${esc(CONTACT.location)}</div>
+        <div class="meta">${esc(CONTACT.phone)} | ${esc(CONTACT.email)}</div>
+        <div class="meta">${esc(CONTACT.linkedin)}</div><hr>
+        <p>${todayLong()}</p>${g.company?`<p>${esc(g.company)}</p>`:''}${g.jobTitle?`<p>Re: ${esc(g.jobTitle)}</p>`:''}
+        ${paras}<p>Sincerely,</p><p><strong>${esc(CONTACT.name)}</strong></p></body></html>`);
+    w.document.close();
+    setTimeout(() => { w.focus(); w.print(); }, 350);
+}
+
+refreshLetter();
+</script>
+
+</body>
+</html>
