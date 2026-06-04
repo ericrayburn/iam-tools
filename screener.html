@@ -6,16 +6,17 @@
     <title>Bid Qualification Screener | Rayburn Ideas</title>
     <style>
         :root {
-            --bg: #0d1117;
-            --surface: #161b22;
-            --surface2: #1c2230;
-            --border: #30363d;
-            --cyan: #00d4e8;
-            --text: #e6edf3;
-            --text-muted: #8b949e;
-            --red: #f85149;
-            --orange: #d29922;
-            --green: #3fb950;
+            --bg: #eef1f6;
+            --surface: #ffffff;
+            --surface2: #f3f6fa;
+            --border: #d3dae3;
+            --cyan: #00b3c8;
+            --cyan-deep: #007d8c;
+            --text: #1b2530;
+            --text-muted: #5d6b7a;
+            --red: #c0392b;
+            --orange: #b9770e;
+            --green: #1e8e4e;
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -43,7 +44,7 @@
             background: var(--cyan);
             border-radius: 7px;
             display: flex; align-items: center; justify-content: center;
-            font-weight: 900; font-size: 20px; color: #0d1117;
+            font-weight: 900; font-size: 20px; color: #ffffff;
             flex-shrink: 0;
         }
 
@@ -52,7 +53,7 @@
         }
 
         .logo-text span {
-            font-size: 10px; color: var(--cyan); letter-spacing: 1.5px; text-transform: uppercase;
+            font-size: 10px; color: var(--cyan-deep); letter-spacing: 1.5px; text-transform: uppercase;
         }
 
         .nav-home {
@@ -68,11 +69,11 @@
 
         .app-badge {
             margin-left: auto;
-            background: rgba(0,212,232,0.12);
-            color: var(--cyan);
+            background: rgba(0,179,200,0.12);
+            color: var(--cyan-deep);
             font-size: 11px; font-weight: 600;
             padding: 4px 10px; border-radius: 20px;
-            border: 1px solid rgba(0,212,232,0.3);
+            border: 1px solid rgba(0,179,200,0.35);
             letter-spacing: 0.5px;
         }
 
@@ -98,14 +99,15 @@
         }
 
         .panel-header {
-            padding: 11px 16px;
-            border-bottom: 1px solid var(--border);
+            padding: 12px 16px;
+            border-bottom: 2px solid var(--cyan);
             font-size: 11px; font-weight: 700;
-            color: var(--text-muted);
+            color: #f3f6fa;
             text-transform: uppercase; letter-spacing: 1px;
             display: flex; align-items: center; justify-content: space-between;
-            background: var(--surface2);
+            background: #243140;
         }
+        .panel-header .char-count { color: #9fb0c0; }
 
         /* ── Input ── */
         textarea {
@@ -131,7 +133,7 @@
 
         .btn-run {
             background: var(--cyan);
-            color: #0d1117;
+            color: #ffffff;
             border: none; border-radius: 6px;
             padding: 8px 22px;
             font-size: 13px; font-weight: 700;
@@ -213,16 +215,16 @@
         .result-block-header {
             padding: 8px 14px;
             font-size: 10px; font-weight: 700;
-            color: var(--text-muted);
+            color: #2c3a47;
             text-transform: uppercase; letter-spacing: 1px;
-            background: rgba(0,0,0,0.3);
+            background: #e3e9f1;
             border-bottom: 1px solid var(--border);
         }
 
         .result-block-body { padding: 14px; }
 
         /* ── Platform ── */
-        .platform-name { font-size: 18px; font-weight: 700; color: var(--cyan); }
+        .platform-name { font-size: 18px; font-weight: 700; color: var(--cyan-deep); }
         .platform-sub { font-size: 12px; color: var(--text-muted); margin-top: 4px; line-height: 1.5; }
 
         /* ── Level Bars ── */
@@ -239,7 +241,7 @@
 
         .level-bar-track {
             flex: 1; height: 8px;
-            background: rgba(255,255,255,0.06);
+            background: rgba(27,37,48,0.10);
             border-radius: 4px; overflow: hidden;
         }
         .level-bar-fill { height: 100%; border-radius: 4px; transition: width 0.4s ease; }
@@ -254,7 +256,7 @@
         .decision-step {
             display: flex; gap: 10px; align-items: flex-start;
             padding: 9px 0;
-            border-bottom: 1px solid rgba(48,54,61,0.5);
+            border-bottom: 1px solid rgba(27,37,48,0.12);
         }
         .decision-step:last-child { border-bottom: none; padding-bottom: 0; }
 
@@ -325,13 +327,13 @@
         /* ── Case Study ── */
         .case-study-card {
             padding: 12px;
-            background: rgba(0,212,232,0.06);
-            border: 1px solid rgba(0,212,232,0.2);
+            background: rgba(0,179,200,0.08);
+            border: 1px solid rgba(0,179,200,0.28);
             border-radius: 6px;
         }
         .case-study-title {
             font-size: 13px; font-weight: 700;
-            color: var(--cyan); margin-bottom: 5px;
+            color: var(--cyan-deep); margin-bottom: 5px;
         }
         .case-study-detail { font-size: 12px; color: var(--text-muted); line-height: 1.5; }
 
@@ -353,7 +355,7 @@
 
         .btn-copy-prompt {
             background: var(--green);
-            color: #0d1117;
+            color: #ffffff;
             border: none; border-radius: 6px;
             padding: 10px 28px;
             font-size: 13px; font-weight: 700;
@@ -361,7 +363,7 @@
             letter-spacing: 0.3px;
         }
         .btn-copy-prompt:hover { opacity: 0.85; }
-        .btn-copy-prompt.copied { background: var(--cyan); color: #0d1117; }
+        .btn-copy-prompt.copied { background: var(--cyan); color: #ffffff; }
 
         .bridge-note { font-size: 11px; color: var(--text-muted); font-style: italic; }
     </style>
@@ -1304,7 +1306,7 @@ function runScreener() {
                 <div class="bridge-desc">
                     Use the Response Template Builder to get the correct scaffold for this platform.
                 </div>
-                <a href="templates.html" style="display:inline-block; background:var(--cyan); color:#0d1117; text-decoration:none; padding:10px 24px; border-radius:6px; font-weight:700; font-size:13px; cursor:pointer; transition:opacity 0.15s;" onmouseover="this.style.opacity='0.85'" onmouseout="this.style.opacity='1'">
+                <a href="templates.html" style="display:inline-block; background:var(--cyan); color:#ffffff; text-decoration:none; padding:10px 24px; border-radius:6px; font-weight:700; font-size:13px; cursor:pointer; transition:opacity 0.15s;" onmouseover="this.style.opacity='0.85'" onmouseout="this.style.opacity='1'">
                     Open Response Template Builder → ${templateBuilderPlatform}
                 </a>
                 <div class="bridge-note">Select platform: <strong>${templateBuilderPlatform}</strong> | Paste job description | Get scaffold with pre-filled case study</div>
