@@ -6,18 +6,19 @@
   <title>Bid Pipeline | Rayburn Ideas</title>
   <style>
     :root {
-      --bg: #0d1117;
-      --surface: #161b22;
-      --surface2: #1c2128;
-      --border: #30363d;
-      --cyan: #00d4e8;
-      --text: #e6edf3;
-      --text-muted: #8b949e;
-      --green: #3fb950;
-      --red: #f85149;
-      --orange: #d29922;
-      --yellow: #e3b341;
-      --purple: #bc8cff;
+      --bg: #eef1f6;
+      --surface: #ffffff;
+      --surface2: #f3f6fa;
+      --border: #d3dae3;
+      --cyan: #00b3c8;
+      --cyan-deep: #007d8c;
+      --text: #1b2530;
+      --text-muted: #5d6b7a;
+      --green: #1e8e4e;
+      --red: #c0392b;
+      --orange: #b9770e;
+      --yellow: #b08900;
+      --purple: #7c3aed;
     }
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
@@ -41,10 +42,10 @@
       background: var(--cyan);
       border-radius: 8px;
       display: flex; align-items: center; justify-content: center;
-      font-weight: 900; font-size: 22px; color: #0d1117;
+      font-weight: 900; font-size: 22px; color: #ffffff;
     }
     .logo-text strong { display: block; font-size: 15px; letter-spacing: 0.6px; }
-    .logo-text span { font-size: 10px; color: var(--cyan); letter-spacing: 1.5px; text-transform: uppercase; }
+    .logo-text span { font-size: 10px; color: var(--cyan-deep); letter-spacing: 1.5px; text-transform: uppercase; }
     .header-nav { margin-left: auto; }
     .header-nav a { color: var(--text-muted); text-decoration: none; font-size: 13px; }
     .header-nav a:hover { color: var(--cyan); }
@@ -63,7 +64,7 @@
 
     .btn-add {
       background: var(--cyan);
-      color: #0d1117;
+      color: #ffffff;
       border: none;
       border-radius: 6px;
       padding: 10px 20px;
@@ -96,7 +97,7 @@
       margin-bottom: 8px;
     }
     .stat-value { font-size: 26px; font-weight: 700; }
-    .stat-value.cyan  { color: var(--cyan); }
+    .stat-value.cyan  { color: var(--cyan-deep); }
     .stat-value.green { color: var(--green); }
     .stat-value.red   { color: var(--red); }
     .stat-value.sm    { font-size: 15px; margin-top: 5px; }
@@ -123,9 +124,9 @@
     }
     .filter-tab:hover { color: var(--text); }
     .filter-tab.active {
-      color: var(--cyan);
+      color: var(--cyan-deep);
       border-bottom-color: var(--cyan);
-      background: rgba(0,212,232,0.06);
+      background: rgba(0,179,200,0.10);
     }
     .filter-count {
       display: inline-block;
@@ -136,8 +137,8 @@
       margin-left: 5px;
     }
     .filter-tab.active .filter-count {
-      background: rgba(0,212,232,0.15);
-      color: var(--cyan);
+      background: rgba(0,179,200,0.15);
+      color: var(--cyan-deep);
     }
 
     /* EMPTY STATE */
@@ -189,9 +190,9 @@
       font-weight: 700;
       letter-spacing: 0.8px;
       text-transform: uppercase;
-      color: var(--cyan);
-      background: rgba(0,212,232,0.1);
-      border: 1px solid rgba(0,212,232,0.25);
+      color: var(--cyan-deep);
+      background: rgba(0,179,200,0.10);
+      border: 1px solid rgba(0,179,200,0.28);
       padding: 2px 8px;
       border-radius: 4px;
     }
@@ -267,7 +268,7 @@
       border-radius: 4px;
     }
     .status-DRAFT     { color: var(--text-muted); background: rgba(139,148,158,0.12); border: 1px solid var(--border); }
-    .status-SUBMITTED { color: var(--cyan);   background: rgba(0,212,232,0.1);   border: 1px solid rgba(0,212,232,0.25); }
+    .status-SUBMITTED { color: var(--cyan-deep);   background: rgba(0,179,200,0.10);   border: 1px solid rgba(0,179,200,0.28); }
     .status-INTERVIEW { color: var(--purple); background: rgba(188,140,255,0.1); border: 1px solid rgba(188,140,255,0.25); }
     .status-WON       { color: var(--green);  background: rgba(63,185,80,0.1);   border: 1px solid rgba(63,185,80,0.25); }
     .status-LOST      { color: var(--red);    background: rgba(248,81,73,0.1);   border: 1px solid rgba(248,81,73,0.25); }
@@ -341,7 +342,7 @@
     .form-row select:focus,
     .form-row textarea:focus { border-color: var(--cyan); }
     .form-row textarea { resize: vertical; min-height: 80px; }
-    .form-row select option { background: #1c2128; }
+    .form-row select option { background: #ffffff; }
 
     .form-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
 
@@ -365,7 +366,7 @@
     .btn-cancel:hover { border-color: var(--text-muted); color: var(--text); }
     .btn-save {
       background: var(--cyan);
-      color: #0d1117;
+      color: #ffffff;
       border: none;
       border-radius: 6px;
       padding: 9px 20px;
@@ -427,7 +428,7 @@
       width: 100%;
       flex: 1;
       min-height: 320px;
-      background: #0d1117;
+      background: var(--surface2);
       border: 1px solid var(--border);
       border-radius: 6px;
       color: var(--text);
@@ -449,7 +450,7 @@
     .btn-export {
       background: none;
       border: 1px solid var(--cyan);
-      color: var(--cyan);
+      color: var(--cyan-deep);
       border-radius: 6px;
       padding: 9px 18px;
       font-size: 13px;
