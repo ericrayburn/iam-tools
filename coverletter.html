@@ -90,6 +90,13 @@
         .panel-header .sub { color: #9fb0c0 !important; }
         .panel-body { padding: 16px; }
 
+        /* Alternating form sections */
+        .sect { padding: 14px 14px 16px; border-radius: 8px; border: 1px solid var(--border); margin-bottom: 14px; }
+        .sect:last-child { margin-bottom: 0; }
+        .sect.grey  { background: #e3e9f1; border-color: #ccd6e1; }
+        .sect.light { background: #f8fafc; border-color: #e6ebf1; }
+        .sect-title { font-size: 11px; font-weight: 800; color: #1e2935; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px; padding-bottom: 7px; border-bottom: 1px solid rgba(30,41,53,0.22); }
+
         label.fld { display: block; font-size: 11px; font-weight: 700; color: #2c3a47; text-transform: uppercase; letter-spacing: 0.7px; margin: 16px 0 5px; }
         label.fld:first-child { margin-top: 0; }
 
@@ -213,57 +220,70 @@
         <div class="panel-header"><span>Job Input</span></div>
         <div class="panel-body">
 
-            <div class="row2">
-                <div>
-                    <label class="fld">Role / Job Title</label>
-                    <input type="text" id="jobTitle" placeholder="Principal IAM Architect">
-                </div>
-                <div>
-                    <label class="fld">Company</label>
-                    <input type="text" id="company" placeholder="Acme Corp">
-                </div>
-            </div>
-
-            <label class="fld">Hiring Contact (optional)</label>
-            <input type="text" id="contact" placeholder="Leave blank for &quot;Hiring Team&quot;">
-
-            <label class="fld">Job Description (paste the text)</label>
-            <textarea id="jobDesc" rows="9" placeholder="Paste the full job posting text here. This is the reliable input. A pasted link cannot auto-load, because job boards block it."></textarea>
-
-            <label class="fld">Job Link (optional, for your records)</label>
-            <input type="text" id="jobLink" placeholder="https://...">
-
-            <!-- Case studies -->
-            <label class="fld">Case Studies — toggle which to draw from</label>
-            <div class="asset-group" id="caseGroup"></div>
-
-            <!-- Offerings -->
-            <label class="fld">Service Offerings — toggle which to mention</label>
-            <div class="asset-group" id="offerGroup"></div>
-
-            <!-- Profile / resume -->
-            <label class="fld">Your Profile / Resume</label>
-            <details class="profile">
-                <summary>View or edit the profile used in the letter</summary>
-                <div class="inner">
-                    <textarea id="profile" rows="9"></textarea>
-                    <div class="btn-row" style="margin-top:10px;">
-                        <button class="btn btn-ghost" onclick="document.getElementById('resumeFile').click()">Upload .txt resume</button>
-                        <button class="btn btn-ghost" onclick="resetProfile()">Reset to default</button>
-                        <input type="file" id="resumeFile" accept=".txt" style="display:none">
+            <!-- Section 1 (grey): the role -->
+            <div class="sect grey">
+                <div class="sect-title">The Role</div>
+                <div class="row2">
+                    <div>
+                        <label class="fld">Role / Job Title</label>
+                        <input type="text" id="jobTitle" placeholder="Principal IAM Architect">
                     </div>
-                    <div class="hint">Default profile is pre-loaded from your resume. Edit freely, or upload a plain-text resume to replace it.</div>
+                    <div>
+                        <label class="fld">Company</label>
+                        <input type="text" id="company" placeholder="Acme Corp">
+                    </div>
                 </div>
-            </details>
 
-            <div class="api-note">
-                This app runs on its own. No server, no internet, no API key. Click <strong>Copy Prompt</strong>,
-                paste it into Claude, then paste the letter back into the editor on the right.
+                <label class="fld">Hiring Contact (optional)</label>
+                <input type="text" id="contact" placeholder="Leave blank for &quot;Hiring Team&quot;">
+
+                <label class="fld">Job Description (paste the text)</label>
+                <textarea id="jobDesc" rows="9" placeholder="Paste the full job posting text here. This is the reliable input. A pasted link cannot auto-load, because job boards block it."></textarea>
+
+                <label class="fld">Job Link (optional, for your records)</label>
+                <input type="text" id="jobLink" placeholder="https://...">
             </div>
 
-            <div class="btn-row">
-                <button class="btn btn-primary" id="btnCopyPrompt" onclick="copyPrompt()">Copy Prompt</button>
-                <span class="status" id="status"></span>
+            <!-- Section 2 (grey): case studies -->
+            <div class="sect grey">
+                <div class="sect-title">Case Studies — toggle which to draw from</div>
+                <div class="asset-group" id="caseGroup"></div>
+            </div>
+
+            <!-- Section 3 (grey): offerings -->
+            <div class="sect grey">
+                <div class="sect-title">Service Offerings — toggle which to mention</div>
+                <div class="asset-group" id="offerGroup"></div>
+            </div>
+
+            <!-- Section 4 (grey): profile / resume -->
+            <div class="sect grey">
+                <div class="sect-title">Your Profile / Resume</div>
+                <details class="profile">
+                    <summary>View or edit the profile used in the letter</summary>
+                    <div class="inner">
+                        <textarea id="profile" rows="9"></textarea>
+                        <div class="btn-row" style="margin-top:10px;">
+                            <button class="btn btn-ghost" onclick="document.getElementById('resumeFile').click()">Upload resume (PDF or .txt)</button>
+                            <button class="btn btn-ghost" onclick="resetProfile()">Reset to default</button>
+                            <input type="file" id="resumeFile" accept=".pdf,.txt" style="display:none">
+                            <span class="status" id="resumeNote"></span>
+                        </div>
+                        <div class="hint">Default profile is pre-loaded from your resume. Edit freely, or upload a PDF or plain-text resume to replace it. The app reads the PDF text for you.</div>
+                    </div>
+                </details>
+            </div>
+
+            <!-- Section 5 (grey): action -->
+            <div class="sect grey">
+                <div class="api-note">
+                    This app runs on its own. No server, no internet, no API key. Click <strong>Copy Prompt</strong>,
+                    paste it into Claude, then paste the letter back into the editor on the right.
+                </div>
+                <div class="btn-row">
+                    <button class="btn btn-primary" id="btnCopyPrompt" onclick="copyPrompt()">Copy Prompt</button>
+                    <span class="status" id="status"></span>
+                </div>
             </div>
 
         </div>
@@ -328,7 +348,7 @@ Proven outcomes: provisioning cut from 72 hours to automated delivery, 55% reduc
 Stack: Windows Server 2025, Active Directory (AGDLP, GPO, Fine Grained Password Policies), SAML and JIT provisioning, PowerShell, n8n orchestration, Gearset.`;
 
 const CASES = [
-    { id:"CS1", on:true,  title:"Zero Touch JML Provisioning",
+    { id:"CS1", on:false, title:"Zero Touch JML Provisioning",
       blurb:"72h to automated provisioning, 55% fewer tickets",
       detail:"Financial Services, 1,500 users, hybrid AD plus cloud. Built a SAML 2.0 JIT provisioning pipeline tied to HR joiner events, validated in a 600 user simulated Active Directory forest on Windows Server 2025, with automated leaver deprovisioning. Results: provisioning reduced from 72 hours to Zero Touch automated delivery, 55% reduction in IT support tickets within 60 days, 600 admin accounts audited and remediated, orphaned account risk eliminated." },
     { id:"CS2", on:false, title:"Zero Downtime Identity Migration",
@@ -429,12 +449,68 @@ renderAssets(OFFERS, 'offerGroup');
 document.getElementById('profile').value = DEFAULT_PROFILE;
 function resetProfile(){ document.getElementById('profile').value = DEFAULT_PROFILE; }
 
-// Resume upload (.txt)
-document.getElementById('resumeFile').addEventListener('change', function(e){
+// Resume upload (PDF or .txt)
+function loadPdfJs() {
+    return new Promise((resolve, reject) => {
+        if (window.pdfjsLib) return resolve(window.pdfjsLib);
+        function tryScript(src, next) {
+            const s = document.createElement('script');
+            s.src = src;
+            s.onload = () => resolve(window.pdfjsLib);
+            s.onerror = next;
+            document.head.appendChild(s);
+        }
+        tryScript('pdf.min.js',
+            () => tryScript('https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js',
+            () => reject(new Error('parser unavailable'))));
+    });
+}
+
+async function extractPdfText(buf) {
+    const pdfjsLib = await loadPdfJs();
+    const workers = ['pdf.worker.min.js',
+        'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js'];
+    let lastErr;
+    for (const w of workers) {
+        try {
+            pdfjsLib.GlobalWorkerOptions.workerSrc = w;
+            const pdf = await pdfjsLib.getDocument({ data: buf.slice(0) }).promise;
+            let text = '';
+            for (let p = 1; p <= pdf.numPages; p++) {
+                const page = await pdf.getPage(p);
+                const content = await page.getTextContent();
+                text += content.items.map(i => i.str).join(' ') + '\n';
+            }
+            return text.replace(/[ \t]+/g, ' ').replace(/\s*\n\s*/g, '\n').trim();
+        } catch (e) { lastErr = e; }
+    }
+    throw lastErr || new Error('PDF worker failed');
+}
+
+document.getElementById('resumeFile').addEventListener('change', async function(e){
     const f = e.target.files[0]; if(!f) return;
-    const r = new FileReader();
-    r.onload = ev => { document.getElementById('profile').value = ev.target.result.trim(); };
-    r.readAsText(f);
+    const prof = document.getElementById('profile');
+    const note = document.getElementById('resumeNote');
+    const setNote = (msg, cls) => { if (note) { note.textContent = msg; note.className = 'status' + (cls ? ' '+cls : ''); } };
+    const isPdf = f.type === 'application/pdf' || /\.pdf$/i.test(f.name);
+
+    if (isPdf) {
+        setNote('Reading PDF…');
+        try {
+            const buf = await f.arrayBuffer();
+            const text = await extractPdfText(buf);
+            if (!text) throw new Error('no selectable text (the PDF may be a scan)');
+            prof.value = text;
+            setNote('Loaded resume from PDF.', 'ok');
+        } catch (err) {
+            setNote('PDF read failed: ' + err.message + '. Paste the text instead.', 'err');
+        }
+    } else {
+        const r = new FileReader();
+        r.onload = ev => { prof.value = ev.target.result.trim(); setNote('Loaded resume from text file.', 'ok'); };
+        r.readAsText(f);
+    }
+    e.target.value = '';   // allow re-uploading the same file
 });
 
 // ═══════════════════════════════════════════════════════════
