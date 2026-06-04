@@ -6,17 +6,18 @@
     <title>Screener Insights | Rayburn Ideas</title>
     <style>
         :root {
-            --bg: #0d1117;
-            --surface: #161b22;
-            --surface2: #1c2230;
-            --border: #30363d;
-            --cyan: #00d4e8;
-            --text: #e6edf3;
-            --text-muted: #8b949e;
-            --red: #f85149;
-            --orange: #d29922;
-            --green: #3fb950;
-            --purple: #bc8cff;
+            --bg: #eef1f6;
+            --surface: #ffffff;
+            --surface2: #f3f6fa;
+            --border: #d3dae3;
+            --cyan: #00b3c8;
+            --cyan-deep: #007d8c;
+            --text: #1b2530;
+            --text-muted: #5d6b7a;
+            --red: #c0392b;
+            --orange: #b9770e;
+            --green: #1e8e4e;
+            --purple: #7c3aed;
         }
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body {
@@ -40,11 +41,11 @@
             background: var(--cyan);
             border-radius: 7px;
             display: flex; align-items: center; justify-content: center;
-            font-weight: 900; font-size: 20px; color: #0d1117;
+            font-weight: 900; font-size: 20px; color: #ffffff;
             flex-shrink: 0;
         }
         .logo-text strong { display: block; font-size: 14px; letter-spacing: 0.6px; }
-        .logo-text span { font-size: 10px; color: var(--cyan); letter-spacing: 1.5px; text-transform: uppercase; }
+        .logo-text span { font-size: 10px; color: var(--cyan-deep); letter-spacing: 1.5px; text-transform: uppercase; }
         .nav-home {
             color: var(--text-muted); text-decoration: none; font-size: 12px;
             padding: 5px 10px; border: 1px solid var(--border); border-radius: 5px;
@@ -53,9 +54,9 @@
         .nav-home:hover { color: var(--cyan); border-color: var(--cyan); }
         .app-badge {
             margin-left: auto;
-            background: rgba(0,212,232,0.12); color: var(--cyan);
+            background: rgba(0,179,200,0.12); color: var(--cyan-deep);
             font-size: 11px; font-weight: 600; padding: 4px 10px; border-radius: 20px;
-            border: 1px solid rgba(0,212,232,0.3); letter-spacing: 0.5px;
+            border: 1px solid rgba(0,179,200,0.35); letter-spacing: 0.5px;
         }
 
         main { max-width: 1140px; margin: 0 auto; padding: 28px 24px; }
@@ -99,7 +100,7 @@
             text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px;
         }
         .stat-value { font-size: 26px; font-weight: 700; }
-        .stat-value.cyan { color: var(--cyan); }
+        .stat-value.cyan { color: var(--cyan-deep); }
         .stat-value.green { color: var(--green); }
         .stat-value.red { color: var(--red); }
 
@@ -109,9 +110,9 @@
             border-radius: 8px; margin-bottom: 20px; overflow: hidden;
         }
         .section-header {
-            padding: 12px 18px; border-bottom: 1px solid var(--border);
-            font-size: 11px; font-weight: 700; color: var(--text-muted);
-            text-transform: uppercase; letter-spacing: 1px; background: var(--surface2);
+            padding: 12px 18px; border-bottom: 2px solid var(--cyan);
+            font-size: 11px; font-weight: 700; color: #f3f6fa;
+            text-transform: uppercase; letter-spacing: 1px; background: #243140;
         }
         .section-body { padding: 18px; }
         .section-body .hint { font-size: 12px; color: var(--text-muted); line-height: 1.6; margin-bottom: 14px; }
@@ -122,7 +123,7 @@
         .bar-top { display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 5px; }
         .bar-top .lab { color: var(--text); }
         .bar-top .cnt { color: var(--text-muted); flex-shrink: 0; margin-left: 12px; }
-        .bar-track { height: 8px; background: rgba(255,255,255,0.06); border-radius: 4px; overflow: hidden; }
+        .bar-track { height: 8px; background: rgba(27,37,48,0.10); border-radius: 4px; overflow: hidden; }
         .bar-fill { height: 100%; border-radius: 4px; }
 
         /* TABLE */
@@ -131,7 +132,7 @@
         th { font-size: 10px; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted); font-weight: 700; }
         tr:last-child td { border-bottom: none; }
         td.num { font-weight: 700; }
-        .advice { font-size: 12px; color: var(--cyan); line-height: 1.5; }
+        .advice { font-size: 12px; color: var(--cyan-deep); line-height: 1.5; }
         .reason-tag {
             display: inline-block; font-size: 11px; padding: 2px 8px; border-radius: 10px;
             background: rgba(210,153,34,0.12); color: var(--orange); border: 1px solid rgba(210,153,34,0.3);
@@ -156,7 +157,7 @@
         .empty-state .icon { font-size: 44px; margin-bottom: 14px; }
         .empty-state h3 { font-size: 16px; color: var(--text); margin-bottom: 8px; }
         .empty-state p { font-size: 13px; line-height: 1.7; }
-        .empty-state a { color: var(--cyan); }
+        .empty-state a { color: var(--cyan-deep); }
     </style>
 </head>
 <body>

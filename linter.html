@@ -6,16 +6,17 @@
     <title>Writing Constraint Linter | Rayburn Ideas</title>
     <style>
         :root {
-            --bg: #0d1117;
-            --surface: #161b22;
-            --surface2: #1c2230;
-            --border: #30363d;
-            --cyan: #00d4e8;
-            --text: #e6edf3;
-            --text-muted: #8b949e;
-            --red: #f85149;
-            --orange: #d29922;
-            --green: #3fb950;
+            --bg: #eef1f6;
+            --surface: #ffffff;
+            --surface2: #f3f6fa;
+            --border: #d3dae3;
+            --cyan: #00b3c8;
+            --cyan-deep: #007d8c;
+            --text: #1b2530;
+            --text-muted: #5d6b7a;
+            --red: #c0392b;
+            --orange: #b9770e;
+            --green: #1e8e4e;
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -48,7 +49,7 @@
             justify-content: center;
             font-weight: 900;
             font-size: 20px;
-            color: #0d1117;
+            color: #ffffff;
             flex-shrink: 0;
         }
 
@@ -61,15 +62,15 @@
 
         .logo-text span {
             font-size: 10px;
-            color: var(--cyan);
+            color: var(--cyan-deep);
             letter-spacing: 1.5px;
             text-transform: uppercase;
         }
 
         .app-badge {
             margin-left: auto;
-            background: rgba(0,212,232,0.12);
-            color: var(--cyan);
+            background: rgba(0,179,200,0.12);
+            color: var(--cyan-deep);
             font-size: 11px;
             font-weight: 600;
             padding: 4px 10px;
@@ -102,17 +103,17 @@
         }
 
         .panel-header {
-            padding: 11px 16px;
-            border-bottom: 1px solid var(--border);
+            padding: 12px 16px;
+            border-bottom: 2px solid var(--cyan);
             font-size: 11px;
             font-weight: 700;
-            color: var(--text-muted);
+            color: #f3f6fa;
             text-transform: uppercase;
             letter-spacing: 1px;
             display: flex;
             align-items: center;
             justify-content: space-between;
-            background: var(--surface2);
+            background: #243140;
         }
 
         /* ── Input ── */
@@ -143,7 +144,7 @@
 
         .btn-run {
             background: var(--cyan);
-            color: #0d1117;
+            color: #ffffff;
             border: none;
             border-radius: 6px;
             padding: 8px 22px;
@@ -273,8 +274,8 @@
         .vitem-flag {
             font-family: 'Courier New', monospace;
             font-size: 12px;
-            background: rgba(248,81,73,0.15);
-            color: #ff9090;
+            background: rgba(192,57,43,0.12);
+            color: var(--red);
             padding: 1px 6px;
             border-radius: 3px;
         }
@@ -339,7 +340,7 @@
     <div class="panel">
         <div class="panel-header">
             <span>Violations</span>
-            <span id="totalBadge" style="font-size:11px; color: var(--text-muted);"></span>
+            <span id="totalBadge" style="font-size:11px; color: #9fb0c0;"></span>
         </div>
         <div class="results-body" id="results">
             <div class="empty-state">
