@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Series B Discovery — Lead Engine | IAM Tools</title>
+    <style>
+        :root {
+            --bg: #0d1117;
+            --surface: #161b22;
+            --border: #30363d;
+            --cyan: #00d4e8;
+            --text: #e6edf3;
+            --text-muted: #8b949e;
+            --green: #3fb950;
+            --red: #f85149;
+            --yellow: #d29922;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            background: var(--bg);
+            color: var(--text);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            min-height: 100vh;
+        }
+        header {
+            background: var(--surface);
+            border-bottom: 2px solid var(--cyan);
+            padding: 16px 32px;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+        .logo-mark {
+            width: 40px; height: 40px;
+            background: var(--cyan);
+            border-radius: 8px;
+            display: flex; align-items: center; justify-content: center;
+            font-weight: 900; font-size: 22px; color: #0d1117;
+        }
+        .logo-text strong { display: block; font-size: 15px; letter-spacing: 0.6px; }
+        .logo-text span { font-size: 10px; color: var(--cyan); letter-spacing: 1.5px; text-transform: uppercase; }
+        .home-link { margin-left: auto; color: var(--text-muted); font-size: 12px; text-decoration: none; }
+        .home-link:hover { color: var(--cyan); }
+
+        main { max-width: 1000px; margin: 0 auto; padding: 28px 24px 64px; }
+        h1 { font-size: 20px; margin-bottom: 4px; }
+        .subtitle { color: var(--text-muted); font-size: 13px; margin-bottom: 24px; }
+
+        h3.section {
+            font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px;
+            color: var(--text-muted); margin: 0 0 12px;
+        }
+
+        /* Mode tabs */
+        .tabs { display: flex; gap: 8px; margin-bottom: 24px; flex-wrap: wrap; }
+        .tab {
+            background: var(--surface); color: var(--text-muted);
+            border: 1px solid var(--border); border-radius: 8px;
+            padding: 10px 16px; font-size: 13px; font-weight: 600; cursor: pointer;
+            transition: all 0.15s;
+        }
+        .tab:hover { border-color: var(--cyan); color: var(--text); }
+        .tab.active { background: var(--cyan); color: #0d1117; border-color: var(--cyan); }
+
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 24px; }
+        @media (max-width: 760px) { .grid { grid-template-columns: 1fr; } }
+
+        .panel {
+            background: var(--surface); border: 1px solid var(--border);
+            border-radius: 8px; padding: 20px;
+        }
+        label {
+            display: block; font-size: 12px; font-weight: 600; margin-bottom: 6px;
+            text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-muted);
+        }
+        input[type=text], select, textarea {
+            width: 100%; background: #0d1117; color: var(--text);
+            border: 1px solid var(--border); border-radius: 6px;
+            padding: 10px 12px; font-size: 13px; margin-bottom: 14px;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+        input:focus, select:focus, textarea:focus { outline: none; border-color: var(--cyan); }
+        textarea { min-height: 200px; resize: vertical; font-family: 'Monaco', 'Menlo', monospace; }
+        .field { display: none; }
+        .field.show { display: block; }
+
+        .info-box {
+            background: rgba(0,212,232,0.07); border: 1px solid rgba(0,212,232,0.25);
+            border-radius: 6px; padding: 10px 12px; font-size: 12px; color: var(--text-muted);
+            line-height: 1.5; margin-bottom: 14px;
+        }
+        .detect { font-size: 12px; color: var(--green); margin-bottom: 14px; min-height: 16px; }
+
+        button {
+            background: var(--cyan); color: #0d1117; border: none; border-radius: 6px;
+            padding: 10px 16px; font-size: 13px; font-weight: 700; cursor: pointer;
+        }
+        button.secondary { background: transparent; color: var(--cyan); border: 1px solid var(--cyan); }
+        button:hover { opacity: 0.9; }
+        .btn-group { display: flex; gap: 10px; margin-top: 8px; flex-wrap: wrap; }
+
+        .output {
+            background: #0d1117; border: 1px solid var(--border); border-radius: 6px;
+            padding: 16px; font-family: 'Monaco', 'Menlo', monospace; font-size: 12px;
+            white-space: pre-wrap; word-break: break-word; min-height: 120px; line-height: 1.6;
+        }
+        .li-list a { display: block; color: var(--cyan); font-size: 12px; margin-bottom: 6px; word-break: break-all; }
+
+        /* Source links + bookmarklet */
+        .sources {
+            background: var(--surface); border: 1px solid var(--border);
+            border-radius: 8px; padding: 20px; margin-bottom: 24px;
+        }
+        .source-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px,1fr)); gap: 8px; }
+        .source-grid a {
+            display: block; color: var(--text); text-decoration: none; font-size: 12px;
+            background: #0d1117; border: 1px solid var(--border); border-radius: 6px; padding: 8px 10px;
+        }
+        .source-grid a:hover { border-color: var(--cyan); color: var(--cyan); }
+        .source-grid a .m { display: block; font-size: 10px; color: var(--text-muted); margin-top: 2px; }
+
+        .bookmarklet {
+            display: inline-block; background: var(--yellow); color: #0d1117;
+            font-weight: 700; font-size: 13px; padding: 8px 16px; border-radius: 6px;
+            text-decoration: none; cursor: grab;
+        }
+        details { margin-top: 12px; }
+        summary { cursor: pointer; color: var(--cyan); font-size: 12px; }
+        code.block {
+            display: block; background: #0d1117; border: 1px solid var(--border);
+            border-radius: 6px; padding: 10px; font-size: 11px; color: var(--text-muted);
+            margin-top: 8px; white-space: pre-wrap; word-break: break-all;
+        }
+        .toast {
+            position: fixed; top: 16px; right: 16px; background: var(--green); color: #0d1117;
+            font-weight: 600; font-size: 13px; padding: 10px 16px; border-radius: 8px;
+            opacity: 0; transition: opacity 0.2s; pointer-events: none;
+        }
+        .toast.show { opacity: 1; }
+    </style>
+</head>
+<body>
+<header>
+    <div class="logo-mark">R</div>
+    <div class="logo-text">
+        <strong>RAYBURN IDEAS</strong>
+        <span>Series B Discovery</span>
+    </div>
+    <a class="home-link" href="index.html">← All tools</a>
+</header>
+
+<main>
+    <h1>Series B Discovery — Lead Engine</h1>
+    <p class="subtitle">Article in. Outreach prompt out. Paste the prompt into Claude. No server. No cost.</p>
+
+    <!-- SOURCE SITES + BOOKMARKLET -->
+    <div class="sources">
+        <h3 class="section">Step 1 — Open a source and grab the article</h3>
+        <p class="info-box">
+            Drag the yellow button to your bookmarks bar once. On any news site, click it. The article body copies to your clipboard.
+            Return here and press Ctrl V into the Article box. The F9 reader view is the fallback if a site reads wrong.
+        </p>
+        <a class="bookmarklet" id="grabBtn" href="javascript:(function(){function p(){var s=['article','main','[role=main]','.article-body','.post-content','.entry-content','.article__body','.story-body'];for(var i=0;i<s.length;i++){var e=document.querySelector(s[i]);if(e&&e.innerText.trim().length>400)return e}var b=null,bl=0;document.querySelectorAll('div,section,article').forEach(function(c){var l=0;c.querySelectorAll('p').forEach(function(q){l+=q.innerText.length});if(l>bl){bl=l;b=c}});return b||document.body}var el=p();var h=document.querySelector('h1');var t=(h?h.innerText:document.title)+'\n\nSOURCE: '+location.href+'\n\n'+el.innerText;t=t.replace(/\n{3,}/g,'\n\n').trim();function d(){var n=document.createElement('div');n.textContent='Article copied. Paste into Discovery.';n.style.cssText='position:fixed;top:16px;right:16px;z-index:99999;background:#00d4e8;color:#0d1117;font:600 14px sans-serif;padding:12px 16px;border-radius:8px';document.body.appendChild(n);setTimeout(function(){n.remove()},2500)}function f(x){var a=document.createElement('textarea');a.value=x;document.body.appendChild(a);a.select();try{document.execCommand('copy');d()}catch(e){prompt('Copy the article text:',x)}a.remove()}if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(t).then(d,function(){f(t)})}else{f(t)}})();">⬇ Grab Article</a>
+        <details>
+            <summary>Source sites by metro</summary>
+            <div class="source-grid" id="sourceGrid" style="margin-top:12px;"></div>
+        </details>
+    </div>
+
+    <!-- MODE TABS -->
+    <h3 class="section">Step 2 — Pick the prompt</h3>
+    <div class="tabs">
+        <div class="tab active" data-mode="article">Article Analysis</div>
+        <div class="tab" data-mode="decision">Decision Maker</div>
+        <div class="tab" data-mode="outreach">LinkedIn Outreach</div>
+    </div>
+
+    <div class="grid">
+        <!-- LEFT: INPUTS -->
+        <div class="panel">
+            <h3 class="section" id="modeTitle">Article Analysis</h3>
+
+            <!-- Article URL -->
+            <div class="field show" data-f="url">
+                <label>Article URL (optional)</label>
+                <input type="text" id="in_url" placeholder="https://...">
+            </div>
+
+            <!-- Article text -->
+            <div class="field show" data-f="article">
+                <label>Article text (paste here)</label>
+                <textarea id="in_article" placeholder="Paste the full article. The Grab Article button fills this for you."></textarea>
+            </div>
+
+            <!-- Company -->
+            <div class="field" data-f="company">
+                <label>Company</label>
+                <input type="text" id="in_company" placeholder="Acme Data">
+            </div>
+
+            <!-- Tag -->
+            <div class="field" data-f="tag">
+                <label>Tag</label>
+                <select id="in_tag">
+                    <option value="">Select a tag</option>
+                    <option value="PKG1">PKG1 — Identity Audit (SaaS sprawl)</option>
+                    <option value="PKG2">PKG2 — Identity Engine (provisioning)</option>
+                    <option value="PKG3">PKG3 — Identity Fortress (SOC2 / MFA)</option>
+                    <option value="Multi">Multi — two or more signals</option>
+                </select>
+            </div>
+
+            <!-- Pain signal -->
+            <div class="field" data-f="pain">
+                <label>Pain signal</label>
+                <input type="text" id="in_pain" placeholder="e.g. manual provisioning, orphan accounts">
+            </div>
+
+            <!-- Contact name -->
+            <div class="field" data-f="contact">
+                <label>Contact name</label>
+                <input type="text" id="in_contact" placeholder="First Last">
+            </div>
+
+            <!-- Role -->
+            <div class="field" data-f="role">
+                <label>Role</label>
+                <input type="text" id="in_role" placeholder="VP Engineering">
+            </div>
+
+            <!-- Funding hook -->
+            <div class="field" data-f="hook">
+                <label>Funding hook (round, source, date, use of funds)</label>
+                <input type="text" id="in_hook" placeholder="Series B, TechCrunch, 2026-05, hiring + platform">
+            </div>
+
+            <!-- Recent post -->
+            <div class="field" data-f="post">
+                <label>Recent post topic (for warm up)</label>
+                <input type="text" id="in_post" placeholder="e.g. their take on SOC2 audits">
+            </div>
+
+            <div class="detect" id="detect"></div>
+            <div class="btn-group">
+                <button id="buildBtn">Build Prompt</button>
+                <button class="secondary" id="clearBtn">Clear</button>
+            </div>
+        </div>
+
+        <!-- RIGHT: OUTPUT -->
+        <div class="panel">
+            <h3 class="section">Prompt for Claude</h3>
+            <div class="output" id="output">Fill the fields, then press Build Prompt. The finished prompt appears here, ready to copy.</div>
+            <div class="btn-group">
+                <button id="copyBtn">Copy Prompt to Claude</button>
+            </div>
+            <div id="liWrap" style="display:none; margin-top:18px;">
+                <h3 class="section">LinkedIn search URLs</h3>
+                <div class="li-list" id="liList"></div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<div class="toast" id="toast">Copied</div>
+
+<script>
+// ====================================================================
+// SOURCE SITES — EDIT ONLY THIS LIST TO ADD, REMOVE, OR CHANGE SITES.
+// Each entry: { name, url, metro }.  url is the page you browse.
+// Edit between START EDIT and END EDIT. Save the file. Commit. Done.
+// See DISCOVERY_RUNBOOK.md for the exact steps and the Claude prompt.
+// ====================================================================
+const SOURCE_SITES = [ /* START EDIT */
+  { name: 'TechCrunch Fundings', url: 'https://techcrunch.com/category/fundings-exits/', metro: 'All' },
+  { name: 'Crunchbase News',     url: 'https://news.crunchbase.com/sections/venture/',   metro: 'All' },
+  { name: 'FinSMEs',             url: 'https://www.finsmes.com/',                          metro: 'All (US filter)' },
+  { name: 'AlleyWatch',          url: 'https://www.alleywatch.com/',                       metro: 'NYC' },
+  { name: 'Built In',            url: 'https://builtin.com/articles',                      metro: 'NYC, Boston, Austin, Chicago' },
+  { name: 'Boston Inno',         url: 'https://www.bizjournals.com/boston/inno',           metro: 'Boston' },
+  { name: 'Hypepotamus',         url: 'https://hypepotamus.com/',                          metro: 'Atlanta' },
+  { name: 'WRAL TechWire',       url: 'https://wraltechwire.com/',                         metro: 'Raleigh-Durham, Charlotte' },
+  { name: 'GrepBeat',            url: 'https://grepbeat.com/',                             metro: 'Raleigh-Durham' },
+  { name: 'Technical.ly',        url: 'https://technical.ly/',                             metro: 'DC, Philadelphia, Pittsburgh' },
+  { name: 'DC Inno',             url: 'https://www.bizjournals.com/washington/inno',       metro: 'DC' },
+  { name: 'Austin Inno',         url: 'https://www.bizjournals.com/austin/inno',           metro: 'Austin' },
+  { name: 'Chicago Inno',        url: 'https://www.bizjournals.com/chicago/inno',          metro: 'Chicago' },
+  { name: 'Dallas Innovates',    url: 'https://dallasinnovates.com/',                      metro: 'Dallas' },
+  { name: 'Refresh Miami',       url: 'https://refreshmiami.com/',                         metro: 'Miami' },
+  { name: 'Nashville Inno',      url: 'https://www.bizjournals.com/nashville/inno',        metro: 'Nashville' },
+  { name: 'Tech.mn',             url: 'https://tech.mn/',                                  metro: 'Minneapolis-St. Paul' },
+  { name: 'Pittsburgh Inno',     url: 'https://www.bizjournals.com/pittsburgh/inno',       metro: 'Pittsburgh' },
+  { name: 'TechPoint',           url: 'https://techpoint.org/news/',                       metro: 'Indianapolis' },
+  { name: 'IBJ Technology',      url: 'https://www.ibj.com/section/technology',            metro: 'Indianapolis' },
+  { name: "Crain's Detroit",     url: 'https://www.crainsdetroit.com/technology',          metro: 'Detroit' }
+/* END EDIT */ ];
+
+// Role ladder for the LinkedIn people search URLs.
+const ROLES = ['VP Engineering', 'CTO', 'Head of Security', 'Head of IT', 'Director of Platform'];
+
+// Tag reference table, shared across prompts.
+const TAG_REF =
+`| Tag | Package | Case Study | Price | Opening Question |
+| PKG1 | Identity Audit | CS4 | $4,500 | How many ghost accounts do you think you carry? |
+| PKG2 | Identity Engine | CS1 | $12,000 | How long does it take to provision a new hire today? |
+| PKG3 | Identity Fortress | CS3 | $18,000 | When is your audit window and what MFA gaps did your last review surface? |
+| Multi | Identity Audit entry | CS4 leads | $4,500+ | Lead with the PKG1 question. Note PKG2 and PKG3 as the upsell path. |`;
+
+const CONSTRAINTS =
+`WRITING CONSTRAINTS
+- No hyphens in compound modifiers. Active voice only. No contractions.
+- Twenty words per sentence maximum. Clinical, peer level tone.
+- News hook format: round, source, date, stated use of funds. No congrats.
+- Banned terms: passionate, empower, excited, delve, comprehensive, tailored, unique, transform, mission-critical, solution, leverage, synergy, paradigm, holistic, strategic, game-changer, next-generation, cutting-edge, best-in-class, world-class, optimize, facilitate, revolutionize, innovative, robust, seamless.`;
+
+// Which input fields show per mode.
+const MODE_FIELDS = {
+  article:  ['url', 'article'],
+  decision: ['company', 'tag', 'pain'],
+  outreach: ['company', 'contact', 'role', 'tag', 'pain', 'hook', 'post']
+};
+const MODE_TITLE = { article: 'Article Analysis', decision: 'Decision Maker', outreach: 'LinkedIn Outreach' };
+
+let mode = 'article';
+
+// ── Prompt builders ──────────────────────────────────────────────────────────
+function val(id){ return (document.getElementById(id).value || '').trim(); }
+
+function buildArticle(){
+  const url = val('in_url');
+  const article = val('in_article');
+  const src = url ? ('Article URL: ' + url + '\n\n') : '';
+  const body = article ? article : '(paste the article text here)';
+  return `Load Series B Discovery context. Use Sonnet.
+
+Read the article. Output these five blocks.
+
+1. NEWS HOOK (locked format)
+Company | Round | Source | Date | Stated use of funds. No congrats. One line.
+
+2. FIT CHECK
+- Stage: Series B, or recently closed a round?
+- Employees: 150 to 800?
+- Location: US, Eastern or Central time zone? One of the 16 metros?
+- Verdict: PASS or FAIL, with the reason.
+
+3. SIGNAL SCORE (0 to 5). Mark each as visible or needs verification.
+- Okta, Entra ID, or Azure AD
+- Workday, BambooHR, or Rippling
+- 40 or more SaaS apps
+- SOC2 language in job posts
+- 20 percent or more headcount growth in 6 months
+
+4. TAG. SKIP at 0. WATCH at 1. PKG at 2 to 3. MULTI at 4 to 5.
+
+5. NEXT STEP
+- PKG or MULTI: send outreach. Pick the tag package.
+- WATCH: add to WATCH_Tracker.csv with a Recheck_Date 7 days out.
+- SKIP: archive.
+
+REFERENCE — 16 METROS (Eastern and Central only)
+Tier 1: NYC, Boston, Atlanta, Charlotte, DC, Austin, Chicago, Dallas, Miami, Raleigh-Durham.
+Tier 2: Nashville, Minneapolis-St. Paul, Philadelphia, Pittsburgh, Indianapolis, Detroit.
+
+INPUT
+${src}Article:
+${body}
+
+${CONSTRAINTS}`;
+}
+
+function buildDecision(){
+  const company = val('in_company');
+  const tag = val('in_tag');
+  const pain = val('in_pain');
+  return `Load Series B Discovery context. Use Sonnet.
+
+INPUT
+- Company: ${company || '(company)'}
+- Tag: ${tag || '(PKG1 / PKG2 / PKG3 / Multi)'}
+- Pain signal: ${pain || '(pain signal)'}
+
+TASK. Output these three blocks.
+
+1. PRIMARY TARGET. Pick the best entry role for the tag.
+- PKG1, SaaS sprawl or orphan accounts: Head of IT, then VP Engineering.
+- PKG2, provisioning or hiring surge: VP Engineering, then Head of IT.
+- PKG3, SOC2 or MFA gaps: CISO or Head of Security.
+State the role and the reason.
+
+2. MULTITHREAD LADDER. Order to try if the primary goes silent:
+VP Engineering, CTO, Head of Security or CISO, Head of IT, Director of Platform.
+
+3. LINKEDIN SEARCH URLS. One people search URL per target role.
+
+OUTPUT FORMAT (paste into the Outreach Tracker)
+Company | Contact Name | Role | LinkedIn URL | Notes
+
+${CONSTRAINTS}`;
+}
+
+function buildOutreach(){
+  const company = val('in_company');
+  const contact = val('in_contact');
+  const role = val('in_role');
+  const tag = val('in_tag');
+  const pain = val('in_pain');
+  const hook = val('in_hook');
+  const post = val('in_post');
+  return `Load Series B Discovery context. Use Sonnet.
+
+INPUT
+- Company: ${company || '(company)'}
+- Contact name: ${contact || '(contact)'}
+- Role: ${role || '(role)'}
+- Tag: ${tag || '(PKG1 / PKG2 / PKG3 / Multi)'}
+- Pain signal: ${pain || '(pain signal)'}
+- Funding hook: ${hook || '(round, source, date, stated use of funds)'}
+- Recent post topic: ${post || '(recent post topic)'}
+
+TASK. Generate the full LinkedIn sequence. Key every message to the tag. Output five sections.
+
+1. WARM UP COMMENTS (3 options). Each adds a number, a counter example, or a real question.
+   Spread over 5 to 7 days. This is the 5-3-1 routine.
+2. CONNECTION NOTE (under 300 characters). Open with the news hook. No congrats. Then the tag opening question.
+3. DAY 3 — TECHNICAL. Name the architecture pain. Offer the case study. Under 100 words.
+4. DAY 10 — FINANCIAL. Frame the cost of inaction against the $2,500 48 hour audit. Under 100 words.
+5. DAY 17 — BREAK UP. One short message. Permission to stop. Leave the door open.
+
+TAG REFERENCE
+${TAG_REF}
+
+${CONSTRAINTS}`;
+}
+
+function buildPrompt(){
+  if (mode === 'article')  return buildArticle();
+  if (mode === 'decision') return buildDecision();
+  return buildOutreach();
+}
+
+// ── LinkedIn URLs (decision mode) ────────────────────────────────────────────
+function renderLinkedIn(company){
+  const wrap = document.getElementById('liWrap');
+  const list = document.getElementById('liList');
+  if (mode !== 'decision' || !company){ wrap.style.display = 'none'; list.innerHTML = ''; return; }
+  list.innerHTML = '';
+  ROLES.forEach(function(role){
+    const q = encodeURIComponent(company + ' ' + role);
+    const a = document.createElement('a');
+    a.href = 'https://www.linkedin.com/search/results/people/?keywords=' + q;
+    a.target = '_blank';
+    a.textContent = role + ' →';
+    list.appendChild(a);
+  });
+  wrap.style.display = 'block';
+}
+
+// ── Auto fill from pasted article text ───────────────────────────────────────
+function detectFromArticle(){
+  const text = val('in_article');
+  const out = document.getElementById('detect');
+  if (!text){ out.textContent = ''; return; }
+  const found = [];
+
+  // Stage
+  let stage = '';
+  if (/series\s*b/i.test(text)) stage = 'Series B';
+  else if (/series\s*c/i.test(text)) stage = 'Series C';
+  else if (/series\s*a/i.test(text)) stage = 'Series A';
+  if (stage) found.push(stage);
+
+  // Amount
+  const amt = text.match(/\$\s?\d[\d.,]*\s?(?:million|billion|m|b)\b/i);
+  if (amt) found.push(amt[0].replace(/\s+/g, ''));
+
+  // Company guess: capitalized phrase before a funding verb
+  const m = text.match(/([A-Z][A-Za-z0-9&.\-]+(?:\s[A-Z][A-Za-z0-9&.\-]+){0,3})\s+(?:raises|raised|closes|closed|secures|secured|lands|landed|nets|netted|announces|announced)\s/);
+  if (m){
+    SHARED.company = m[1];
+    if (document.getElementById('in_company') && !val('in_company')) document.getElementById('in_company').value = m[1];
+    found.push('Company: ' + m[1]);
+  }
+
+  // Tag suggestion from signal language
+  let tag = '';
+  if (/soc\s?2|mfa|multi.?factor|audit|compliance/i.test(text)) tag = 'PKG3';
+  else if (/provision|onboard|new hire|hiring|headcount/i.test(text)) tag = 'PKG2';
+  else if (/saas|license|orphan|sprawl|entitlement/i.test(text)) tag = 'PKG1';
+  if (tag){ SHARED.tag = tag; found.push('Suggested tag: ' + tag); }
+
+  out.textContent = found.length ? ('Detected — ' + found.join(' · ')) : 'No funding signals detected. Fill the fields by hand.';
+}
+
+// Shared state carries detected values between modes.
+const SHARED = { company: '', tag: '' };
+
+// ── UI wiring ────────────────────────────────────────────────────────────────
+function showFields(){
+  const active = MODE_FIELDS[mode];
+  document.querySelectorAll('.field').forEach(function(f){
+    f.classList.toggle('show', active.indexOf(f.dataset.f) !== -1);
+  });
+  document.getElementById('modeTitle').textContent = MODE_TITLE[mode];
+  // Prefill from shared state
+  if (active.indexOf('company') !== -1 && SHARED.company && !val('in_company'))
+    document.getElementById('in_company').value = SHARED.company;
+  if (active.indexOf('tag') !== -1 && SHARED.tag && !val('in_tag'))
+    document.getElementById('in_tag').value = SHARED.tag;
+}
+
+document.querySelectorAll('.tab').forEach(function(t){
+  t.addEventListener('click', function(){
+    document.querySelectorAll('.tab').forEach(function(x){ x.classList.remove('active'); });
+    t.classList.add('active');
+    mode = t.dataset.mode;
+    showFields();
+    document.getElementById('liWrap').style.display = 'none';
+  });
+});
+
+document.getElementById('in_article').addEventListener('input', detectFromArticle);
+
+document.getElementById('buildBtn').addEventListener('click', function(){
+  document.getElementById('output').textContent = buildPrompt();
+  renderLinkedIn(val('in_company'));
+});
+
+document.getElementById('copyBtn').addEventListener('click', function(){
+  const txt = document.getElementById('output').textContent;
+  navigator.clipboard.writeText(txt).then(showToast, function(){
+    const ta = document.createElement('textarea'); ta.value = txt;
+    document.body.appendChild(ta); ta.select(); document.execCommand('copy'); ta.remove(); showToast();
+  });
+});
+
+document.getElementById('clearBtn').addEventListener('click', function(){
+  ['in_url','in_article','in_company','in_pain','in_contact','in_role','in_hook','in_post'].forEach(function(id){
+    document.getElementById(id).value = '';
+  });
+  document.getElementById('in_tag').value = '';
+  document.getElementById('detect').textContent = '';
+  document.getElementById('output').textContent = 'Fill the fields, then press Build Prompt. The finished prompt appears here, ready to copy.';
+  document.getElementById('liWrap').style.display = 'none';
+  SHARED.company = ''; SHARED.tag = '';
+});
+
+function showToast(){
+  const t = document.getElementById('toast');
+  t.classList.add('show');
+  setTimeout(function(){ t.classList.remove('show'); }, 1600);
+}
+
+// Render source links
+(function(){
+  const grid = document.getElementById('sourceGrid');
+  SOURCE_SITES.forEach(function(s){
+    const a = document.createElement('a');
+    a.href = s.url; a.target = '_blank';
+    a.innerHTML = s.name + '<span class="m">' + s.metro + '</span>';
+    grid.appendChild(a);
+  });
+})();
+
+showFields();
+</script>
+</body>
+</html>
