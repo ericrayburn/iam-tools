@@ -1033,6 +1033,9 @@ function scoreFit(raw, ctx) {
     if (ctx.roleType.arch > ctx.roleType.impl) s += W.archSignal;
     if (ctx.platform && CONSULTING_PLATFORMS.includes(ctx.platform.id)) s += W.knownPlatform;
     if (ctx.platform && JOB_BOARDS.includes(ctx.platform.id))           s += W.jobBoard;
+    if (ctx.location.locationType === 'Remote') s += W.remote;
+    else if (ctx.location.locationType === 'Hybrid') s += W.hybrid;
+    else if (ctx.location.locationType === 'On-site' && ctx.location.region === 'US') s += W.onsiteUS;
     s += Math.min(ctx.caseCount, 2) * W.caseMatch;
     const tc = TARGET_CLIENT.filter(t => matchKw(raw, t)).length;
     s += Math.min(tc, 3) * W.targetClient;
@@ -1129,9 +1132,9 @@ function runScreener() {
     const q4Pass = flags.length === 0;
     // Q5: L1 content under 20% (optional threshold check)
     const q5Pass = total === 0 || l1Pct <= 20;
-    // Q6: Location — informational only. US assumed.
-    const q6Pass    = true;
-    const q6Warning = null;
+    // Q6: Location — fail on non-US without remote option
+    const q6Pass    = location.status !== 'fail';
+    const q6Warning = location.status === 'warning' ? location.reason : null;
 
     // ── Three-bucket fit score (DROP / BORDERLINE / STRONG) ──
     const aiHits      = AI_EXCLUSION.filter(k => matchKw(raw, k)).length;
