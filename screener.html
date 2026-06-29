@@ -905,7 +905,7 @@ const NON_US_SIGNALS = [
     'non-us','international only'
 ];
 const US_SIGNALS = [
-    'united states','usa','u.s.','us-based','us based','u.s. based',
+    'united states','usa','u.s.','us-based','us based','u.s. based','in the us','us remote','us only','for the us',
     'new york','los angeles','san francisco','bay area','chicago','boston',
     'austin','seattle','denver','miami','atlanta','dallas','houston',
     'washington dc','washington, dc','new jersey','california','texas',
@@ -935,8 +935,8 @@ function detectLocation(raw) {
 
     let status, reason;
     if (hasNonUS && !hasRemote && !hasUS) {
-        status = 'fail';
-        reason = 'Non-US location required — outside target market';
+        status = 'warning';
+        reason = 'Non-US signals detected — confirm location before bidding';
     } else if (hasOnsite && !hasRemote && !hasHybrid) {
         status = 'warning';
         reason = 'On-site required — confirm location is acceptable before bidding';
@@ -1020,7 +1020,7 @@ const W = {
 };
 
 // The two dials you tune in the weekly recalibration loop.
-const THRESHOLDS = { drop: 6, strong: 16 };
+const THRESHOLDS = { drop: 6, strong: 14 };
 
 const CONSULTING_PLATFORMS = ['glg','mbo','catalant','pwc','gofractional','arc'];
 const JOB_BOARDS           = ['linkedin','dice','glassdoor','indeed','monster','ziprecruiter'];
@@ -1033,16 +1033,19 @@ function scoreFit(raw, ctx) {
     if (ctx.roleType.arch > ctx.roleType.impl) s += W.archSignal;
     if (ctx.platform && CONSULTING_PLATFORMS.includes(ctx.platform.id)) s += W.knownPlatform;
     if (ctx.platform && JOB_BOARDS.includes(ctx.platform.id))           s += W.jobBoard;
+    if (ctx.location.locationType === 'Remote') s += W.remote;
+    else if (ctx.location.locationType === 'Hybrid') s += W.hybrid;
+    else if (ctx.location.locationType === 'On-site' && ctx.location.region === 'US') s += W.onsiteUS;
     s += Math.min(ctx.caseCount, 2) * W.caseMatch;
     const tc = TARGET_CLIENT.filter(t => matchKw(raw, t)).length;
     s += Math.min(tc, 3) * W.targetClient;
-    if (ctx.engagement.type === 'fte')          s += W.fte;
+    const PSO_FIRMS = ['wwt','world wide technology','deloitte','accenture','ibm','kpmg','pwc','ernst & young','booz allen','cognizant','capgemini'];
+    const isPSO = PSO_FIRMS.some(p => raw.toLowerCase().includes(p));
+    if (ctx.engagement.type === 'fte' && !isPSO) s += W.fte;
     if (ctx.engagement.type === 'staffingFirm') s += W.staffingFirm;
 
     // Knockouts override the number. Any hit forces DROP.
     const knockouts = [];
-    if (ctx.titleTier && ctx.titleTier.tier === 'fail')
-        knockouts.push('Title tier below Architect (' + ctx.titleTier.failHit + ') — Pre-Filter Signal 1');
     if (ctx.roleType.type === 'Implementation') knockouts.push('Implementation / coding role, not architecture');
     if (ctx.flags.length > 0)                   knockouts.push('Vendor specialist or coding red flag');
     if (ctx.aiHits > 0)                         knockouts.push('Agentic / generative AI scope (standing exclusion)');
@@ -1131,17 +1134,16 @@ function runScreener() {
     const q4Pass = flags.length === 0;
     // Q5: L1 content under 20% (optional threshold check)
     const q5Pass = total === 0 || l1Pct <= 20;
-    // Q6: Location — informational only. US assumed.
-    const q6Pass    = true;
-    const q6Warning = null;
+    // Q6: Location — fail on non-US without remote option
+    const q6Pass    = location.status !== 'fail';
+    const q6Warning = location.status === 'warning' ? location.reason : null;
 
     // ── Three-bucket fit score (DROP / BORDERLINE / STRONG) ──
     const aiHits      = AI_EXCLUSION.filter(k => matchKw(raw, k)).length;
     const caseMatches = recommendCaseStudies(raw);
-    const titleTier   = detectTitleTier(raw);
     const fit = scoreFit(raw, {
         l3, l2, l1, total, l1Pct, roleType, engagement, location, platform,
-        flags, aiHits, titleTier, caseCount: caseMatches.length
+        flags, aiHits, caseCount: caseMatches.length
     });
     const biddable    = fit.bucket !== 'DROP';
     const VERDICT_MAP = { STRONG: 'GO', BORDERLINE: 'BORDERLINE', DROP: 'NO-GO' };
@@ -1176,28 +1178,6 @@ function runScreener() {
 
     // ── Render ──
     let html = '';
-
-    // Verdict — three buckets (rendered first)
-    const BUCKET_META = {
-        STRONG:     { cls: 'verdict-strong',     label: 'STRONG',     color: 'var(--green)',  note: 'Strong fit. Proceed with the bid response.' },
-        BORDERLINE: { cls: 'verdict-borderline', label: 'BORDERLINE', color: 'var(--orange)', note: 'Marginal fit. Review by hand before deciding. Do not auto-discard.' },
-        DROP:       { cls: 'verdict-drop',       label: 'DROP',       color: 'var(--red)',    note: 'Out of scope. Skip the bid.' }
-    };
-    const bm = BUCKET_META[fit.bucket];
-    const reasonLines = fit.knockouts.length > 0
-        ? '<span style="color:var(--red)">Knockout: ' + fit.knockouts.join('<br>Knockout: ') + '</span>'
-        : `<span style="color:${bm.color}">${bm.note}</span>`;
-
-    html += block('Verdict', `
-        <div class="verdict-display">
-            <div class="verdict-badge ${bm.cls}">${bm.label}</div>
-            <div style="margin-top:10px;font-size:12px;color:var(--text-muted)">
-                Fit score: <strong style="color:${bm.color}">${fit.score}</strong>
-                &nbsp;|&nbsp; Drop &lt; ${THRESHOLDS.drop} &nbsp;·&nbsp; Strong ≥ ${THRESHOLDS.strong}
-            </div>
-            <div class="verdict-reason">${reasonLines}</div>
-        </div>
-    `);
 
     // Platform
     html += block('Platform Detected', `
@@ -1290,6 +1270,28 @@ function runScreener() {
         )
     ].join('');
     html += block('Decision Logic', stepsHtml);
+
+    // Verdict — three buckets
+    const BUCKET_META = {
+        STRONG:     { cls: 'verdict-strong',     label: 'STRONG',     color: 'var(--green)',  note: 'Strong fit. Proceed with the bid response.' },
+        BORDERLINE: { cls: 'verdict-borderline', label: 'BORDERLINE', color: 'var(--orange)', note: 'Marginal fit. Review by hand before deciding. Do not auto-discard.' },
+        DROP:       { cls: 'verdict-drop',       label: 'DROP',       color: 'var(--red)',    note: 'Out of scope. Skip the bid.' }
+    };
+    const bm = BUCKET_META[fit.bucket];
+    const reasonLines = fit.knockouts.length > 0
+        ? '<span style="color:var(--red)">Knockout: ' + fit.knockouts.join('<br>Knockout: ') + '</span>'
+        : `<span style="color:${bm.color}">${bm.note}</span>`;
+
+    html += block('Verdict', `
+        <div class="verdict-display">
+            <div class="verdict-badge ${bm.cls}">${bm.label}</div>
+            <div style="margin-top:10px;font-size:12px;color:var(--text-muted)">
+                Fit score: <strong style="color:${bm.color}">${fit.score}</strong>
+                &nbsp;|&nbsp; Drop &lt; ${THRESHOLDS.drop} &nbsp;·&nbsp; Strong ≥ ${THRESHOLDS.strong}
+            </div>
+            <div class="verdict-reason">${reasonLines}</div>
+        </div>
+    `);
 
     // Case Study + bridge — show on STRONG and BORDERLINE, hide on DROP
     if (biddable) {
