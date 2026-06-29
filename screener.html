@@ -1179,6 +1179,28 @@ function runScreener() {
     // ── Render ──
     let html = '';
 
+    // Verdict — three buckets
+    const BUCKET_META = {
+        STRONG:     { cls: 'verdict-strong',     label: 'STRONG',     color: 'var(--green)',  note: 'Strong fit. Proceed with the bid response.' },
+        BORDERLINE: { cls: 'verdict-borderline', label: 'BORDERLINE', color: 'var(--orange)', note: 'Marginal fit. Review by hand before deciding. Do not auto-discard.' },
+        DROP:       { cls: 'verdict-drop',       label: 'DROP',       color: 'var(--red)',    note: 'Out of scope. Skip the bid.' }
+    };
+    const bm = BUCKET_META[fit.bucket];
+    const reasonLines = fit.knockouts.length > 0
+        ? '<span style="color:var(--red)">Knockout: ' + fit.knockouts.join('<br>Knockout: ') + '</span>'
+        : `<span style="color:${bm.color}">${bm.note}</span>`;
+
+    html += block('Verdict', `
+        <div class="verdict-display">
+            <div class="verdict-badge ${bm.cls}">${bm.label}</div>
+            <div style="margin-top:10px;font-size:12px;color:var(--text-muted)">
+                Fit score: <strong style="color:${bm.color}">${fit.score}</strong>
+                &nbsp;|&nbsp; Drop &lt; ${THRESHOLDS.drop} &nbsp;·&nbsp; Strong ≥ ${THRESHOLDS.strong}
+            </div>
+            <div class="verdict-reason">${reasonLines}</div>
+        </div>
+    `);
+
     // Platform
     html += block('Platform Detected', `
         <div class="platform-name">${platform ? platform.name : 'Unknown'}</div>
@@ -1271,26 +1293,7 @@ function runScreener() {
     ].join('');
     html += block('Decision Logic', stepsHtml);
 
-    // Verdict — three buckets
-    const BUCKET_META = {
-        STRONG:     { cls: 'verdict-strong',     label: 'STRONG',     color: 'var(--green)',  note: 'Strong fit. Proceed with the bid response.' },
-        BORDERLINE: { cls: 'verdict-borderline', label: 'BORDERLINE', color: 'var(--orange)', note: 'Marginal fit. Review by hand before deciding. Do not auto-discard.' },
-        DROP:       { cls: 'verdict-drop',       label: 'DROP',       color: 'var(--red)',    note: 'Out of scope. Skip the bid.' }
-    };
-    const bm = BUCKET_META[fit.bucket];
-    const reasonLines = fit.knockouts.length > 0
-        ? '<span style="color:var(--red)">Knockout: ' + fit.knockouts.join('<br>Knockout: ') + '</span>'
-        : `<span style="color:${bm.color}">${bm.note}</span>`;
-
-    html += block('Verdict', `
-        <div class="verdict-display">
-            <div class="verdict-badge ${bm.cls}">${bm.label}</div>
-            <div style="margin-top:10px;font-size:12px;color:var(--text-muted)">
-                Fit score: <strong style="color:${bm.color}">${fit.score}</strong>
-                &nbsp;|&nbsp; Drop &lt; ${THRESHOLDS.drop} &nbsp;·&nbsp; Strong ≥ ${THRESHOLDS.strong}
-            </div>
-            <div class="verdict-reason">${reasonLines}</div>
-        </div>
+    // Verdict block moved to top of render section above
     `);
 
     // Case Study + bridge — show on STRONG and BORDERLINE, hide on DROP
