@@ -844,6 +844,22 @@ function detectTitleTier(raw) {
 // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 // CASE STUDY MATCH
 // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// PRIMARY DOMAIN (Pre-Filter Signal 2)
+// A posting can be dense with IAM keywords yet not be an IAM job (e.g. a
+// Salesforce/DXP portal build listing SSO, MFA, RBAC as one slice). Test the
+// title region: a competing primary domain with no core IAM term means IAM is
+// secondary. Knockout.
+const IAM_PRIMARY = ['iam','identity','identity governance','privileged access','access management','iga','access governance'];
+const NON_IAM_PRIMARY = ['salesforce','experience cloud','adobe aem','aem','sitecore','drupal','liferay','digital experience','dxp','e-commerce','ecommerce','commerce cloud','full-stack','full stack','front-end','frontend','data engineer','network engineer','devops'];
+function detectPrimaryDomain(raw) {
+    const head = raw.toLowerCase().slice(0, 220);
+    const iam = IAM_PRIMARY.some(t => head.includes(t));
+    const otherHit = NON_IAM_PRIMARY.find(t => head.includes(t));
+    if (iam) return { primary: true, marker: null };
+    if (otherHit) return { primary: false, marker: otherHit };
+    return { primary: true, marker: null };
+}
+
 const CASE_STUDIES = [
     {
         title: 'Case 1 â€” JIT Provisioning',
@@ -1070,6 +1086,7 @@ function scoreFit(raw, ctx) {
     if (ctx.titleTier && ctx.titleTier.tier === 'fail')
         knockouts.push('Title tier below Architect (' + ctx.titleTier.failHit + ') â€” Pre-Filter Signal 1');
     if (ctx.titleTier && ctx.titleTier.tier === 'fail') knockouts.push('Title tier below Architect (' + ctx.titleTier.failHit + ') -- Pre-Filter Signal 1');
+    if (ctx.primaryDomain && ctx.primaryDomain.primary === false) knockouts.push('Primary domain not IAM (' + ctx.primaryDomain.marker + ') -- Pre-Filter Signal 2');
     if (ctx.roleType.type === 'Implementation') knockouts.push('Implementation / coding role, not architecture');
     if (ctx.flags.length > 0)                   knockouts.push('Vendor specialist or coding red flag');
     if (ctx.aiHits > 0)                         knockouts.push('Agentic / generative AI scope (standing exclusion)');
@@ -1166,9 +1183,10 @@ function runScreener() {
     const aiHits      = AI_EXCLUSION.filter(k => matchKw(raw, k)).length;
     const caseMatches = recommendCaseStudies(raw);
     const titleTier   = detectTitleTier(raw);
+    const primaryDomain = detectPrimaryDomain(raw);
     const fit = scoreFit(raw, {
         l3, l2, l1, total, l1Pct, roleType, engagement, location, platform,
-        flags, aiHits, titleTier, caseCount: caseMatches.length
+        flags, aiHits, titleTier, primaryDomain, caseCount: caseMatches.length
     });
     const biddable    = fit.bucket !== 'DROP';
     const VERDICT_MAP = { STRONG: 'GO', BORDERLINE: 'BORDERLINE', DROP: 'NO-GO' };
