@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -29,7 +29,7 @@
             min-height: 100vh;
         }
 
-        /* ── Header ── */
+        /* â”€â”€ Header â”€â”€ */
         header {
             background: var(--surface);
             border-bottom: 2px solid var(--cyan);
@@ -77,7 +77,7 @@
             letter-spacing: 0.5px;
         }
 
-        /* ── Layout ── */
+        /* â”€â”€ Layout â”€â”€ */
         .container {
             max-width: 1200px;
             margin: 0 auto;
@@ -109,7 +109,7 @@
         }
         .panel-header .char-count { color: #9fb0c0; }
 
-        /* ── Input ── */
+        /* â”€â”€ Input â”€â”€ */
         textarea {
             flex: 1;
             min-height: 480px;
@@ -153,7 +153,7 @@
 
         .char-count { font-size: 11px; color: var(--text-muted); margin-left: auto; }
 
-        /* ── Platform Selector ── */
+        /* â”€â”€ Platform Selector â”€â”€ */
         .platform-selector-row {
             padding: 8px 16px;
             border-bottom: 1px solid var(--border);
@@ -191,7 +191,7 @@
         #bidUrl:focus { outline: none; border-color: var(--cyan); }
         #bidUrl::placeholder { color: var(--text-muted); }
 
-        /* ── Results ── */
+        /* â”€â”€ Results â”€â”€ */
         .results-body {
             flex: 1; padding: 18px;
             overflow-y: auto;
@@ -205,7 +205,7 @@
             padding: 60px 20px;
         }
 
-        /* ── Result Block ── */
+        /* â”€â”€ Result Block â”€â”€ */
         .result-block {
             background: var(--surface2);
             border: 1px solid var(--border);
@@ -223,11 +223,11 @@
 
         .result-block-body { padding: 14px; }
 
-        /* ── Platform ── */
+        /* â”€â”€ Platform â”€â”€ */
         .platform-name { font-size: 18px; font-weight: 700; color: var(--cyan-deep); }
         .platform-sub { font-size: 12px; color: var(--text-muted); margin-top: 4px; line-height: 1.5; }
 
-        /* ── Level Bars ── */
+        /* â”€â”€ Level Bars â”€â”€ */
         .level-row {
             display: flex; align-items: center; gap: 12px;
             margin-bottom: 10px;
@@ -252,7 +252,7 @@
         .level-pct { width: 38px; font-size: 12px; font-weight: 700; text-align: right; flex-shrink: 0; }
         .level-count { width: 64px; font-size: 11px; color: var(--text-muted); text-align: right; flex-shrink: 0; }
 
-        /* ── Decision Steps ── */
+        /* â”€â”€ Decision Steps â”€â”€ */
         .decision-step {
             display: flex; gap: 10px; align-items: flex-start;
             padding: 9px 0;
@@ -275,7 +275,7 @@
         }
         .step-label span { font-size: 11px; color: var(--text-muted); }
 
-        /* ── Red Flags ── */
+        /* â”€â”€ Red Flags â”€â”€ */
         .flag-item {
             font-size: 12px; color: var(--red);
             padding: 4px 0;
@@ -284,7 +284,7 @@
         .flag-icon { flex-shrink: 0; }
         .no-flags { font-size: 12px; color: var(--green); }
 
-        /* ── Verdict ── */
+        /* â”€â”€ Verdict â”€â”€ */
         .verdict-display { text-align: center; padding: 20px 10px; }
         .verdict-badge {
             display: inline-block;
@@ -324,7 +324,7 @@
             line-height: 1.5;
         }
 
-        /* ── Case Study ── */
+        /* â”€â”€ Case Study â”€â”€ */
         .case-study-card {
             padding: 12px;
             background: rgba(0,179,200,0.08);
@@ -339,7 +339,7 @@
 
         .multi-case { display: flex; flex-direction: column; gap: 8px; }
 
-        /* ── Claude Bridge ── */
+        /* â”€â”€ Claude Bridge â”€â”€ */
         .result-block.bridge-block { border-color: rgba(63,185,80,0.4); }
         .result-block.bridge-block .result-block-header {
             color: var(--green);
@@ -376,7 +376,7 @@
         <strong>RAYBURN IDEAS</strong>
         <span>Identity and Access Management</span>
     </div>
-    <a href="index.html" class="nav-home">← All Tools</a>
+    <a href="index.html" class="nav-home">â† All Tools</a>
     <div class="app-badge">APP 02</div>
 </header>
 
@@ -390,7 +390,7 @@
         </div>
         <div class="platform-selector-row">
             <span class="selector-label">Link</span>
-            <input id="bidUrl" type="url" placeholder="Paste the posting URL (optional — auto-detects platform)" />
+            <input id="bidUrl" type="url" placeholder="Paste the posting URL (optional â€” auto-detects platform)" />
         </div>
         <div class="platform-selector-row">
             <span class="selector-label">Platform</span>
@@ -433,9 +433,9 @@
 </div>
 
 <script>
-// ─────────────────────────────────────────────────────────────
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 // UTILITIES
-// ─────────────────────────────────────────────────────────────
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 let _claudePrompt = ''; // holds generated prompt for clipboard bridge
 let _outreachShort = '', _outreachEmail = ''; // holds recruiter outreach drafts
 
@@ -490,7 +490,7 @@ function copyClaudePrompt() {
 
     function onCopied() {
         if (!btn) return;
-        btn.textContent = '✓ Copied to Clipboard';
+        btn.textContent = 'âœ“ Copied to Clipboard';
         btn.classList.add('copied');
         setTimeout(() => {
             btn.textContent = 'Copy Prompt for Claude';
@@ -525,7 +525,7 @@ function copyOutreach(kind) {
         if (!btn) return;
         const original = btn.getAttribute('data-label') || btn.textContent;
         btn.setAttribute('data-label', original);
-        btn.textContent = '✓ Copied';
+        btn.textContent = 'âœ“ Copied';
         btn.classList.add('copied');
         setTimeout(() => { btn.textContent = original; btn.classList.remove('copied'); }, 2000);
     }
@@ -546,7 +546,7 @@ function copyOutreach(kind) {
     }
 }
 
-// Match keyword — use word boundary for short terms to avoid false positives
+// Match keyword â€” use word boundary for short terms to avoid false positives
 function matchKw(text, kw) {
     if (kw.length <= 5) {
         try {
@@ -557,9 +557,9 @@ function matchKw(text, kw) {
     return text.toLowerCase().includes(kw.toLowerCase());
 }
 
-// ─────────────────────────────────────────────────────────────
-// SCREENING LOG (feeds the Insights dashboard — deterministic, local only)
-// ─────────────────────────────────────────────────────────────
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// SCREENING LOG (feeds the Insights dashboard â€” deterministic, local only)
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 const SCREENER_LOG_KEY = 'iam_screener_log_v1';
 
 function logScreening(rec) {
@@ -571,25 +571,25 @@ function logScreening(rec) {
         // Cap history so storage never bloats.
         if (log.length > 1000) log.splice(0, log.length - 1000);
         localStorage.setItem(SCREENER_LOG_KEY, JSON.stringify(log));
-    } catch (e) { /* storage unavailable — screening still works */ }
+    } catch (e) { /* storage unavailable â€” screening still works */ }
 }
 
-// ─────────────────────────────────────────────────────────────
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 // PLATFORM DETECTION
-// ─────────────────────────────────────────────────────────────
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 const PLATFORMS = [
     {
         id: 'glg',
         name: 'GLG',
         fullName: 'Gerson Lehrman Group',
-        format: 'RFI — 200 to 400 words per question',
+        format: 'RFI â€” 200 to 400 words per question',
         keywords: ['glg', 'gerson lehrman', 'glg expert', 'glg network', 'council member', 'expert network call', '24-48 hours', '24 to 48 hours', 'glg council']
     },
     {
         id: 'mbo',
         name: 'MBO Partners',
         fullName: 'MBO Partners',
-        format: 'RFP Proposal — 1 to 2 pages',
+        format: 'RFP Proposal â€” 1 to 2 pages',
         keywords: ['mbo partners', 'statement of work', 'request for proposal', 'master services agreement']
     },
     {
@@ -610,56 +610,56 @@ const PLATFORMS = [
         id: 'gofractional',
         name: 'GoFractional',
         fullName: 'GoFractional',
-        format: 'Profile Match — 3 to 6 month fractional engagement',
+        format: 'Profile Match â€” 3 to 6 month fractional engagement',
         keywords: ['gofractional', 'go fractional', 'new opportunity matched', 'fractional cto', 'fractional ciso', 'fractional engagement']
     },
     {
         id: 'arc',
         name: 'Arc.dev',
         fullName: 'Arc.dev',
-        format: 'Advisory Only — $300+/hr',
+        format: 'Advisory Only â€” $300+/hr',
         keywords: ['arc.dev', 'arcdev', 'apply to this role']
     },
     {
         id: 'dice',
         name: 'Dice',
         fullName: 'Dice (Job Board)',
-        format: 'WARNING: Job board posting — likely FTE or staffing firm placement. Verify direct engagement before bidding.',
-        keywords: ['dice.com', 'dice id:', 'dhi service', 'dhijobs', 'copyright © 1990', 'dice is a dhi']
+        format: 'WARNING: Job board posting â€” likely FTE or staffing firm placement. Verify direct engagement before bidding.',
+        keywords: ['dice.com', 'dice id:', 'dhi service', 'dhijobs', 'copyright Â© 1990', 'dice is a dhi']
     },
     {
         id: 'linkedin',
         name: 'LinkedIn',
         fullName: 'LinkedIn Jobs',
-        format: 'WARNING: Job board posting — likely FTE or recruiter placement. Verify direct engagement before bidding.',
+        format: 'WARNING: Job board posting â€” likely FTE or recruiter placement. Verify direct engagement before bidding.',
         keywords: ['linkedin.com/jobs', 'linkedin job', 'easy apply', 'apply on linkedin']
     },
     {
         id: 'indeed',
         name: 'Indeed',
         fullName: 'Indeed',
-        format: 'WARNING: Job board posting — likely FTE or staffing firm placement. Verify direct engagement before bidding.',
+        format: 'WARNING: Job board posting â€” likely FTE or staffing firm placement. Verify direct engagement before bidding.',
         keywords: ['indeed.com', 'indeed job', 'posted on indeed']
     },
     {
         id: 'glassdoor',
         name: 'Glassdoor',
         fullName: 'Glassdoor',
-        format: 'WARNING: Job board posting — likely FTE or staffing firm placement. Verify direct engagement before bidding.',
+        format: 'WARNING: Job board posting â€” likely FTE or staffing firm placement. Verify direct engagement before bidding.',
         keywords: ['glassdoor.com', 'glassdoor job', 'posted on glassdoor']
     },
     {
         id: 'monster',
         name: 'Monster',
         fullName: 'Monster.com',
-        format: 'WARNING: Job board posting — likely FTE or staffing firm placement. Verify direct engagement before bidding.',
+        format: 'WARNING: Job board posting â€” likely FTE or staffing firm placement. Verify direct engagement before bidding.',
         keywords: ['monster.com', 'monster job', 'posted on monster']
     },
     {
         id: 'ziprecruiter',
         name: 'ZipRecruiter',
         fullName: 'ZipRecruiter',
-        format: 'WARNING: Job board posting — likely FTE or staffing firm placement. Verify direct engagement before bidding.',
+        format: 'WARNING: Job board posting â€” likely FTE or staffing firm placement. Verify direct engagement before bidding.',
         keywords: ['ziprecruiter.com', 'ziprecruiter', 'posted on ziprecruiter']
     }
 ];
@@ -703,9 +703,9 @@ function detectPlatformFromUrl(url) {
     return null;
 }
 
-// ─────────────────────────────────────────────────────────────
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 // KNOWLEDGE LEVEL KEYWORDS
-// ─────────────────────────────────────────────────────────────
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 const L3 = [
     'iam architecture','identity architecture','identity and access management','iam strategy','identity strategy',
     'access management architecture','identity program','iam roadmap','iam maturity','iam assessment',
@@ -763,9 +763,9 @@ function scoreKeywords(raw) {
     return { l3, l2, l1, total };
 }
 
-// ─────────────────────────────────────────────────────────────
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 // RED FLAG DETECTION
-// ─────────────────────────────────────────────────────────────
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 const RED_FLAGS = [
     { pattern: 'okta workflows developer',         label: 'Vendor specialist role: Okta Workflows developer' },
     { pattern: 'okta workflows dev',               label: 'Vendor specialist role: Okta Workflows dev' },
@@ -774,7 +774,7 @@ const RED_FLAGS = [
     { pattern: 'write code',                       label: 'Implementation task: writing code required' },
     { pattern: 'coding skills',                    label: 'Implementation role: coding skills listed as requirement' },
     { pattern: 'programming skills',               label: 'Implementation role: programming skills required' },
-    { pattern: 'software engineer',                label: 'Engineering role — not architecture' },
+    { pattern: 'software engineer',                label: 'Engineering role â€” not architecture' },
     { pattern: 'hands-on coding',                  label: 'Implementation task: hands-on coding' },
     { pattern: 'hands-on development',             label: 'Implementation task: hands-on development' },
     { pattern: 'workflow developer',               label: 'Vendor workflow developer role' },
@@ -792,9 +792,9 @@ function detectRedFlags(raw) {
     return RED_FLAGS.filter(f => raw.toLowerCase().includes(f.pattern));
 }
 
-// ─────────────────────────────────────────────────────────────
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 // ROLE TYPE DETECTION (Architecture vs. Implementation)
-// ─────────────────────────────────────────────────────────────
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 const ARCH_SIGNALS = [
     'architect','architecture','advisory','advisor','consultant','consulting',
     'assessment','audit','governance','framework','roadmap','design',
@@ -820,27 +820,48 @@ function detectRoleType(raw) {
     return { type: 'Architecture', arch, impl };
 }
 
-// ─────────────────────────────────────────────────────────────
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// TITLE TIER (Pre-Filter Signal 1)
+// Architect, Principal, Lead, Director, Strategist, VP pass.
+// Analyst, Engineer, Administrator, Manager, Specialist, Coordinator fail.
+// Read only the title region â€” first 200 chars â€” because role words like
+// "engineer" or "administration" appear in body text and would fire false
+// knockouts if we scanned the whole posting.
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+const TITLE_PASS = ['architect','principal','lead consultant','lead','director','strategist','vp','vice president'];
+const TITLE_FAIL = ['analyst','engineer','administrator','manager','specialist','coordinator'];
+
+function detectTitleTier(raw) {
+    const head = raw.toLowerCase().slice(0, 200);
+    const pass = TITLE_PASS.some(t => head.includes(t));
+    const failHit = TITLE_FAIL.find(t => head.includes(t));
+    // A pass-tier word always wins. Only a fail word with no pass word knocks out.
+    if (pass) return { tier: 'pass', failHit: null };
+    if (failHit) return { tier: 'fail', failHit };
+    return { tier: 'unknown', failHit: null };
+}
+
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 // CASE STUDY MATCH
-// ─────────────────────────────────────────────────────────────
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 const CASE_STUDIES = [
     {
-        title: 'Case 1 — JIT Provisioning',
+        title: 'Case 1 â€” JIT Provisioning',
         triggers: ['jml','joiner','mover','leaver','provisioning','deprovisioning','onboarding','identity lifecycle','lifecycle management','access governance','access certification','jit provisioning','just-in-time'],
         detail: '1,500-user FinServ | 600 orphaned admin accounts | Zero Touch onboarding, 55% IT ticket reduction'
     },
     {
-        title: 'Case 2 — Zero Downtime Migration',
+        title: 'Case 2 â€” Zero Downtime Migration',
         triggers: ['migration','cutover','zero downtime','active directory migration','domain migration','consolidation','zero-downtime','migration strategy'],
         detail: '300-user FinServ (Diamond) | Sandboxed VNet, AGDLP + SSO validated | Zero Downtime on all migrations'
     },
     {
-        title: 'Case 3 — PAM / MFA Compliance',
+        title: 'Case 3 â€” PAM / MFA Compliance',
         triggers: ['pam','privileged access','mfa','multi-factor','multifactor','soc2','soc 2','hipaa','password policy','fine grained','compliance','privileged identity'],
         detail: '300-user FinServ (Diamond) | PAM + Fine Grained Password Policies | 100% MFA compliance in revenue roles'
     },
     {
-        title: 'Case 4 — SaaS Capital Recovery',
+        title: 'Case 4 â€” SaaS Capital Recovery',
         triggers: ['saas','license','cost reduction','budget','saas spend','deprovisioning','software asset','license harvesting','saas governance','n8n','gearset','spend reclaim'],
         detail: '300-user FinServ (Diamond) | Lab First audits + n8n/Gearset automation | 30% SaaS spend reclaimed in 30 days'
     }
@@ -854,9 +875,9 @@ function recommendCaseStudies(raw) {
     return scored.slice(0, 2); // top 2 matches
 }
 
-// ─────────────────────────────────────────────────────────────
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 // ENGAGEMENT TYPE DETECTION
-// ─────────────────────────────────────────────────────────────
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function detectEngagementType(raw) {
     const lower = raw.toLowerCase();
     const types = {
@@ -880,9 +901,9 @@ function detectEngagementType(raw) {
     return { type: sorted[0][0], signals: found };
 }
 
-// ─────────────────────────────────────────────────────────────
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 // LOCATION DETECTION
-// ─────────────────────────────────────────────────────────────
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 const REMOTE_SIGNALS = [
     'fully remote','100% remote','remote-first','remote first','work from home',
     'work from anywhere','distributed team','remote only','remote position',
@@ -936,22 +957,22 @@ function detectLocation(raw) {
     let status, reason;
     if (hasNonUS && !hasRemote && !hasUS) {
         status = 'warning';
-        reason = 'Non-US signals detected — confirm location before bidding';
+        reason = 'Non-US signals detected â€” confirm location before bidding';
     } else if (hasOnsite && !hasRemote && !hasHybrid) {
         status = 'warning';
-        reason = 'On-site required — confirm location is acceptable before bidding';
+        reason = 'On-site required â€” confirm location is acceptable before bidding';
     } else {
         status = 'pass';
         reason = locationType === 'Not specified'
             ? 'No location restriction detected'
-            : locationType + (region !== 'Not specified' ? ' — ' + region : '');
+            : locationType + (region !== 'Not specified' ? ' â€” ' + region : '');
     }
     return { locationType, region, status, reason };
 }
 
-// ─────────────────────────────────────────────────────────────
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 // RECRUITER / STAFFING DETECTION + OUTREACH (P3)
-// ─────────────────────────────────────────────────────────────
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 const RECRUITER_SIGNALS = [
     'recruiter','recruiting','talent acquisition','staffing','staffing firm','staffing agency',
     'recruiting firm','our client','placed with','placement','headhunter','search firm',
@@ -993,9 +1014,9 @@ function buildOutreach() {
     return { short, email };
 }
 
-// ─────────────────────────────────────────────────────────────
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 // THREE-BUCKET FIT SCORE (DROP / BORDERLINE / STRONG)
-// ─────────────────────────────────────────────────────────────
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 // Agentic / generative AI standing exclusion. Tight phrases only,
 // so IAM bids that mention AI in passing still survive.
 const AI_EXCLUSION = [
@@ -1046,6 +1067,9 @@ function scoreFit(raw, ctx) {
 
     // Knockouts override the number. Any hit forces DROP.
     const knockouts = [];
+    if (ctx.titleTier && ctx.titleTier.tier === 'fail')
+        knockouts.push('Title tier below Architect (' + ctx.titleTier.failHit + ') â€” Pre-Filter Signal 1');
+    if (ctx.titleTier && ctx.titleTier.tier === 'fail') knockouts.push('Title tier below Architect (' + ctx.titleTier.failHit + ') -- Pre-Filter Signal 1');
     if (ctx.roleType.type === 'Implementation') knockouts.push('Implementation / coding role, not architecture');
     if (ctx.flags.length > 0)                   knockouts.push('Vendor specialist or coding red flag');
     if (ctx.aiHits > 0)                         knockouts.push('Agentic / generative AI scope (standing exclusion)');
@@ -1060,9 +1084,9 @@ function scoreFit(raw, ctx) {
     return { score: s, bucket, knockouts };
 }
 
-// ─────────────────────────────────────────────────────────────
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 // MAIN SCREENER
-// ─────────────────────────────────────────────────────────────
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function runScreener() {
     const raw    = INPUT.value.trim();
     const bidUrl = document.getElementById('bidUrl').value.trim();
@@ -1087,7 +1111,7 @@ function runScreener() {
         html += block('Posting Text Required', `
             <div style="display:flex;flex-direction:column;gap:12px">
                 <div style="font-size:13px;color:var(--text-muted);line-height:1.7">
-                    Platform detected from the URL. Full analysis — keyword scoring, red flags, fit score, and verdict — requires the posting text.
+                    Platform detected from the URL. Full analysis â€” keyword scoring, red flags, fit score, and verdict â€” requires the posting text.
                 </div>
                 <ol style="font-size:12px;color:var(--text-muted);line-height:2;padding-left:18px;margin:0">
                     <li>Open the URL in your browser.</li>
@@ -1112,7 +1136,7 @@ function runScreener() {
     const location      = detectLocation(raw);
     const recruiter     = detectRecruiter(raw, engagement);
 
-    // ── Decision Logic ──
+    // â”€â”€ Decision Logic â”€â”€
     const hiConf    = l3.length + l2.length;
     const hiConfPct = total > 0 ? Math.round((hiConf / total) * 100) : 0;
     const l1Pct     = total > 0 ? Math.round((l1.length / total) * 100) : 0;
@@ -1126,29 +1150,30 @@ function runScreener() {
     // Q3: Engagement type matches positioning (FTE and staffing firm flag as warning)
     const q3Pass = engagement.type !== 'fte';
     const q3Warning = engagement.type === 'fte'
-        ? 'FTE role detected — verify contract-to-hire status before proceeding'
+        ? 'FTE role detected â€” verify contract-to-hire status before proceeding'
         : engagement.type === 'staffingFirm'
-            ? 'Staffing firm placement detected — not a direct consulting engagement. Verify before bidding.'
+            ? 'Staffing firm placement detected â€” not a direct consulting engagement. Verify before bidding.'
             : null;
     // Q4: No vendor specialist / coding red flags
     const q4Pass = flags.length === 0;
     // Q5: L1 content under 20% (optional threshold check)
     const q5Pass = total === 0 || l1Pct <= 20;
-    // Q6: Location — fail on non-US without remote option
+    // Q6: Location â€” fail on non-US without remote option
     const q6Pass    = location.status !== 'fail';
     const q6Warning = location.status === 'warning' ? location.reason : null;
 
-    // ── Three-bucket fit score (DROP / BORDERLINE / STRONG) ──
+    // â”€â”€ Three-bucket fit score (DROP / BORDERLINE / STRONG) â”€â”€
     const aiHits      = AI_EXCLUSION.filter(k => matchKw(raw, k)).length;
     const caseMatches = recommendCaseStudies(raw);
+    const titleTier   = detectTitleTier(raw);
     const fit = scoreFit(raw, {
         l3, l2, l1, total, l1Pct, roleType, engagement, location, platform,
-        flags, aiHits, caseCount: caseMatches.length
+        flags, aiHits, titleTier, caseCount: caseMatches.length
     });
     const biddable    = fit.bucket !== 'DROP';
     const VERDICT_MAP = { STRONG: 'GO', BORDERLINE: 'BORDERLINE', DROP: 'NO-GO' };
 
-    // ── Capture this run for the Insights dashboard (P4) ──
+    // â”€â”€ Capture this run for the Insights dashboard (P4) â”€â”€
     const failedChecks = [];
     if (!q1Pass) failedChecks.push('Implementation role, not architecture');
     if (!q2Pass) failedChecks.push(total === 0 ? 'No IAM signals' : 'L3/L2 coverage under 70%');
@@ -1176,10 +1201,10 @@ function runScreener() {
 
     const matchedCases = biddable ? caseMatches : [];
 
-    // ── Render ──
+    // â”€â”€ Render â”€â”€
     let html = '';
 
-    // Verdict — three buckets
+    // Verdict â€” three buckets
     const BUCKET_META = {
         STRONG:     { cls: 'verdict-strong',     label: 'STRONG',     color: 'var(--green)',  note: 'Strong fit. Proceed with the bid response.' },
         BORDERLINE: { cls: 'verdict-borderline', label: 'BORDERLINE', color: 'var(--orange)', note: 'Marginal fit. Review by hand before deciding. Do not auto-discard.' },
@@ -1195,7 +1220,7 @@ function runScreener() {
             <div class="verdict-badge ${bm.cls}">${bm.label}</div>
             <div style="margin-top:10px;font-size:12px;color:var(--text-muted)">
                 Fit score: <strong style="color:${bm.color}">${fit.score}</strong>
-                &nbsp;|&nbsp; Drop &lt; ${THRESHOLDS.drop} &nbsp;·&nbsp; Strong ≥ ${THRESHOLDS.strong}
+                &nbsp;|&nbsp; Drop &lt; ${THRESHOLDS.drop} &nbsp;Â·&nbsp; Strong â‰¥ ${THRESHOLDS.strong}
             </div>
             <div class="verdict-reason">${reasonLines}</div>
         </div>
@@ -1212,19 +1237,19 @@ function runScreener() {
 
     // Location
     const locColor = location.status === 'fail' ? 'var(--red)' : location.status === 'warning' ? 'var(--orange)' : 'var(--green)';
-    const locIcon  = location.status === 'fail' ? '✗' : location.status === 'warning' ? '⚠' : '✓';
+    const locIcon  = location.status === 'fail' ? 'âœ—' : location.status === 'warning' ? 'âš ' : 'âœ“';
     html += block('Location', `
         <div style="display:flex;align-items:flex-start;gap:10px">
             <div style="width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:900;flex-shrink:0;background:${location.status==='fail'?'rgba(248,81,73,0.2)':location.status==='warning'?'rgba(210,153,34,0.2)':'rgba(63,185,80,0.2)'};color:${locColor}">${locIcon}</div>
             <div>
-                <div style="font-size:13px;font-weight:700;color:${locColor};margin-bottom:3px">${location.locationType}${location.region !== 'Not specified' ? ' — ' + location.region : ''}</div>
+                <div style="font-size:13px;font-weight:700;color:${locColor};margin-bottom:3px">${location.locationType}${location.region !== 'Not specified' ? ' â€” ' + location.region : ''}</div>
                 <div style="font-size:11px;color:var(--text-muted)">${location.reason}</div>
             </div>
         </div>
     `);
 
     // Level Breakdown
-    html += block(`Knowledge Level Breakdown — ${total} signal${total !== 1 ? 's' : ''}`, `
+    html += block(`Knowledge Level Breakdown â€” ${total} signal${total !== 1 ? 's' : ''}`, `
         ${levelRow('L3', 'var(--green)', 'l3-fill', l3Pct, l3.length, 'IAM architecture, JML, migrations, AD/PS, SAML, PAM, MFA')}
         ${levelRow('L2', 'var(--cyan)',  'l2-fill', l2Pct, l2.length, 'Okta / Entra / SailPoint, SOC2/HIPAA, cloud, integrations')}
         ${levelRow('L1', 'var(--orange)','l1-fill', l1Pct, l1.length, 'Kubernetes, ML/AI, front-end dev, connector coding')}
@@ -1233,11 +1258,11 @@ function runScreener() {
 
     // Red Flags
     const flagsHtml = flags.length === 0
-        ? '<div class="no-flags">✓ No red flags detected</div>'
-        : flags.map(f => `<div class="flag-item"><span class="flag-icon">⚑</span>${f.label}</div>`).join('');
+        ? '<div class="no-flags">âœ“ No red flags detected</div>'
+        : flags.map(f => `<div class="flag-item"><span class="flag-icon">âš‘</span>${f.label}</div>`).join('');
     html += block('Red Flags', flagsHtml);
 
-    // Recruiter / staffing outreach — renders on ANY verdict, GO or NO-GO
+    // Recruiter / staffing outreach â€” renders on ANY verdict, GO or NO-GO
     if (recruiter.isRecruiter) {
         const outreach = buildOutreach();
         _outreachShort = outreach.short;
@@ -1271,16 +1296,16 @@ function runScreener() {
         step(q2Pass,
             'Q2: 70%+ signals at L3 or L2?',
             total === 0
-                ? 'No signals detected — cannot evaluate'
+                ? 'No signals detected â€” cannot evaluate'
                 : `${hiConfPct}% are L3/L2 (${hiConf} of ${total} signals)`
         ),
         step(q3Pass,
             'Q3: Engagement type matches positioning?',
-            engagement.type ? `Type: ${engagement.type.toUpperCase()} ${q3Warning ? '⚠️ ' + q3Warning : '(clean)'}` : 'Unknown'
+            engagement.type ? `Type: ${engagement.type.toUpperCase()} ${q3Warning ? 'âš ï¸ ' + q3Warning : '(clean)'}` : 'Unknown'
         ),
         step(q4Pass,
             'Q4: No vendor specialist or coding red flags?',
-            flags.length > 0 ? `${flags.length} red flag(s) found — see above` : 'Clean'
+            flags.length > 0 ? `${flags.length} red flag(s) found â€” see above` : 'Clean'
         ),
         step(q5Pass,
             'Q5: L1 out-of-scope content under 20%?',
@@ -1288,12 +1313,12 @@ function runScreener() {
         ),
         step(q6Pass,
             'Q6: Location compatible?',
-            q6Warning ? `⚠️ ${q6Warning}` : location.reason
+            q6Warning ? `âš ï¸ ${q6Warning}` : location.reason
         )
     ].join('');
     html += block('Decision Logic', stepsHtml);
 
-    // Case Study + bridge — show on STRONG and BORDERLINE, hide on DROP
+    // Case Study + bridge â€” show on STRONG and BORDERLINE, hide on DROP
     if (biddable) {
         const csHtml = matchedCases.length > 0
             ? `<div class="multi-case">${matchedCases.map(cs => `
@@ -1304,7 +1329,7 @@ function runScreener() {
             : '<div style="font-size:12px;color:var(--text-muted)">No strong case study match. Review all four manually.</div>';
         html += block('Recommended Case Study', csHtml);
 
-        // ── Next Step: Response Template Builder ──
+        // â”€â”€ Next Step: Response Template Builder â”€â”€
         const templateBuilderPlatform = platform ? platform.id.toUpperCase() : 'N/A';
         html += block('Next Step', `
             <div class="bridge-body">
@@ -1312,23 +1337,23 @@ function runScreener() {
                     Use the Response Template Builder to get the correct scaffold for this platform.
                 </div>
                 <a href="templates.html" style="display:inline-block; background:var(--cyan); color:#ffffff; text-decoration:none; padding:10px 24px; border-radius:6px; font-weight:700; font-size:13px; cursor:pointer; transition:opacity 0.15s;" onmouseover="this.style.opacity='0.85'" onmouseout="this.style.opacity='1'">
-                    Open Response Template Builder → ${templateBuilderPlatform}
+                    Open Response Template Builder â†’ ${templateBuilderPlatform}
                 </a>
                 <div class="bridge-note">Select platform: <strong>${templateBuilderPlatform}</strong> | Paste job description | Get scaffold with pre-filled case study</div>
             </div>
         `);
 
-        // ── Build Claude Bridge Prompt ──
+        // â”€â”€ Build Claude Bridge Prompt â”€â”€
         const platformLine = platform
-            ? `${platform.name} (${platform.fullName}) — ${platform.format}`
-            : 'Unknown — verify platform manually before responding';
+            ? `${platform.name} (${platform.fullName}) â€” ${platform.format}`
+            : 'Unknown â€” verify platform manually before responding';
 
         const caseStudyLines = matchedCases.length > 0
             ? matchedCases.map(cs => `  - ${cs.title}: ${cs.detail}`).join('\n')
             : '  No strong match. Review all four case studies manually.';
 
         _claudePrompt = [
-            `BID OPPORTUNITY — ${platform ? platform.name.toUpperCase() : 'UNKNOWN PLATFORM'}`,
+            `BID OPPORTUNITY â€” ${platform ? platform.name.toUpperCase() : 'UNKNOWN PLATFORM'}`,
             ``,
             `PLATFORM: ${platformLine}`,
             ``,
@@ -1361,7 +1386,7 @@ function runScreener() {
     RESULTS.innerHTML = html;
 }
 
-// ── HTML helpers ──
+// â”€â”€ HTML helpers â”€â”€
 function block(title, body, extraClass) {
     return `<div class="result-block${extraClass ? ' ' + extraClass : ''}">
         <div class="result-block-header">${title}</div>
@@ -1382,7 +1407,7 @@ function levelRow(label, color, fillClass, pct, count, desc) {
 
 function step(pass, label, detail) {
     return `<div class="decision-step">
-        <div class="step-icon ${pass ? 'step-pass' : 'step-fail'}">${pass ? '✓' : '✗'}</div>
+        <div class="step-icon ${pass ? 'step-pass' : 'step-fail'}">${pass ? 'âœ“' : 'âœ—'}</div>
         <div class="step-label">
             <strong>${label}</strong>
             <span>${detail}</span>
