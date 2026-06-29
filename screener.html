@@ -1293,9 +1293,6 @@ function runScreener() {
     ].join('');
     html += block('Decision Logic', stepsHtml);
 
-    // Verdict block moved to top of render section above
-    `);
-
     // Case Study + bridge — show on STRONG and BORDERLINE, hide on DROP
     if (biddable) {
         const csHtml = matchedCases.length > 0
