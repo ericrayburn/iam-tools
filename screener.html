@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -821,6 +821,21 @@ function detectRoleType(raw) {
 }
 
 // ─────────────────────────────────────────────────────────────
+// TITLE TIER DETECTION (Pre-Filter Signal 1 from SKILL.md)
+// ─────────────────────────────────────────────────────────────
+const TITLE_FAIL_SIGNALS = ['engineer','analyst','administrator','manager','specialist','coordinator'];
+const TITLE_PASS_SIGNALS = ['architect','principal','lead consultant','director','strategist',' vp ','vp,','vp -','vp.'];
+
+function detectTitleTier(raw) {
+    const firstLine = (raw.split(/\r?\n/).find(l => l.trim().length > 0) || '').toLowerCase();
+    const failHit = TITLE_FAIL_SIGNALS.find(s => matchKw(firstLine, s));
+    const passHit = TITLE_PASS_SIGNALS.find(s => matchKw(firstLine, s));
+    if (failHit) return { fail: true, hit: failHit, line: firstLine };
+    if (passHit) return { fail: false, hit: passHit, line: firstLine };
+    return { fail: false, hit: null, line: firstLine };
+}
+
+// ─────────────────────────────────────────────────────────────
 // CASE STUDY MATCH
 // ─────────────────────────────────────────────────────────────
 const CASE_STUDIES = [
@@ -1041,6 +1056,7 @@ function scoreFit(raw, ctx) {
 
     // Knockouts override the number. Any hit forces DROP.
     const knockouts = [];
+    if (ctx.titleTier && ctx.titleTier.fail) knockouts.push('Title tier fail — Engineer/Analyst/Administrator/Manager/Specialist/Coordinator title, not Architect/Principal/Lead/Director/Strategist/VP');
     if (ctx.roleType.type === 'Implementation') knockouts.push('Implementation / coding role, not architecture');
     if (ctx.flags.length > 0)                   knockouts.push('Vendor specialist or coding red flag');
     if (ctx.aiHits > 0)                         knockouts.push('Agentic / generative AI scope (standing exclusion)');
@@ -1136,9 +1152,10 @@ function runScreener() {
     // ── Three-bucket fit score (DROP / BORDERLINE / STRONG) ──
     const aiHits      = AI_EXCLUSION.filter(k => matchKw(raw, k)).length;
     const caseMatches = recommendCaseStudies(raw);
+    const titleTier = detectTitleTier(raw);
     const fit = scoreFit(raw, {
         l3, l2, l1, total, l1Pct, roleType, engagement, location, platform,
-        flags, aiHits, caseCount: caseMatches.length
+        flags, aiHits, caseCount: caseMatches.length, titleTier
     });
     const biddable    = fit.bucket !== 'DROP';
     const VERDICT_MAP = { STRONG: 'GO', BORDERLINE: 'BORDERLINE', DROP: 'NO-GO' };
@@ -1284,6 +1301,10 @@ function runScreener() {
         step(q6Pass,
             'Q6: Location compatible?',
             q6Warning ? `⚠️ ${q6Warning}` : location.reason
+        ),
+        step(!titleTier.fail,
+            'Q7: Title tier - Architect/Principal/Lead/Director/Strategist/VP?',
+            titleTier.fail ? ('Fail - title line matched "' + titleTier.hit + '" (Engineer/Analyst/Administrator/Manager/Specialist/Coordinator)') : (titleTier.hit ? ('Pass - title line matched "' + titleTier.hit + '"') : 'No title-tier signal detected in first line')
         )
     ].join('');
     html += block('Decision Logic', stepsHtml);
