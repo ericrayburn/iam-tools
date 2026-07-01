@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -388,6 +388,10 @@
             <span>Bid Posting</span>
             <span id="charCount" class="char-count">0 chars</span>
         </div>
+        <div class="input-footer">
+            <button class="btn-run" onclick="runScreener()">Run Screener</button>
+            <button class="btn-clear" onclick="clearAll()">Clear</button>
+        </div>
         <div class="platform-selector-row">
             <span class="selector-label">Link</span>
             <input id="bidUrl" type="url" placeholder="Paste the posting URL (optional — auto-detects platform)" />
@@ -411,10 +415,6 @@
             </select>
         </div>
         <textarea id="bidInput" placeholder="Paste the full bid posting here.&#10;&#10;Include the job description, platform details, questions asked, required skills, and any scope notes. The screener will detect the platform and run the full GO / NO-GO qualification guardrail."></textarea>
-        <div class="input-footer">
-            <button class="btn-run" onclick="runScreener()">Run Screener</button>
-            <button class="btn-clear" onclick="clearAll()">Clear</button>
-        </div>
     </div>
 
     <!-- Right: Results -->
@@ -1174,6 +1174,28 @@ function runScreener() {
     // ── Render ──
     let html = '';
 
+    // Verdict — three buckets (rendered first)
+    const BUCKET_META = {
+        STRONG:     { cls: 'verdict-strong',     label: 'STRONG',     color: 'var(--green)',  note: 'Strong fit. Proceed with the bid response.' },
+        BORDERLINE: { cls: 'verdict-borderline', label: 'BORDERLINE', color: 'var(--orange)', note: 'Marginal fit. Review by hand before deciding. Do not auto-discard.' },
+        DROP:       { cls: 'verdict-drop',       label: 'DROP',       color: 'var(--red)',    note: 'Out of scope. Skip the bid.' }
+    };
+    const bm = BUCKET_META[fit.bucket];
+    const reasonLines = fit.knockouts.length > 0
+        ? '<span style="color:var(--red)">Knockout: ' + fit.knockouts.join('<br>Knockout: ') + '</span>'
+        : `<span style="color:${bm.color}">${bm.note}</span>`;
+
+    html += block('Verdict', `
+        <div class="verdict-display">
+            <div class="verdict-badge ${bm.cls}">${bm.label}</div>
+            <div style="margin-top:10px;font-size:12px;color:var(--text-muted)">
+                Fit score: <strong style="color:${bm.color}">${fit.score}</strong>
+                &nbsp;|&nbsp; Drop &lt; ${THRESHOLDS.drop} &nbsp;·&nbsp; Strong ≥ ${THRESHOLDS.strong}
+            </div>
+            <div class="verdict-reason">${reasonLines}</div>
+        </div>
+    `);
+
     // Platform
     html += block('Platform Detected', `
         <div class="platform-name">${platform ? platform.name : 'Unknown'}</div>
@@ -1265,28 +1287,6 @@ function runScreener() {
         )
     ].join('');
     html += block('Decision Logic', stepsHtml);
-
-    // Verdict — three buckets
-    const BUCKET_META = {
-        STRONG:     { cls: 'verdict-strong',     label: 'STRONG',     color: 'var(--green)',  note: 'Strong fit. Proceed with the bid response.' },
-        BORDERLINE: { cls: 'verdict-borderline', label: 'BORDERLINE', color: 'var(--orange)', note: 'Marginal fit. Review by hand before deciding. Do not auto-discard.' },
-        DROP:       { cls: 'verdict-drop',       label: 'DROP',       color: 'var(--red)',    note: 'Out of scope. Skip the bid.' }
-    };
-    const bm = BUCKET_META[fit.bucket];
-    const reasonLines = fit.knockouts.length > 0
-        ? '<span style="color:var(--red)">Knockout: ' + fit.knockouts.join('<br>Knockout: ') + '</span>'
-        : `<span style="color:${bm.color}">${bm.note}</span>`;
-
-    html += block('Verdict', `
-        <div class="verdict-display">
-            <div class="verdict-badge ${bm.cls}">${bm.label}</div>
-            <div style="margin-top:10px;font-size:12px;color:var(--text-muted)">
-                Fit score: <strong style="color:${bm.color}">${fit.score}</strong>
-                &nbsp;|&nbsp; Drop &lt; ${THRESHOLDS.drop} &nbsp;·&nbsp; Strong ≥ ${THRESHOLDS.strong}
-            </div>
-            <div class="verdict-reason">${reasonLines}</div>
-        </div>
-    `);
 
     // Case Study + bridge — show on STRONG and BORDERLINE, hide on DROP
     if (biddable) {
