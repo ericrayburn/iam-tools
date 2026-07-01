@@ -1,0 +1,678 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GSD Snapshot Generator | Rayburn Ideas</title>
+    <style>
+        :root {
+            --bg: #eef1f6;
+            --surface: #ffffff;
+            --surface2: #f3f6fa;
+            --border: #d3dae3;
+            --cyan: #00b3c8;
+            --cyan-deep: #007d8c;
+            --text: #1b2530;
+            --text-muted: #5d6b7a;
+            --red: #c0392b;
+            --orange: #b9770e;
+            --green: #1e8e4e;
+            --shadow: 0 1px 3px rgba(27,37,48,0.06);
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            background: var(--bg);
+            color: var(--text);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            font-size: 14px;
+            min-height: 100vh;
+        }
+
+        /* HEADER */
+        header {
+            background: var(--surface);
+            border-bottom: 2px solid var(--cyan);
+            padding: 14px 24px;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+        .logo-mark {
+            width: 38px; height: 38px;
+            background: var(--cyan);
+            border-radius: 7px;
+            display: flex; align-items: center; justify-content: center;
+            font-weight: 900; font-size: 20px; color: #fff;
+            flex-shrink: 0;
+        }
+        .logo-text strong { display: block; font-size: 14px; letter-spacing: 0.6px; }
+        .logo-text span { font-size: 10px; color: var(--cyan-deep); letter-spacing: 1.5px; text-transform: uppercase; }
+        .nav-home {
+            color: var(--text-muted); text-decoration: none; font-size: 12px;
+            padding: 5px 10px; border: 1px solid var(--border); border-radius: 5px;
+        }
+        .nav-home:hover { color: var(--cyan); border-color: var(--cyan); }
+        .app-badge {
+            margin-left: auto;
+            background: rgba(0,179,200,0.12); color: var(--cyan-deep);
+            font-size: 11px; font-weight: 600; padding: 4px 10px;
+            border-radius: 20px; border: 1px solid rgba(0,179,200,0.35);
+            letter-spacing: 0.5px;
+        }
+
+        /* PIPELINE FEED */
+        .feed-section {
+            max-width: 1200px;
+            margin: 20px auto 0;
+            padding: 0 24px;
+        }
+        .feed-label {
+            font-size: 10px; font-weight: 700; color: var(--text-muted);
+            text-transform: uppercase; letter-spacing: 1.2px;
+            margin-bottom: 10px;
+        }
+        .feed-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+        }
+        @media (max-width: 800px) { .feed-grid { grid-template-columns: 1fr 1fr; } }
+
+        .feed-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 14px 16px;
+            box-shadow: var(--shadow);
+        }
+        .feed-card-title {
+            font-size: 10px; font-weight: 700; color: var(--text-muted);
+            text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px;
+        }
+        .feed-stat { margin-bottom: 6px; }
+        .feed-stat-label { font-size: 11px; color: var(--text-muted); }
+        .feed-stat-value { font-size: 22px; font-weight: 700; color: var(--cyan-deep); }
+        .feed-stat-value.green { color: var(--green); }
+        .feed-stat-value.orange { color: var(--orange); }
+        .feed-stat-sub { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+        .feed-divider { border: none; border-top: 1px solid var(--border); margin: 8px 0; }
+
+        .feed-refresh {
+            display: inline-block;
+            margin-top: 10px;
+            font-size: 11px;
+            color: var(--cyan-deep);
+            cursor: pointer;
+            border: none;
+            background: none;
+            padding: 0;
+            text-decoration: underline;
+        }
+
+        /* MAIN GRID */
+        .container {
+            max-width: 1200px;
+            margin: 18px auto 0;
+            padding: 0 24px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 18px;
+        }
+        @media (max-width: 800px) { .container { grid-template-columns: 1fr; } }
+
+        .panel {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            box-shadow: var(--shadow);
+        }
+        .panel-header {
+            padding: 12px 16px;
+            border-bottom: 2px solid var(--cyan);
+            font-size: 11px; font-weight: 700;
+            color: #f3f6fa;
+            text-transform: uppercase; letter-spacing: 1px;
+            background: #243140;
+        }
+
+        /* FORM */
+        .form-body { padding: 18px; display: flex; flex-direction: column; gap: 14px; }
+        .form-row label {
+            display: block; font-size: 11px; color: var(--text-muted);
+            text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 6px;
+        }
+        .form-row .hint { color: var(--cyan-deep); text-transform: none; letter-spacing: normal; font-weight: 600; }
+        .form-row input {
+            width: 100%; background: var(--surface2);
+            border: 1px solid var(--border); border-radius: 6px;
+            color: var(--text); font-size: 14px; padding: 10px 12px;
+            outline: none; font-family: inherit;
+        }
+        .form-row input:focus { border-color: var(--cyan); }
+        .form-row input.auto-filled { background: rgba(0,179,200,0.06); border-color: rgba(0,179,200,0.4); }
+
+        .form-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+
+        .auto-note {
+            font-size: 11px; color: var(--cyan-deep);
+            margin-top: 4px; display: none;
+        }
+        .auto-note.visible { display: block; }
+
+        .form-actions {
+            display: flex; gap: 10px;
+            padding: 14px 18px;
+            border-top: 1px solid var(--border);
+            background: var(--surface2);
+        }
+        .btn-generate {
+            background: var(--cyan); color: #fff; border: none;
+            border-radius: 6px; padding: 10px 22px;
+            font-size: 13px; font-weight: 700; cursor: pointer;
+        }
+        .btn-generate:hover { opacity: 0.88; }
+        .btn-clear {
+            background: none; border: 1px solid var(--border);
+            color: var(--text-muted); border-radius: 6px;
+            padding: 10px 18px; font-size: 13px; cursor: pointer;
+        }
+        .btn-clear:hover { border-color: var(--red); color: var(--red); }
+
+        /* OUTPUT */
+        .output-body { flex: 1; display: flex; flex-direction: column; }
+        .output-text {
+            flex: 1; min-height: 340px;
+            background: var(--bg); color: var(--text);
+            border: none; padding: 16px;
+            font-size: 13px;
+            font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+            line-height: 1.7; resize: vertical; outline: none; white-space: pre;
+        }
+        .output-text::placeholder { color: var(--text-muted); }
+        .btn-copy {
+            background: none; border: 1px solid var(--cyan);
+            color: var(--cyan-deep); border-radius: 6px;
+            padding: 10px 22px; font-size: 13px; font-weight: 700; cursor: pointer;
+        }
+        .btn-copy:hover { background: rgba(0,179,200,0.08); }
+        .btn-copy.copied { background: rgba(0,179,200,0.12); }
+
+        /* MANUAL */
+        .manual-section { max-width: 1200px; margin: 18px auto 32px; padding: 0 24px; }
+        .manual-panel {
+            background: var(--surface); border: 1px solid var(--border);
+            border-radius: 8px; overflow: hidden; box-shadow: var(--shadow);
+        }
+        .manual-header {
+            padding: 12px 16px; border-bottom: 2px solid var(--cyan);
+            font-size: 11px; font-weight: 700; color: #f3f6fa;
+            text-transform: uppercase; letter-spacing: 1px; background: #243140;
+        }
+        .manual-body { padding: 22px 24px; }
+        .manual-body h3 { font-size: 13px; font-weight: 700; color: var(--cyan-deep); margin: 18px 0 8px; }
+        .manual-body h3:first-child { margin-top: 0; }
+        .manual-body p { font-size: 13px; color: var(--text-muted); line-height: 1.65; margin-bottom: 8px; }
+        .manual-body ul { padding-left: 20px; margin-bottom: 10px; }
+        .manual-body li { font-size: 13px; color: var(--text-muted); line-height: 1.65; margin-bottom: 4px; }
+        .manual-body strong { color: var(--text); }
+        .manual-body .step {
+            display: flex; gap: 14px; align-items: flex-start;
+            padding: 12px 0; border-bottom: 1px solid var(--border);
+        }
+        .manual-body .step:last-child { border-bottom: none; }
+        .step-num {
+            flex-shrink: 0; width: 26px; height: 26px;
+            background: var(--cyan); color: #fff;
+            border-radius: 50%; font-size: 12px; font-weight: 700;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .step-content { flex: 1; }
+        .step-content strong { display: block; font-size: 13px; color: var(--text); margin-bottom: 3px; }
+        .step-content span { font-size: 12px; color: var(--text-muted); line-height: 1.5; }
+    </style>
+</head>
+<body>
+
+<header>
+    <div class="logo-mark">R</div>
+    <div class="logo-text">
+        <strong>RAYBURN IDEAS</strong>
+        <span>Identity and Access Management</span>
+    </div>
+    <a class="nav-home" href="index.html">← All Tools</a>
+    <div class="app-badge">App 05 · GSD Snapshot</div>
+</header>
+
+<!-- LIVE PIPELINE FEED -->
+<div class="feed-section">
+    <div class="feed-label">Live Pipeline Feed — auto from your other apps</div>
+    <div class="feed-grid" id="feed-grid">
+        <!-- populated by JS -->
+    </div>
+</div>
+
+<!-- INPUT + OUTPUT -->
+<div class="container">
+
+    <div class="panel">
+        <div class="panel-header">Weekly Numbers — Monday Morning</div>
+        <div class="form-body">
+
+            <div class="form-row">
+                <label>Week Of</label>
+                <input type="date" id="f-weekof">
+            </div>
+
+            <div class="form-grid-2">
+                <div class="form-row">
+                    <label>Bids Submitted <span class="hint">(target 3-5)</span></label>
+                    <input type="number" id="f-bids" placeholder="0">
+                    <div class="auto-note" id="note-bids"></div>
+                </div>
+                <div class="form-row">
+                    <label>Calls Done</label>
+                    <input type="number" id="f-calls" placeholder="0">
+                </div>
+            </div>
+
+            <div class="form-grid-2">
+                <div class="form-row">
+                    <label>Revenue ($)</label>
+                    <input type="number" id="f-revenue" placeholder="0">
+                </div>
+                <div class="form-row">
+                    <label>Pipeline Value ($)</label>
+                    <input type="number" id="f-pipeline" placeholder="0">
+                    <div class="auto-note" id="note-pipeline"></div>
+                </div>
+            </div>
+
+        </div>
+        <div class="form-actions">
+            <button class="btn-generate" onclick="generateSnapshot()">Generate Snapshot</button>
+            <button class="btn-clear" onclick="clearForm()">Clear</button>
+        </div>
+    </div>
+
+    <div class="panel">
+        <div class="panel-header">GSD Snapshot — Ready to Paste into Claude</div>
+        <div class="output-body">
+            <textarea class="output-text" id="output-text" readonly
+                placeholder="Fill in the four weekly numbers and click Generate Snapshot. The formatted output appears here. Copy it and paste into Claude to start your GSD session."></textarea>
+        </div>
+        <div class="form-actions">
+            <button class="btn-copy" id="btn-copy" onclick="copySnapshot()">Copy to Clipboard</button>
+        </div>
+    </div>
+
+</div>
+
+<!-- FULL RUNBOOK -->
+<div class="manual-section">
+    <div class="manual-panel">
+        <div class="manual-header">App 05 Runbook — When and How to Use This Tool</div>
+        <div class="manual-body">
+
+            <h3>What this app does</h3>
+            <p>It reads live data from App 02 (Screener), App 03 (Pipeline), and App 06 (Insights) and combines those numbers with four manually entered metrics. It outputs a formatted GSD Weekly Momentum block you paste directly into Claude at the start of every Monday session.</p>
+
+            <h3>When to run it</h3>
+            <p><strong>Every Monday morning, before you open Claude.</strong> Run it once per week. It takes under two minutes. Do not run it mid-week. The snapshot captures the prior week's activity and tells Claude where you stand entering the new week.</p>
+
+            <h3>Step-by-step</h3>
+
+            <div class="step">
+                <div class="step-num">1</div>
+                <div class="step-content">
+                    <strong>Open this app first</strong>
+                    <span>Before you open Claude or any other tool. The Live Pipeline Feed at the top reads from App 02 and App 03 automatically. No action needed on your part for those numbers.</span>
+                </div>
+            </div>
+
+            <div class="step">
+                <div class="step-num">2</div>
+                <div class="step-content">
+                    <strong>Check the Live Pipeline Feed</strong>
+                    <span>Verify the numbers look right. If App 03 shows 0 active bids but you have bids in the pipeline, open App 03 first and confirm your data is saved, then come back. The feed reads live from browser storage.</span>
+                </div>
+            </div>
+
+            <div class="step">
+                <div class="step-num">3</div>
+                <div class="step-content">
+                    <strong>Enter your four numbers</strong>
+                    <span><strong>Bids Submitted</strong> — total bids you submitted in the prior week. Check App 03 for bids with status Submitted or Interview added in the past 7 days.<br>
+                    <strong>Calls Done</strong> — expert calls or discovery calls you completed. Check GLG, Catalant, or calendar.<br>
+                    <strong>Revenue ($)</strong> — any revenue received or invoiced in the prior week. Check your invoicing records.<br>
+                    <strong>Pipeline Value ($)</strong> — estimated total contract value of all active bids. Multiply your rate by estimated engagement hours for each active bid and sum them.</span>
+                </div>
+            </div>
+
+            <div class="step">
+                <div class="step-num">4</div>
+                <div class="step-content">
+                    <strong>Click Generate Snapshot</strong>
+                    <span>The formatted block appears on the right. It matches the Weekly Momentum format the GSD skill expects. Review it. If a number looks wrong, correct the field and regenerate.</span>
+                </div>
+            </div>
+
+            <div class="step">
+                <div class="step-num">5</div>
+                <div class="step-content">
+                    <strong>Click Copy to Clipboard</strong>
+                    <span>Open Claude Code. Start a new message. Paste the block. Add any context you want Claude to know, then send. Claude will read the snapshot and use it to orient the GSD session.</span>
+                </div>
+            </div>
+
+            <div class="step">
+                <div class="step-num">6</div>
+                <div class="step-content">
+                    <strong>Your data saves automatically</strong>
+                    <span>The four fields save to browser storage as you type. When you return next Monday, the prior week's numbers are still there for reference. Click Clear to reset for the new week's entry.</span>
+                </div>
+            </div>
+
+            <h3>Where each number comes from</h3>
+            <ul>
+                <li><strong>Bids Submitted</strong> — App 03 Bid Pipeline. Count bids you moved to Submitted or Interview in the past 7 days. The feed shows the running total; you enter only last week's submissions.</li>
+                <li><strong>Calls Done</strong> — your own count. Check your calendar for GLG, Catalant, or direct client calls completed Monday through Sunday.</li>
+                <li><strong>Revenue ($)</strong> — any payment received or invoice sent in the prior week. This is cash activity, not pipeline estimate.</li>
+                <li><strong>Pipeline Value ($)</strong> — total potential value of all active bids. Example: 3 active bids at $400/hr, each 80 hours estimated = $96,000 pipeline.</li>
+            </ul>
+
+            <h3>What the Live Pipeline Feed shows</h3>
+            <ul>
+                <li><strong>Active Bids</strong> — all bids in Draft, Submitted, or Interview status in App 03 right now.</li>
+                <li><strong>Won (Lifetime)</strong> — total bids marked Won in App 03 since you started tracking.</li>
+                <li><strong>Screened This Week</strong> — bid postings run through App 02 Screener in the past 7 days.</li>
+                <li><strong>GO Rate</strong> — percentage of screened bids that received a GO verdict in App 02 this week.</li>
+            </ul>
+
+            <h3>If the feed shows no data</h3>
+            <p>The feed reads from browser localStorage. It only works in the same browser where you use App 02 and App 03. If you use different browsers or devices, the feed shows zeros. Enter the numbers manually from your records. The snapshot still generates correctly.</p>
+
+            <h3>Cadence reminder</h3>
+            <p>Run this tool every Monday morning before your first Claude session. Do not skip weeks. A missing week breaks the momentum trend. If you missed a week, run it with the best numbers you can recall. A rough snapshot is better than no snapshot.</p>
+
+        </div>
+    </div>
+</div>
+
+<script>
+// ── STORAGE ──────────────────────────────────────────────────────────────────
+const STORAGE_KEY    = 'iam_gsd_v2';
+const PIPELINE_KEY   = 'iam_pipeline_v1';
+const SCREENER_KEY   = 'iam_screener_log_v1';
+const FIELD_IDS      = ['f-weekof', 'f-bids', 'f-calls', 'f-revenue', 'f-pipeline'];
+
+function safeGet(k) {
+    try { return localStorage.getItem(k); } catch(e) { return null; }
+}
+
+function todayStr() {
+    const d = new Date();
+    return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+}
+
+function lastMondayStr() {
+    const d = new Date();
+    const day = d.getDay();
+    const diff = day === 0 ? 6 : day - 1;
+    d.setDate(d.getDate() - diff);
+    return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+}
+
+// ── FEED DATA ─────────────────────────────────────────────────────────────────
+function getPipelineStats() {
+    const raw = safeGet(PIPELINE_KEY);
+    if (!raw) return null;
+    let bids = [];
+    try { bids = JSON.parse(raw); } catch(e) { return null; }
+    if (!Array.isArray(bids) || bids.length === 0) return null;
+
+    const now = Date.now();
+    const weekMs = 7 * 24 * 60 * 60 * 1000;
+    const cutoff = now - weekMs;
+
+    const active = bids.filter(b => ['DRAFT','SUBMITTED','INTERVIEW'].includes(b.status));
+    const won    = bids.filter(b => b.status === 'WON');
+    const submittedThisWeek = bids.filter(b =>
+        ['SUBMITTED','INTERVIEW','WON','LOST'].includes(b.status) &&
+        b.createdAt && new Date(b.createdAt).getTime() > cutoff
+    );
+
+    const rates = active.filter(b => b.rateQuoted).map(b => Number(b.rateQuoted));
+    const avgRate = rates.length ? Math.round(rates.reduce((a,v) => a+v, 0) / rates.length) : 0;
+
+    return {
+        active: active.length,
+        won: won.length,
+        total: bids.length,
+        submittedThisWeek: submittedThisWeek.length,
+        avgRate
+    };
+}
+
+function getScreenerStats() {
+    const raw = safeGet(SCREENER_KEY);
+    if (!raw) return null;
+    let log = [];
+    try { log = JSON.parse(raw); } catch(e) { return null; }
+    if (!Array.isArray(log) || log.length === 0) return null;
+
+    const cutoff = Date.now() - 7 * 24 * 60 * 60 * 1000;
+    const thisWeek = log.filter(e => e.ts && e.ts > cutoff);
+    const go   = thisWeek.filter(e => e.verdict === 'GO').length;
+    const nogo = thisWeek.filter(e => e.verdict === 'NO-GO').length;
+    const total = thisWeek.length;
+    const goRate = total > 0 ? Math.round((go / total) * 100) : 0;
+
+    return { total, go, nogo, goRate };
+}
+
+// ── RENDER FEED ───────────────────────────────────────────────────────────────
+function renderFeed() {
+    const pip = getPipelineStats();
+    const scr = getScreenerStats();
+
+    const na = '<span style="color:var(--text-muted);font-size:13px">—</span>';
+
+    const card = (title, rows) => `
+        <div class="feed-card">
+            <div class="feed-card-title">${title}</div>
+            ${rows.map(r => `
+                <div class="feed-stat">
+                    <div class="feed-stat-label">${r.label}</div>
+                    <div class="feed-stat-value ${r.cls||''}">${r.value}</div>
+                    ${r.sub ? `<div class="feed-stat-sub">${r.sub}</div>` : ''}
+                </div>
+            `).join('<hr class="feed-divider">')}
+        </div>`;
+
+    let html = '';
+
+    // Pipeline card 1: Active bids
+    html += card('App 03 · Pipeline', [
+        {
+            label: 'Active Bids',
+            value: pip ? pip.active : na,
+            cls: pip && pip.active > 0 ? 'cyan' : '',
+            sub: pip ? `${pip.total} total tracked` : 'Open App 03 to track bids'
+        }
+    ]);
+
+    // Pipeline card 2: Submitted this week + won
+    html += card('App 03 · This Week', [
+        {
+            label: 'Submitted This Week',
+            value: pip ? pip.submittedThisWeek : na,
+            cls: pip && pip.submittedThisWeek >= 3 ? 'green' : (pip && pip.submittedThisWeek > 0 ? 'orange' : ''),
+            sub: pip ? 'target 3-5' : ''
+        }
+    ]);
+
+    // Screener card 1: volume
+    html += card('App 02 · Screener', [
+        {
+            label: 'Screened This Week',
+            value: scr ? scr.total : na,
+            sub: scr ? `${scr.go} GO  ·  ${scr.nogo} NO-GO` : 'Open App 02 to screen bids'
+        }
+    ]);
+
+    // Screener card 2: GO rate
+    html += card('App 02 · GO Rate', [
+        {
+            label: 'GO Rate This Week',
+            value: scr ? scr.goRate + '%' : na,
+            cls: scr ? (scr.goRate >= 40 ? 'green' : 'orange') : '',
+            sub: scr ? `from ${scr.total} screened` : ''
+        }
+    ]);
+
+    document.getElementById('feed-grid').innerHTML = html;
+
+    // Auto-fill bids field hint
+    if (pip && pip.submittedThisWeek > 0) {
+        const bidsField = document.getElementById('f-bids');
+        const note = document.getElementById('note-bids');
+        if (!bidsField.value) {
+            note.textContent = 'App 03 shows ' + pip.submittedThisWeek + ' submitted this week — confirm and enter above.';
+            note.classList.add('visible');
+        }
+    }
+}
+
+// ── FORM PERSISTENCE ──────────────────────────────────────────────────────────
+function loadForm() {
+    let saved = {};
+    try {
+        const raw = safeGet(STORAGE_KEY);
+        saved = raw ? JSON.parse(raw) : {};
+    } catch(e) { saved = {}; }
+
+    FIELD_IDS.forEach(id => {
+        if (saved[id] !== undefined) document.getElementById(id).value = saved[id];
+    });
+
+    if (!document.getElementById('f-weekof').value) {
+        document.getElementById('f-weekof').value = lastMondayStr();
+    }
+}
+
+function saveForm() {
+    const data = {};
+    FIELD_IDS.forEach(id => { data[id] = document.getElementById(id).value; });
+    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); } catch(e) {}
+}
+
+function clearForm() {
+    if (!confirm('Clear all fields? This cannot be undone.')) return;
+    FIELD_IDS.forEach(id => { document.getElementById(id).value = ''; });
+    document.getElementById('f-weekof').value = lastMondayStr();
+    document.getElementById('output-text').value = '';
+    document.getElementById('note-bids').classList.remove('visible');
+    try { localStorage.removeItem(STORAGE_KEY); } catch(e) {}
+}
+
+// ── GENERATE ──────────────────────────────────────────────────────────────────
+function formatDate(str) {
+    if (!str) return '[Date]';
+    const d = new Date(str + 'T00:00:00');
+    return d.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+}
+
+function fmt(id, prefix) {
+    const v = document.getElementById(id).value.trim();
+    if (!v) return '[ ]';
+    return (prefix || '') + v;
+}
+
+function generateSnapshot() {
+    saveForm();
+
+    const pip = getPipelineStats();
+    const scr = getScreenerStats();
+
+    const weekOf       = formatDate(document.getElementById('f-weekof').value);
+    const bids         = fmt('f-bids');
+    const calls        = fmt('f-calls');
+    const revenue      = fmt('f-revenue', '$');
+    const pipelineVal  = fmt('f-pipeline', '$');
+    const bar          = '━'.repeat(38);
+
+    const lines = [];
+    lines.push(bar);
+    lines.push('GSD WEEKLY SNAPSHOT — Week of ' + weekOf);
+    lines.push(bar);
+    lines.push('');
+
+    // Pipeline feed block
+    if (pip) {
+        lines.push('PIPELINE (App 03)');
+        lines.push('Active bids: ' + pip.active + '  |  Won (lifetime): ' + pip.won + '  |  Avg quoted rate: $' + (pip.avgRate || '—') + '/hr');
+    }
+    if (scr) {
+        lines.push('Screener (App 02 this week): ' + scr.total + ' screened  |  ' + scr.go + ' GO  |  ' + scr.nogo + ' NO-GO  |  ' + scr.goRate + '% GO rate');
+    }
+    if (pip || scr) { lines.push(''); }
+
+    lines.push('CORE METRICS');
+    lines.push('Bids submitted:  ' + bids + ' / target 3-5');
+    lines.push('Calls done:      ' + calls);
+    lines.push('Revenue:         ' + revenue);
+    lines.push('Pipeline value:  ' + pipelineVal);
+    lines.push('');
+    lines.push(bar);
+
+    document.getElementById('output-text').value = lines.join('\n');
+    document.getElementById('btn-copy').textContent = 'Copy to Clipboard';
+    document.getElementById('btn-copy').classList.remove('copied');
+}
+
+// ── COPY ─────────────────────────────────────────────────────────────────────
+function copySnapshot() {
+    const text = document.getElementById('output-text').value;
+    if (!text) return;
+
+    function onCopied() {
+        const btn = document.getElementById('btn-copy');
+        btn.textContent = '✓ Copied';
+        btn.classList.add('copied');
+        setTimeout(() => {
+            btn.textContent = 'Copy to Clipboard';
+            btn.classList.remove('copied');
+        }, 2200);
+    }
+
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(onCopied).catch(fallbackCopy);
+    } else {
+        fallbackCopy();
+    }
+
+    function fallbackCopy() {
+        const ta = document.createElement('textarea');
+        ta.value = text;
+        ta.style.position = 'fixed'; ta.style.opacity = '0';
+        document.body.appendChild(ta);
+        ta.focus(); ta.select();
+        try { document.execCommand('copy'); onCopied(); } catch(e) {}
+        document.body.removeChild(ta);
+    }
+}
+
+// ── INIT ─────────────────────────────────────────────────────────────────────
+window.addEventListener('DOMContentLoaded', () => {
+    loadForm();
+    renderFeed();
+    FIELD_IDS.forEach(id => {
+        document.getElementById(id).addEventListener('input', saveForm);
+    });
+});
+</script>
+</body>
+</html>
