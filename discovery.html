@@ -418,7 +418,7 @@ INPUT
 - Role: ${role || '(role)'}
 - Tag: ${tag || '(PKG1 / PKG2 / PKG3 / Multi)'}
 - Pain signal: ${pain || '(pain signal)'}
-- Funding hook: ${hook || '(round, source, date, stated use of funds)'}
+- Funding hook (format: Round, Source, Date, Use): ${hook || 'Series B, TechCrunch, 2026-05, hiring + platform'}
 - Recent post topic: ${post || '(recent post topic)'}
 
 TASK. Generate the full LinkedIn sequence. Key every message to the tag. Output five sections.
@@ -531,10 +531,17 @@ document.getElementById('buildBtn').addEventListener('click', function(){
 
 document.getElementById('copyBtn').addEventListener('click', function(){
   const txt = document.getElementById('output').textContent;
-  navigator.clipboard.writeText(txt).then(showToast, function(){
+  function fallback(){
     const ta = document.createElement('textarea'); ta.value = txt;
-    document.body.appendChild(ta); ta.select(); document.execCommand('copy'); ta.remove(); showToast();
-  });
+    document.body.appendChild(ta); ta.select();
+    try { document.execCommand('copy'); } catch(e) { alert('Copy failed. Paste manually.'); }
+    ta.remove(); showToast();
+  }
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(txt).then(showToast, fallback);
+  } else {
+    fallback();
+  }
 });
 
 document.getElementById('clearBtn').addEventListener('click', function(){
